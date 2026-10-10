@@ -90,6 +90,9 @@ export class App {
             }
         }, this.getFontSize());
 
+        // Für Fehlersuche in der Browser-Konsole
+        (window as any).jpad = this;
+
         this.keyBar = new KeyBar(this.root, this.editor, this.bridge, (html) => this.showInfo(html));
 
         this.wireMain();

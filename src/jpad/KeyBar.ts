@@ -10,13 +10,13 @@ type Key = { label: string, insert?: string, action?: string, aria?: string, wid
  */
 const KEYS: Key[] = [
     { label: icon("tab"), action: "tab", aria: "Einrücken" },
-    { label: "{ }", insert: "{|}" },
-    { label: "( )", insert: "(|)" },
+    { label: "{ }", insert: "{§}" },
+    { label: "( )", insert: "(§)" },
     { label: ";", insert: ";" },
     { label: "=", insert: " = " },
-    { label: "\" \"", insert: "\"|\"" },
+    { label: "\" \"", insert: "\"§\"" },
     { label: ".", insert: "." },
-    { label: "[ ]", insert: "[|]" },
+    { label: "[ ]", insert: "[§]" },
     { label: "<", insert: "<" },
     { label: ">", insert: ">" },
     { label: "+", insert: "+" },

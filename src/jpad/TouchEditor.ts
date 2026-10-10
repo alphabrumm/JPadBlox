@@ -7,7 +7,7 @@ import {
 import { defaultKeymap, history, historyKeymap, indentWithTab, undo, redo, undoDepth, redoDepth, toggleComment } from "@codemirror/commands";
 import { java } from "@codemirror/lang-java";
 import { syntaxHighlighting, HighlightStyle, indentOnInput, bracketMatching, indentUnit } from "@codemirror/language";
-import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap, startCompletion, acceptCompletion, completionStatus } from "@codemirror/autocomplete";
+import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap, startCompletion, acceptCompletion, completionStatus, hasNextSnippetField, nextSnippetField, clearSnippet } from "@codemirror/autocomplete";
 import { lintGutter, setDiagnostics, Diagnostic } from "@codemirror/lint";
 import { searchKeymap, highlightSelectionMatches } from "@codemirror/search";
 import { tags as t } from "@lezer/highlight";
@@ -61,6 +61,27 @@ const lineMarkField = StateField.define<DecorationSet>({
     provide: f => EditorView.decorations.from(f)
 });
 
+/**
+ * Enter innerhalb eines Methodenaufrufs bzw. einer Bedingung:
+ * - Gibt es noch weitere Parameter-Felder (nach einer Vervollständigung), springt Enter dorthin.
+ * - Stehen hinter dem Cursor nur noch schließende Klammern (ggf. mit Semikolon), springt Enter
+ *   hinter diese Klammern, statt die Zeile mitten im Aufruf umzubrechen:
+ *   h.laufe(5|)  → Enter →  h.laufe(5)|      if (x > 3|) → Enter → if (x > 3)|
+ */
+function enterInSnippet(view: EditorView): boolean {
+    if (hasNextSnippetField(view.state)) return nextSnippetField(view);
+    const sel = view.state.selection.main;
+    if (!sel.empty) return false;
+    const line = view.state.doc.lineAt(sel.head);
+    const rest = view.state.sliceDoc(sel.head, line.to);
+    const m = rest.match(/^[)\]]+;?\s*$/);
+    if (!m) return false;
+    clearSnippet(view);
+    const target = sel.head + rest.replace(/\s*$/, "").length;
+    view.dispatch({ selection: { anchor: target }, scrollIntoView: true, userEvent: "select" });
+    return true;
+}
+
 export type EditorListener = {
     onCursorActivity?: (offset: number) => void;
     onDocChanged?: (file: GUIFile) => void;
@@ -91,7 +112,13 @@ export class TouchEditor {
             indentOnInput(),
             indentUnit.of("   "),
             EditorState.tabSize.of(3),
-            bracketMatching(),
+            // Nur die *passende* Klammer hervorheben, nicht die am Cursor: Eine Markierung direkt am
+            // Cursor lässt den Browser getippte Zeichen vor statt hinter der Klammer einfügen.
+            bracketMatching({
+                renderMatch: (match) => match.end && match.matched
+                    ? [Decoration.mark({ class: "cm-matchingBracket" }).range(match.end.from, match.end.to)]
+                    : []
+            }),
             closeBrackets(),
             highlightActiveLine(),
             highlightSelectionMatches(),
@@ -113,6 +140,7 @@ export class TouchEditor {
             keymap.of([
                 ...closeBracketsKeymap,
                 ...completionKeymap,
+                { key: "Enter", run: enterInSnippet },
                 ...defaultKeymap,
                 ...searchKeymap,
                 ...historyKeymap,
@@ -257,6 +285,15 @@ export class TouchEditor {
             let from = model.getOffsetAt({ lineNumber: m.startLineNumber, column: m.startColumn });
             let to = model.getOffsetAt({ lineNumber: m.endLineNumber, column: m.endColumn });
             from = Math.min(from, docLength); to = Math.min(Math.max(to, from), docLength);
+            if (from == to) {
+                // Fehler ohne Länge (z. B. „Strichpunkt erwartet“ direkt am Cursor) würde CodeMirror als
+                // Widget zeichnen. Ein Widget direkt am Cursor bringt die Texteingabe im Browser
+                // durcheinander (getippte Zeichen landen an der falschen Stelle). Deshalb markieren
+                // wir stattdessen das Zeichen davor bzw. dahinter innerhalb derselben Zeile.
+                const line = this.view.state.doc.lineAt(from);
+                if (from > line.from) from--;
+                else if (to < line.to) to++;
+            }
             diagnostics.push({
                 from, to,
                 severity: m.severity >= monaco.MarkerSeverity.Error ? "error" : m.severity >= monaco.MarkerSeverity.Warning ? "warning" : "info",
@@ -295,11 +332,11 @@ export class TouchEditor {
         return this.view.state.selection.main.head;
     }
 
-    /** Fügt Text an der Cursorposition ein; "|" im Text markiert die neue Cursorposition. */
+    /** Fügt Text an der Cursorposition ein; "§" im Text markiert die neue Cursorposition. */
     insert(text: string) {
         const view = this.view;
-        let cursorDelta = text.indexOf("|");
-        if (cursorDelta >= 0) text = text.replace("|", ""); else cursorDelta = text.length;
+        let cursorDelta = text.indexOf("§");
+        if (cursorDelta >= 0) text = text.replace("§", ""); else cursorDelta = text.length;
         const range = view.state.selection.main;
         view.dispatch({
             changes: { from: range.from, to: range.to, insert: text },

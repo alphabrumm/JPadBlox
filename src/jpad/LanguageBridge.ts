@@ -52,13 +52,34 @@ function kindToType(kind: monaco.languages.CompletionItemKind): string {
     }
 }
 
+/**
+ * Einfügetext der Online-IDE für JPad anpassen:
+ * - Die Online-IDE hängt bei void-Methoden (und println) ein Semikolon an: "bellen();".
+ *   Schüler tippen das Semikolon aber aus Gewohnheit selbst – dann stünden zwei da.
+ *   Deshalb lassen wir es weg; der Cursor landet hinter der schließenden Klammer.
+ * - Ein $0 am Ende (Endposition des Cursors) entfällt; CodeMirror setzt den Cursor
+ *   ohnehin ans Ende, wenn keine Felder mehr folgen.
+ */
+export function prepareInsertText(text: string, isSnippet: boolean): string {
+    if (isSnippet) {
+        text = text.replace(/\$\{0\}$|\$0$/, "");
+        text = text.replace(/\);$/, ")");
+    }
+    return text;
+}
+
 /** Monaco-Snippet-Syntax ($1, ${1:x}, ${1|a,b|}, $0) in CodeMirror-Syntax umwandeln. */
 export function convertSnippet(s: string): string {
     return s
         .replace(/\$\{(\d+)\|([^|,}]*)[^|}]*\|\}/g, (_m, n, first) => "${" + n + ":" + first + "}")
-        .replace(/\$\{0(:[^}]*)?\}/g, "${99}")
-        .replace(/\$0(?!\d)/g, "${99}")
+        .replace(/\$\{0(:[^}]*)?\}/g, (_m, name) => "${" + (name ? name.substring(1) : "") + "}")
+        .replace(/\$0(?!\d)/g, "${}")
         .replace(/\$(\d+)/g, (_m, n) => "${" + n + "}");
+}
+
+/** Enthält der (Monaco-)Snippet-Text noch Felder? */
+export function hasSnippetFields(s: string): boolean {
+    return /\$(\d|\{)/.test(s);
 }
 
 export class LanguageBridge {
@@ -130,8 +151,8 @@ export class LanguageBridge {
             const rangeStart = range ? model.getOffsetAt({ lineNumber: range.startLineNumber, column: range.startColumn }) : from;
             const rangeEnd = range ? model.getOffsetAt({ lineNumber: range.endLineNumber, column: range.endColumn }) : requestPos;
 
-            const isSnippet = ((item.insertTextRules || 0) & monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet) != 0;
-            const insertText = item.insertText || label;
+            const rawSnippet = ((item.insertTextRules || 0) & monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet) != 0;
+            const insertText = prepareInsertText(item.insertText || label, rawSnippet);
 
             const doc = item.documentation;
             const docText = doc == null ? undefined : (typeof doc == "string" ? doc : doc.value);
@@ -152,7 +173,7 @@ export class LanguageBridge {
                     // Seit der Anfrage weiter getippte Zeichen mit ersetzen
                     const end = Math.max(to, rangeEnd + (to - requestPos));
                     const start = Math.min(rangeStart, _from);
-                    if (isSnippet) {
+                    if (rawSnippet && hasSnippetFields(insertText)) {
                         snippet(convertSnippet(insertText))(view, _c, start, end);
                     } else {
                         view.dispatch({
@@ -172,6 +193,15 @@ export class LanguageBridge {
                             view.dispatch({ changes, userEvent: "input.complete" });
                         }
                     }
+                    // Die DOM-Auswahl nachziehen. Ohne das steht der Browser-Cursor nach dem Einfügen
+                    // u. U. noch vor der eingefügten Klammer, und das nächste getippte Zeichen
+                    // (meist das Semikolon) landet an der falschen Stelle.
+                    requestAnimationFrame(() => {
+                        const sel = view.state.selection.main;
+                        if (!sel.empty || sel.head == 0) return;
+                        view.dispatch({ selection: { anchor: sel.head - 1 } });
+                        view.dispatch({ selection: { anchor: sel.head } });
+                    });
                     this.onAfterCompletion?.();
                 }
             };
