@@ -149,7 +149,10 @@ export class App {
 
         <main class="jp-main">
             <section class="jp-pane jp-pane-code" aria-label="Quelltext">
-                <nav class="jp-filetabs" data-ref="fileTabs" aria-label="Dateien"></nav>
+                <div class="jp-filebar">
+                    <nav class="jp-filetabs" data-ref="fileTabs" aria-label="Dateien"></nav>
+                    <button class="jp-iconbtn jp-layoutbtn" data-ref="layoutBtn"></button>
+                </div>
                 <div class="jp-editor" data-ref="editorHost"></div>
                 <div class="jp-signature" data-ref="signature" hidden></div>
             </section>
@@ -286,10 +289,22 @@ export class App {
         // Breites Layout (iPad quer, Laptop) oder Reiter-Layout (Handy, iPad hoch)
         const mq = matchMedia("(min-width: 900px) and (min-aspect-ratio: 1/1)");
         const applyLayout = () => {
-            this.root.dataset.layout = mq.matches ? "split" : "tabs";
+            const focus = this.getEditorFullWidth();
+            this.root.dataset.wide = String(mq.matches);
+            this.root.dataset.layout = mq.matches && !focus ? "split" : "tabs";
+            const btn = this.el.layoutBtn;
+            btn.innerHTML = icon(focus ? "shrink" : "expand");
+            const label = focus ? "Ausgabe wieder rechts neben dem Editor anzeigen" : "Editor auf volle Breite vergrößern";
+            btn.setAttribute("aria-label", label);
+            btn.title = label;
             this.setView(this.view);
         };
         mq.addEventListener("change", applyLayout);
+        this.el.layoutBtn.addEventListener("pointerdown", e => e.preventDefault()); // Tastatur offen lassen
+        this.el.layoutBtn.addEventListener("click", () => {
+            this.setEditorFullWidth(!this.getEditorFullWidth());
+            applyLayout();
+        });
         applyLayout();
     }
 
@@ -789,6 +804,15 @@ export class App {
     closeDrawer() {
         this.root.classList.remove("drawer-open");
         this.el.drawer.setAttribute("inert", "");
+    }
+
+    /** Editor auf voller Breite (Ausgabe/Variablen/Probleme als Reiter unten), nur im Querformat relevant */
+    getEditorFullWidth(): boolean {
+        try { return localStorage.getItem("jpad.editorFullWidth") == "1"; } catch (e) { return false; }
+    }
+
+    setEditorFullWidth(on: boolean) {
+        try { localStorage.setItem("jpad.editorFullWidth", on ? "1" : "0"); } catch (e) { }
     }
 
     getThemeChoice(): ThemeChoice {

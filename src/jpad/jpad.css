@@ -923,7 +923,7 @@ html.keyboard-open.editor-focused .jp-bottomnav { display: none; }
 
 /* ---------- Schmale Bildschirme ---------- */
 
-.jp-app[data-layout="tabs"] .jp-wide-only { display: none !important; }
+.jp-app:not([data-wide="true"]) .jp-wide-only { display: none !important; }
 
 @media (max-width: 520px) {
     .jp-topbar { padding: 0 4px; gap: 2px; }
@@ -1298,3 +1298,16 @@ html.ipad-window-controls .jp-topbar { padding-left: 84px; }
 :root[data-effective="dark"] .jp-variables .jo_treeview_outer { background-color: #212735 !important; }
 :root[data-effective="dark"] .jp-variables .jo_treeview_caption { background-color: #2A3142 !important; color: var(--ink-2); }
 :root[data-effective="dark"] .jp-variables .jo_treeview_selected { background-color: var(--accent-soft) !important; }
+
+/* Dateileiste mit Layout-Knopf rechts */
+.jp-filebar {
+    display: flex;
+    align-items: flex-end;
+    border-bottom: 1px solid var(--line);
+    flex: none;
+}
+.jp-filebar .jp-filetabs { flex: 1; min-width: 0; border-bottom: 0; }
+.jp-layoutbtn { flex: none; margin: 0 6px 2px 4px; width: 40px; height: 40px; color: var(--ink-2); }
+.jp-layoutbtn .jp-icon { width: 20px; height: 20px; }
+/* Nur sinnvoll, wenn der Bildschirm breit genug für das Nebeneinander ist */
+.jp-app:not([data-wide="true"]) .jp-layoutbtn { display: none; }
