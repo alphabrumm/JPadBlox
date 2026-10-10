@@ -10,6 +10,7 @@ import "/assets/css/embedded.css";
 import "/assets/css/helper.css";
 import "/assets/css/icons.css";
 import "/assets/css/run.css";
+import "/assets/css/debugger.css";
 
 // Schriften lokal ausliefern (keine Verbindung zu Google & Co., datenschutzfreundlich)
 import "@fontsource/atkinson-hyperlegible/400.css";

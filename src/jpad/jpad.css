@@ -264,8 +264,10 @@ button:focus-visible, input:focus-visible, a:focus-visible {
 .jp-app[data-layout="tabs"][data-view="code"] .jp-pane-side { display: none; }
 .jp-app[data-layout="tabs"]:not([data-view="code"]) .jp-pane-code { display: none; }
 .jp-app[data-layout="tabs"] .jp-side-switch { display: none; }
-.jp-app[data-side="output"] .jp-problems { display: none; }
-.jp-app[data-side="problems"] .jp-output { visibility: hidden; position: absolute; inset: 0; pointer-events: none; }
+.jp-app:not([data-side="problems"]) .jp-problems { display: none; }
+.jp-app:not([data-side="variables"]) .jp-variables { display: none; }
+/* Die Ausgabe bleibt gerendert (Grafik läuft weiter), wird aber verdeckt */
+.jp-app:not([data-side="output"]) .jp-output { visibility: hidden; position: absolute; inset: 0; pointer-events: none; }
 .jp-pane-side { position: relative; }
 
 /* ---------- Dateireiter ---------- */
@@ -944,3 +946,62 @@ html.keyboard-open.editor-focused .jp-bottomnav { display: none; }
 .jp-app[data-runstate="running"] [data-ref="runBtn"] { display: none !important; }
 .jp-app [data-ref="pauseBtn"] { display: none !important; }
 .jp-app[data-runstate="running"] [data-ref="pauseBtn"] { display: inline-grid !important; }
+
+/* ---------- Schritt für Schritt ---------- */
+
+.jp-stepbtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 44px;
+    padding: 0 14px 0 10px;
+    border-radius: 14px;
+    background: var(--surface);
+    border: 1.5px solid var(--line);
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.jp-stepbtn .jp-icon { width: 20px; height: 20px; }
+.jp-stepbtn:active { transform: translateY(1px); background: var(--surface-2); }
+.jp-stepbtn:not(.jo_active) { opacity: 0.4; }
+
+/* Während des schrittweisen Ablaufs: Schritt-Knopf in Textmarker-Gelb */
+.jp-app[data-runstate="paused"] .jp-stepbtn {
+    background: var(--marker-soft);
+    border-color: var(--marker);
+}
+
+@media (max-width: 520px) {
+    .jp-stepbtn span { display: none; }
+    .jp-stepbtn { padding: 0 10px; }
+}
+
+/* Variablen (Debugger der Online-IDE) */
+.jp-variables {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 8px 12px;
+    background: var(--surface);
+    color: var(--ink);
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.jp-variables .jo_alternativeText { font-family: var(--font-ui); height: auto; padding: 0; }
+.jp-variables .jp-empty .jp-icon { color: var(--accent); }
+.jp-variables .jp-empty p { max-width: 36ch; }
+
+/* Handy: Kopfzeile darf nie breiter als der Bildschirm werden */
+.jp-app { grid-template-columns: minmax(0, 1fr); }
+.jp-topbar { min-width: 0; overflow: hidden; }
+.jp-project { flex: 0 1 auto; }
+
+@media (max-width: 520px) {
+    .jp-app .jp-step-more { display: none !important; }
+    .jp-run-tools { margin-left: 2px; gap: 2px; }
+    .jp-bottomnav button { font-size: 11.5px; }
+}

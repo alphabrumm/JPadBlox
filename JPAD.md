@@ -10,6 +10,8 @@ Bedienung und Gestaltung.
 - **Hilfsleiste über der Bildschirmtastatur** mit `{ } ( ) ; = " " .` usw., Tab, Cursortasten,
   Vorschlägen und Info zur Stelle am Cursor.
 - **Vervollständigung, Fehleranzeige und Parameterhilfe** direkt aus den Sprachdiensten der Online-IDE.
+- **Schritt für Schritt**: Der Knopf „Schritt“ führt das Programm Zeile für Zeile aus; die aktuelle Zeile
+  ist gelb markiert, die Ansicht „Variablen“ zeigt alle Werte (geänderte Werte blinken kurz auf).
 - **Kein Mouse-over nötig**: alle Funktionen sind per Tippen erreichbar.
 - **Zwei Layouts**: nebeneinander (iPad quer, Laptop) oder mit Reitern Code/Ausgabe/Probleme (Handy, iPad hoch).
 - **Hell, Dunkel oder automatisch** nach Systemeinstellung.

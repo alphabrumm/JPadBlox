@@ -13,7 +13,8 @@ import { JavaLanguage } from "../compiler/java/JavaLanguage.js";
 import { SchedulerState } from "../compiler/common/interpreter/SchedulerState.js";
 import { WorkspaceExporter } from "../client/workspace/WorkspaceImporterExporter.js";
 
-type View = "code" | "output" | "problems";
+type View = "code" | "output" | "variables" | "problems";
+type SideView = "output" | "variables" | "problems";
 type ThemeChoice = "auto" | "light" | "dark";
 
 const SPEEDS: { label: string, value: number | "max" }[] = [
@@ -43,7 +44,7 @@ export class App {
     el: Record<string, HTMLElement> = {};
 
     view: View = "code";
-    sideView: "output" | "problems" = "output";
+    sideView: SideView = "output";
     errorCount = 0;
     modifiedSaveTimer: any;
 
@@ -75,6 +76,8 @@ export class App {
         const starterScripts = STARTER_FILES.map(f => ({ title: f.name, text: f.text }));
         // Liegt das Projekt schon in der Datenbank, lädt MainEmbedded es von dort.
         await this.main.init(starterScripts);
+
+        this.setupVariablesView();
 
         this.bridge = new LanguageBridge(<JavaLanguage>this.main.getCurrentProgrammingLanguage(),
             () => this.main.getActiveFile()?.getMonacoModel());
@@ -135,9 +138,9 @@ export class App {
                 <button class="jp-iconbtn" data-ref="saveBtn" aria-label="Projekt als Datei sichern" title="Projekt als Datei sichern">${icon("save")}<span class="jp-dot"></span></button>
             </div>
             <div class="jp-toolgroup jp-run-tools">
-                <button class="jp-iconbtn jp-step" data-ref="stepInto" aria-label="Hineinspringen">${icon("stepInto")}</button>
-                <button class="jp-iconbtn jp-step jp-wide-only" data-ref="stepOut" aria-label="Herausspringen">${icon("stepOut")}</button>
-                <button class="jp-iconbtn jp-step" data-ref="stepOver" aria-label="Einzelschritt">${icon("stepOver")}</button>
+                <button class="jp-iconbtn jp-step jp-step-more" data-ref="stepOver" aria-label="Methode überspringen" title="Methode überspringen">${icon("stepOver")}</button>
+                <button class="jp-iconbtn jp-step jp-step-more jp-wide-only" data-ref="stepOut" aria-label="Methode verlassen" title="Methode verlassen">${icon("stepOut")}</button>
+                <button class="jp-stepbtn" data-ref="stepInto" aria-label="Schritt: nächste Zeile ausführen" title="Schritt: nächste Zeile ausführen">${icon("stepInto")}<span>Schritt</span></button>
                 <button class="jp-iconbtn jp-stop" data-ref="stopBtn" aria-label="Programm anhalten">${icon("stop")}</button>
                 <button class="jp-run" data-ref="pauseBtn" aria-label="Pause">${icon("pause")}</button>
                 <button class="jp-run" data-ref="runBtn" aria-label="Programm starten">${icon("play")}</button>
@@ -153,9 +156,11 @@ export class App {
             <section class="jp-pane jp-pane-side">
                 <div class="jp-segmented jp-side-switch" role="tablist">
                     <button role="tab" data-side="output">${icon("output")}<span>Ausgabe</span></button>
+                    <button role="tab" data-side="variables">${icon("variables")}<span>Variablen</span></button>
                     <button role="tab" data-side="problems">${icon("problems")}<span>Probleme</span><span class="jp-badge" data-ref="sideBadge"></span></button>
                 </div>
                 <div class="jp-output" data-ref="outputHost"></div>
+                <div class="jp-variables joeCssFence" data-ref="variables"></div>
                 <div class="jp-problems" data-ref="problems"></div>
             </section>
         </main>
@@ -163,6 +168,7 @@ export class App {
         <nav class="jp-bottomnav" aria-label="Ansicht">
             <button data-view="code">${icon("code")}<span>Code</span></button>
             <button data-view="output">${icon("output")}<span>Ausgabe</span></button>
+            <button data-view="variables">${icon("variables")}<span>Variablen</span></button>
             <button data-view="problems">${icon("problems")}<span>Probleme</span><span class="jp-badge" data-ref="navBadge"></span></button>
         </nav>
 
@@ -289,6 +295,22 @@ export class App {
         this.main.getMainEditor().onDidChangeModelDecorations(() => this.updateProgramPointer());
     }
 
+    /** Die Variablenanzeige (Debugger) der Online-IDE in die Fläche „Variablen“ umziehen. */
+    private setupVariablesView() {
+        const host = this.el.variables;
+        new ThemeManager(<HTMLDivElement>host).switchTheme(this.effectiveTheme());
+        const dbg = this.main.$debuggerDiv?.[0];
+        const alt = this.main.$alternativeDebuggerDiv?.[0];
+        if (alt) {
+            alt.innerHTML = `<div class="jp-empty">${icon("variables")}
+                <p>Hier siehst du die Variablen und ihre Werte, während dein Programm Schritt für Schritt läuft.</p>
+                <p class="jp-hint">Tippe oben auf „Schritt“. Jeder weitere Tipp führt die nächste Zeile aus;
+                die aktuelle Zeile ist im Code gelb markiert.</p></div>`;
+            host.appendChild(alt);
+        }
+        if (dbg) host.appendChild(dbg);
+    }
+
     private updateProgramPointer() {
         const model = this.main.getMainEditor().getModel();
         if (!model || !this.editor || model != this.editor.getFile()?.getMonacoModel()) {
@@ -325,6 +347,20 @@ export class App {
             else this.setSideView("output");
         });
 
+        // Einzelschritt: Code sichtbar machen, damit man die gelb markierte Zeile sieht
+        this.el.stepInto.addEventListener("pointerdown", () => {
+            if (!this.el.stepInto.classList.contains("jo_active")) {
+                if (this.errorCount > 0) {
+                    this.toast("Das Programm enthält noch Fehler.", "problems");
+                    this.setView("problems");
+                }
+                return;
+            }
+            this.main.flush();
+            if (this.root.dataset.layout == "tabs") this.setView("code");
+            else if (this.sideView == "problems") this.setSideView("variables");
+        });
+
         const am = this.main.getActionManager();
         const reg = (id: string, el: HTMLElement) => am.registerButton(id, jQuery(el));
         reg("interpreter.start", this.el.runBtn);
@@ -352,7 +388,7 @@ export class App {
 
     setView(view: View) {
         this.view = view;
-        if (view == "output" || view == "problems") this.sideView = view;
+        if (view != "code") this.sideView = view;
         this.root.dataset.view = view;
         this.root.dataset.side = this.sideView;
         this.root.querySelectorAll<HTMLElement>(".jp-bottomnav [data-view]").forEach(b =>
@@ -364,7 +400,7 @@ export class App {
         setTimeout(() => jQuery('.jo_graphics').trigger('sizeChanged'), 50);
     }
 
-    setSideView(side: "output" | "problems") {
+    setSideView(side: SideView) {
         this.sideView = side;
         if (this.root.dataset.layout == "tabs") this.setView(side);
         else this.setView(this.view == "code" ? "code" : side);
@@ -731,6 +767,7 @@ export class App {
         document.documentElement.dataset.effective = eff;
         const ide = this.root.querySelector<HTMLDivElement>(".jp-ide");
         if (ide) new ThemeManager(ide).switchTheme(eff);
+        if (this.el.variables) new ThemeManager(<HTMLDivElement>this.el.variables).switchTheme(eff);
         const meta = document.querySelectorAll('meta[name="theme-color"]');
         meta.forEach(m => m.setAttribute("content", eff == "dark" ? "#151922" : "#F3F5F9"));
     }

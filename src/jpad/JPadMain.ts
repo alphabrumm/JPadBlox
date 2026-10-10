@@ -91,9 +91,6 @@ export class JPadMain extends MainEmbedded {
 
     drawClassDiagrams(onlyUpdateIdentifiers: boolean) { }
 
-    hideDebugger() { }
-    showDebugger() { }
-
     adjustWidthToWorld(): void { }
 
     // ---------- Dateiverwaltung für die JPad-Oberfläche ----------
