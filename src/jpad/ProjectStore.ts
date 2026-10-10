@@ -34,28 +34,11 @@ function lsSet(key: string, value: string) {
     try { localStorage.setItem(key, value); } catch (e) { /* privater Modus o. ä. */ }
 }
 
+/** Neue Projekte starten mit einer leeren Datei. */
 export const STARTER_FILES: ProjectFile[] = [{
     name: "Hauptprogramm.java",
-    text: `// Willkommen bei JPad!
-// Tippe oben rechts auf ▶, um das Programm zu starten.
-
-Hund bello = new Hund("Bello");
-bello.bellen();
-
-class Hund {
-
-   private String name;
-
-   public Hund(String name) {
-      this.name = name;
-   }
-
-   public void bellen() {
-      println(name + " sagt: Wuff!");
-   }
-
-}
-`}];
+    text: ""
+}];
 
 export class ProjectStore {
 
