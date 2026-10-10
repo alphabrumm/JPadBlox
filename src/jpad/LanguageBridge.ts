@@ -1,0 +1,247 @@
+import * as monaco from 'monaco-editor';
+import type { Completion, CompletionContext, CompletionResult } from "@codemirror/autocomplete";
+import { snippet } from "@codemirror/autocomplete";
+import type { EditorView } from "@codemirror/view";
+import MarkdownIt from "markdown-it";
+import { JavaLanguage } from "../compiler/java/JavaLanguage.js";
+import { JavaCompletionItemProvider } from "../compiler/java/monacoproviders/JavaCompletionItemProvider.js";
+import { JavaHoverProvider } from "../compiler/java/monacoproviders/JavaHoverProvider.js";
+import { JavaSignatureHelpProvider } from "../compiler/java/monacoproviders/JavaSignatureHelpProvider.js";
+import { JavaFormatter } from "../compiler/java/monacoproviders/JavaFormatter.js";
+
+/**
+ * Brücke zwischen den Sprachdiensten der Online-IDE (geschrieben als Monaco-Provider)
+ * und dem Touch-Editor (CodeMirror). Die Provider werden direkt aufgerufen;
+ * ihre Ergebnisse werden in CodeMirror-Strukturen umgewandelt.
+ */
+
+const noCancel: monaco.CancellationToken = {
+    isCancellationRequested: false,
+    onCancellationRequested: () => ({ dispose() { } })
+} as any;
+
+export type SignatureInfo = {
+    /** Signatur als HTML mit hervorgehobenem aktuellem Parameter */
+    html: string;
+    documentation?: string;
+};
+
+const md = new MarkdownIt({ html: false, linkify: false, breaks: true });
+
+export function renderMarkdown(text: string): string {
+    return md.render(text);
+}
+
+function kindToType(kind: monaco.languages.CompletionItemKind): string {
+    const K = monaco.languages.CompletionItemKind;
+    switch (kind) {
+        case K.Method: return "method";
+        case K.Function: return "function";
+        case K.Constructor: return "method";
+        case K.Field: case K.Property: return "property";
+        case K.Variable: return "variable";
+        case K.Class: return "class";
+        case K.Interface: return "interface";
+        case K.Enum: return "enum";
+        case K.EnumMember: case K.Constant: return "constant";
+        case K.Keyword: return "keyword";
+        case K.Module: return "namespace";
+        case K.TypeParameter: return "type";
+        case K.Snippet: return "text";
+        default: return "text";
+    }
+}
+
+/** Monaco-Snippet-Syntax ($1, ${1:x}, ${1|a,b|}, $0) in CodeMirror-Syntax umwandeln. */
+export function convertSnippet(s: string): string {
+    return s
+        .replace(/\$\{(\d+)\|([^|,}]*)[^|}]*\|\}/g, (_m, n, first) => "${" + n + ":" + first + "}")
+        .replace(/\$\{0(:[^}]*)?\}/g, "${99}")
+        .replace(/\$0(?!\d)/g, "${99}")
+        .replace(/\$(\d+)/g, (_m, n) => "${" + n + "}");
+}
+
+export class LanguageBridge {
+
+    private completionProvider: JavaCompletionItemProvider;
+    private hoverProvider: JavaHoverProvider;
+    private signatureProvider: JavaSignatureHelpProvider;
+    private formatter: JavaFormatter;
+
+    constructor(language: JavaLanguage, private getModel: () => monaco.editor.ITextModel | undefined) {
+        this.completionProvider = new JavaCompletionItemProvider(language);
+        this.hoverProvider = new JavaHoverProvider(language);
+        this.signatureProvider = new JavaSignatureHelpProvider(language);
+        this.formatter = new JavaFormatter(language);
+    }
+
+    private toPosition(model: monaco.editor.ITextModel, offset: number): monaco.Position {
+        const p = model.getPositionAt(offset);
+        return new monaco.Position(p.lineNumber, p.column);
+    }
+
+    /** Quelle für die CodeMirror-Autovervollständigung */
+    completionSource = async (context: CompletionContext): Promise<CompletionResult | null> => {
+        const model = this.getModel();
+        if (!model) return null;
+
+        const word = context.matchBefore(/[\wäöüÄÖÜß@]*/);
+        const charBefore = context.state.sliceDoc(Math.max(0, context.pos - 1), context.pos);
+        const lineBefore = context.state.doc.lineAt(context.pos);
+        const textBefore = context.state.sliceDoc(lineBefore.from, context.pos);
+
+        if (!context.explicit) {
+            const typedWord = word && word.to > word.from;
+            const afterDot = charBefore == ".";
+            const afterNew = /\bnew $/.test(textBefore);
+            if (!typedWord && !afterDot && !afterNew) return null;
+            // Keine Vorschläge in Kommentaren
+            if (/^\s*(\/\/|\*|\/\*)/.test(textBefore) || /\/\/.*$/.test(textBefore.replace(/"[^"]*"/g, '""'))) return null;
+        }
+
+        const requestPos = context.pos;
+        let list: monaco.languages.CompletionList | null | undefined;
+        try {
+            list = await this.completionProvider.provideCompletionItems(model, this.toPosition(model, requestPos),
+                { triggerKind: context.explicit ? 0 : 1, triggerCharacter: charBefore } as any, noCancel);
+        } catch (e) {
+            console.warn("Vervollständigung fehlgeschlagen", e);
+            return null;
+        }
+        if (!list || !list.suggestions || list.suggestions.length == 0) return null;
+        if (context.aborted) return null;
+
+        const from = word ? word.from : requestPos;
+
+        // Monaco sortiert nach sortText; CodeMirror nach Treffergüte + boost.
+        const sorted = list.suggestions.slice().sort((a, b) =>
+            (a.sortText || (typeof a.label == "string" ? a.label : a.label.label))
+                .localeCompare(b.sortText || (typeof b.label == "string" ? b.label : b.label.label)));
+        const n = sorted.length;
+
+        const options: Completion[] = sorted.map((item, rank) => {
+            const label = typeof item.label == "string" ? item.label : item.label.label;
+            const labelDetail = typeof item.label == "string" ? undefined : (item.label.detail || item.label.description);
+
+            let range: monaco.IRange | undefined = undefined;
+            if (item.range) {
+                range = (item.range as any).replace ? (item.range as any).replace : <monaco.IRange>item.range;
+            }
+            const rangeStart = range ? model.getOffsetAt({ lineNumber: range.startLineNumber, column: range.startColumn }) : from;
+            const rangeEnd = range ? model.getOffsetAt({ lineNumber: range.endLineNumber, column: range.endColumn }) : requestPos;
+
+            const isSnippet = ((item.insertTextRules || 0) & monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet) != 0;
+            const insertText = item.insertText || label;
+
+            const doc = item.documentation;
+            const docText = doc == null ? undefined : (typeof doc == "string" ? doc : doc.value);
+
+            const completion: Completion = {
+                label: label,
+                displayLabel: label,
+                detail: labelDetail || (item.detail && item.detail.length < 60 ? item.detail : undefined),
+                type: kindToType(item.kind),
+                boost: Math.round(99 - (rank * 198) / Math.max(1, n - 1)),
+                info: (docText || (item.detail && item.detail.length >= 60)) ? () => {
+                    const div = document.createElement("div");
+                    div.className = "jp-doc";
+                    div.innerHTML = renderMarkdown((item.detail && item.detail.length >= 60 ? "```\n" + item.detail + "\n```\n" : "") + (docText || ""));
+                    return div;
+                } : undefined,
+                apply: (view: EditorView, _c: Completion, _from: number, to: number) => {
+                    // Seit der Anfrage weiter getippte Zeichen mit ersetzen
+                    const end = Math.max(to, rangeEnd + (to - requestPos));
+                    const start = Math.min(rangeStart, _from);
+                    if (isSnippet) {
+                        snippet(convertSnippet(insertText))(view, _c, start, end);
+                    } else {
+                        view.dispatch({
+                            changes: { from: start, to: end, insert: insertText },
+                            selection: { anchor: start + insertText.length },
+                            userEvent: "input.complete"
+                        });
+                    }
+                    if (item.additionalTextEdits && item.additionalTextEdits.length > 0) {
+                        const m = this.getModel();
+                        if (m) {
+                            const changes = item.additionalTextEdits.map(e => ({
+                                from: m.getOffsetAt({ lineNumber: e.range.startLineNumber, column: e.range.startColumn }),
+                                to: m.getOffsetAt({ lineNumber: e.range.endLineNumber, column: e.range.endColumn }),
+                                insert: e.text || ""
+                            }));
+                            view.dispatch({ changes, userEvent: "input.complete" });
+                        }
+                    }
+                    this.onAfterCompletion?.();
+                }
+            };
+            return completion;
+        });
+
+        return {
+            from,
+            options,
+            validFor: /^[\wäöüÄÖÜß@]*$/
+        };
+    }
+
+    onAfterCompletion: (() => void) | undefined;
+
+    async signatureHelp(offset: number): Promise<SignatureInfo | null> {
+        const model = this.getModel();
+        if (!model) return null;
+        try {
+            const result = await this.signatureProvider.provideSignatureHelp(model, this.toPosition(model, offset), noCancel,
+                { triggerKind: 1, isRetrigger: false } as any);
+            const help = result?.value;
+            if (!help || help.signatures.length == 0) return null;
+            const sig = help.signatures[help.activeSignature || 0] || help.signatures[0];
+            const activeParam = sig.activeParameter ?? help.activeParameter ?? 0;
+            const param = sig.parameters?.[activeParam];
+            let html = escapeHtml(sig.label);
+            if (param) {
+                let start: number, end: number;
+                if (Array.isArray(param.label)) {
+                    [start, end] = param.label as [number, number];
+                } else {
+                    start = sig.label.indexOf(<string>param.label);
+                    end = start + (<string>param.label).length;
+                }
+                if (start >= 0) {
+                    html = escapeHtml(sig.label.substring(0, start)) + "<b>" + escapeHtml(sig.label.substring(start, end)) + "</b>"
+                        + escapeHtml(sig.label.substring(end));
+                }
+            }
+            const docVal = (d: any) => d == null ? undefined : (typeof d == "string" ? d : d.value);
+            return { html, documentation: docVal(param?.documentation) || docVal(sig.documentation) };
+        } catch (e) {
+            return null;
+        }
+    }
+
+    async hover(offset: number): Promise<string | null> {
+        const model = this.getModel();
+        if (!model) return null;
+        try {
+            const h = await this.hoverProvider.provideHover(model, this.toPosition(model, offset), noCancel);
+            if (!h || !h.contents || h.contents.length == 0) return null;
+            return h.contents.map(c => renderMarkdown(c.value)).join("");
+        } catch (e) {
+            return null;
+        }
+    }
+
+    /** Formatiert den Code im Modell; die Änderungen erreichen den Editor über die Modell-Synchronisation. */
+    async format(): Promise<boolean> {
+        const model = this.getModel();
+        if (!model) return false;
+        const edits = await this.formatter.provideDocumentFormattingEdits(model, { tabSize: 3, insertSpaces: true }, noCancel);
+        if (!edits || edits.length == 0) return false;
+        model.pushEditOperations([], edits.map(e => ({ range: e.range, text: e.text })), () => null);
+        return true;
+    }
+}
+
+export function escapeHtml(s: string): string {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
