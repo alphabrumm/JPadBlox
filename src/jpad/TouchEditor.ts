@@ -25,7 +25,7 @@ import { LanguageBridge } from "./LanguageBridge.js";
  * sofort in das Monaco-Modell der Datei übertragen, auf dem Compiler und Sprachdienste arbeiten.
  */
 
-const javaHighlight = HighlightStyle.define([
+export const javaHighlight = HighlightStyle.define([
     { tag: [t.keyword, t.modifier, t.controlKeyword, t.operatorKeyword, t.definitionKeyword, t.moduleKeyword], color: "var(--syn-keyword)", fontWeight: "600" },
     { tag: [t.typeName, t.className, t.namespace], color: "var(--syn-type)" },
     { tag: [t.string, t.special(t.string), t.character], color: "var(--syn-string)" },

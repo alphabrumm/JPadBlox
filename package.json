@@ -73,6 +73,7 @@
     "@codemirror/view": "^6.36.0",
     "@lezer/highlight": "^1.2.1",
     "@fontsource/atkinson-hyperlegible": "^5.1.0",
-    "@fontsource/jetbrains-mono": "^5.1.0"
+    "@fontsource/jetbrains-mono": "^5.1.0",
+    "@lezer/java": "^1.1.0"
   }
 }

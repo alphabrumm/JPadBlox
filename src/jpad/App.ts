@@ -208,6 +208,11 @@ export class App {
                 </div>
                 <p class="jp-hint">In der Zeitlupe siehst du im Code, welche Zeile gerade ausgeführt wird.</p>
 
+                <h2>Nachschlagen</h2>
+                <div class="jp-menu-actions">
+                    <button data-ref="handbookBtn">${icon("book")}<span>Class Handbuch</span></button>
+                </div>
+
                 <h2>Über JPad</h2>
                 <p class="jp-about">JPad ist eine Oberfläche für Tablets und Handys auf Basis der
                 <a href="https://www.online-ide.de" target="_blank" rel="noopener">Online-IDE</a> von Martin Pabst.
@@ -248,6 +253,11 @@ export class App {
         this.el.fileInput.addEventListener("change", () => {
             const f = (<HTMLInputElement>this.el.fileInput).files?.[0];
             if (f) this.importProject(f);
+        });
+        this.el.handbookBtn.addEventListener("click", async () => {
+            this.closeDrawer();
+            const { openHandbook } = await import("./Handbook.js");
+            openHandbook(this.root);
         });
         this.el.saveFileBtn.addEventListener("click", () => { this.closeDrawer(); this.exportProject(); });
 
