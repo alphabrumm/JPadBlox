@@ -14,7 +14,9 @@
     "preview-embedded": "npm run build-embedded && vite preview --port 3000 --host --config vite.config-embedded.js",
     "build_tools": "tsc --project tsconfig_development-tools.json",
     "test": "vitest --config vitest.config.ts",
-    "deploy": "node src/development/ZipAndUpload.js"
+    "deploy": "node src/development/ZipAndUpload.js",
+    "dev-jpad": "vite --port 3000 --host --config vite.config-jpad.ts",
+    "build-jpad": "vite build --config vite.config-jpad.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",
@@ -60,6 +62,15 @@
     "sql.js": "^1.11.0",
     "three": "^0.185.0",
     "upng-js": "^2.1.0",
-    "w2ui": "^2.0.0"
+    "w2ui": "^2.0.0",
+    "@codemirror/autocomplete": "^6.18.0",
+    "@codemirror/commands": "^6.8.0",
+    "@codemirror/lang-java": "^6.0.1",
+    "@codemirror/language": "^6.11.0",
+    "@codemirror/lint": "^6.8.0",
+    "@codemirror/search": "^6.5.0",
+    "@codemirror/state": "^6.5.0",
+    "@codemirror/view": "^6.36.0",
+    "@lezer/highlight": "^1.2.1"
   }
 }

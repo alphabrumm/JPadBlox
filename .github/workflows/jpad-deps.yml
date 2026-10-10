@@ -1,0 +1,17 @@
+name: J-Pad Abhängigkeiten paketieren
+on:
+  workflow_dispatch:
+  push:
+    branches: [jpad]
+    paths: [package.json, .github/workflows/jpad-deps.yml]
+jobs:
+  deps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install --no-audit --no-fund
+      - run: tar -I 'zstd -19 -T0' -cf node_modules.tar.zst node_modules package-lock.json
+      - uses: actions/upload-artifact@v4
+        with: { name: node_modules, path: node_modules.tar.zst, retention-days: 7, compression-level: 0 }
