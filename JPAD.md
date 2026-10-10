@@ -1,10 +1,10 @@
-# J-Pad – Java-Programmieren am iPad
+# JPad – Java-Programmieren am iPad
 
-J-Pad ist eine touchfreundliche Oberfläche für die [Online-IDE](https://www.online-ide.de) von Martin Pabst.
+JPad ist eine touchfreundliche Oberfläche für die [Online-IDE](https://www.online-ide.de) von Martin Pabst.
 Programmiersprache, Compiler und Interpreter stammen unverändert aus der Online-IDE; neu sind Editor,
 Bedienung und Gestaltung.
 
-## Was J-Pad anders macht
+## Was JPad anders macht
 
 - **Touch-Editor (CodeMirror 6)** mit nativer Textauswahl, Lupe und Hardware-Tastatur-Unterstützung.
 - **Hilfsleiste über der Bildschirmtastatur** mit `{ } ( ) ; = " " .` usw., Tab, Cursortasten,
@@ -16,7 +16,7 @@ Bedienung und Gestaltung.
 - **Ohne Login, ohne Server**: Projekte werden automatisch im Browser gespeichert und lassen sich als
   Datei sichern und öffnen (iPad: Teilen-Menü → „In Dateien sichern“, AirDrop, Teams, mebis …).
   Das Dateiformat ist das der Online-IDE, Projekte lassen sich also in beide Richtungen austauschen.
-- **Offline nutzbar**, wenn J-Pad auf dem Home-Bildschirm installiert wird (Teilen → „Zum Home-Bildschirm“).
+- **Offline nutzbar**, wenn JPad auf dem Home-Bildschirm installiert wird (Teilen → „Zum Home-Bildschirm“).
   Das schützt zugleich die lokal gespeicherten Projekte davor, dass Safari sie nach längerer Nichtnutzung löscht.
 
 ## Aufbau
@@ -42,7 +42,7 @@ npm run build-jpad
 ```
 
 Das Ergebnis liegt in `dist-jpad/` und kann auf jeden Webspace mit HTTPS hochgeladen werden
-(eine `.htaccess` für Apache liegt bei). Bei jedem Push auf `main` baut GitHub Actions J-Pad automatisch,
+(eine `.htaccess` für Apache liegt bei). Bei jedem Push auf `main` baut GitHub Actions JPad automatisch,
 veröffentlicht es auf GitHub Pages und stellt den Ordner als Artefakt „j-pad-webspace“ zum Download bereit.
 
 ## Lizenz

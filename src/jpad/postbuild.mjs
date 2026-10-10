@@ -5,7 +5,7 @@ const out = "dist-jpad";
 copyFileSync(`${out}/jpad.html`, `${out}/index.html`);
 
 // Für Apache-Webspaces (die meisten einfachen Hoster)
-writeFileSync(`${out}/.htaccess`, `# J-Pad: Einstellungen für Apache-Webserver
+writeFileSync(`${out}/.htaccess`, `# JPad: Einstellungen für Apache-Webserver
 AddType application/wasm .wasm
 AddType application/manifest+json .webmanifest
 AddType text/javascript .js .mjs
@@ -29,4 +29,4 @@ AddType text/javascript .js .mjs
 `);
 
 for (const f of ["maintenance", "includeIDE.js"]) rmSync(`${out}/${f}`, { recursive: true, force: true });
-console.log("J-Pad: dist-jpad ist fertig zum Hochladen.");
+console.log("JPad: dist-jpad ist fertig zum Hochladen.");

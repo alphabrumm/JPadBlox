@@ -1,4 +1,4 @@
-/* J-Pad Service Worker: macht die App nach dem ersten Laden offline nutzbar.
+/* JPad Service Worker: macht die App nach dem ersten Laden offline nutzbar.
    Strategie: erst Netz, bei fehlender Verbindung aus dem Zwischenspeicher. */
 const CACHE = "jpad-v1";
 

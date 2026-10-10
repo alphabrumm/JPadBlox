@@ -1,5 +1,5 @@
 /* ==========================================================================
-   J-Pad – Oberfläche für Tablet und Handy
+   JPad – Oberfläche für Tablet und Handy
    Leitidee: ruhige, kühle Arbeitsfläche wie ein Heft; Gelb wie ein Textmarker
    steht ausschließlich für „Programm läuft“ (Start-Knopf, aktuelle Zeile).
    ========================================================================== */
@@ -939,7 +939,7 @@ html.keyboard-open.editor-focused .jp-bottomnav { display: none; }
 }
 
 /* Start/Pause: Sichtbarkeit nach Programmzustand (überstimmt die Online-IDE, die Start bei
-   Fehlern ausblendet – in J-Pad bleibt Start sichtbar und erklärt beim Tippen, was fehlt). */
+   Fehlern ausblendet – in JPad bleibt Start sichtbar und erklärt beim Tippen, was fehlt). */
 .jp-app [data-ref="runBtn"] { display: inline-grid !important; }
 .jp-app[data-runstate="running"] [data-ref="runBtn"] { display: none !important; }
 .jp-app [data-ref="pauseBtn"] { display: none !important; }

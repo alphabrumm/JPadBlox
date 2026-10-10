@@ -26,7 +26,7 @@ const SPEEDS: { label: string, value: number | "max" }[] = [
 declare var APP_VERSION: string;
 
 /**
- * Die Oberfläche von J-Pad: Kopfzeile, Dateireiter, Editor, Ausgabe, Probleme,
+ * Die Oberfläche von JPad: Kopfzeile, Dateireiter, Editor, Ausgabe, Probleme,
  * Menü und Tastatur-Hilfsleiste.
  */
 export class App {
@@ -166,7 +166,7 @@ export class App {
         <div class="jp-drawer-backdrop" data-ref="drawerBackdrop"></div>
         <aside class="jp-drawer" data-ref="drawer" aria-label="Menü" inert>
             <div class="jp-drawer-head">
-                <div class="jp-brand"><span class="jp-brand-mark">J</span>J-Pad</div>
+                <div class="jp-brand"><span class="jp-brand-mark">J</span>JPad</div>
                 <button class="jp-iconbtn" data-ref="drawerClose" aria-label="Menü schließen">${icon("close")}</button>
             </div>
             <div class="jp-drawer-body">
@@ -199,8 +199,8 @@ export class App {
                 </div>
                 <p class="jp-hint">In der Zeitlupe siehst du im Code, welche Zeile gerade ausgeführt wird.</p>
 
-                <h2>Über J-Pad</h2>
-                <p class="jp-about">J-Pad ist eine Oberfläche für Tablets und Handys auf Basis der
+                <h2>Über JPad</h2>
+                <p class="jp-about">JPad ist eine Oberfläche für Tablets und Handys auf Basis der
                 <a href="https://www.online-ide.de" target="_blank" rel="noopener">Online-IDE</a> von Martin Pabst.
                 Compiler und Programmiersprache stammen unverändert aus der Online-IDE.
                 Deine Projekte bleiben auf diesem Gerät, bis du sie als Datei sicherst.

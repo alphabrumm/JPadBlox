@@ -1,5 +1,5 @@
 /**
- * Verwaltung der Projekte von J-Pad.
+ * Verwaltung der Projekte von JPad.
  *
  * - Die Projektliste (Name, Zeitstempel) liegt im localStorage.
  * - Der Quelltext liegt in derselben IndexedDB ("LearnJ" / "scripts"), die auch die
@@ -36,7 +36,7 @@ function lsSet(key: string, value: string) {
 
 export const STARTER_FILES: ProjectFile[] = [{
     name: "Hauptprogramm.java",
-    text: `// Willkommen bei J-Pad!
+    text: `// Willkommen bei JPad!
 // Tippe oben rechts auf ▶, um das Programm zu starten.
 
 Hund bello = new Hund("Bello");
@@ -221,7 +221,7 @@ export class ProjectStore {
         try {
             data = JSON.parse(text);
         } catch (e) {
-            throw new Error(`„${filename}“ ist keine J-Pad- oder Online-IDE-Projektdatei.`);
+            throw new Error(`„${filename}“ ist keine JPad- oder Online-IDE-Projektdatei.`);
         }
         if (Array.isArray(data)) data = data[0];
         if (!data || !Array.isArray(data.modules)) {

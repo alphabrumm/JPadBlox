@@ -8,7 +8,7 @@ import { Executable } from "../compiler/common/Executable.js";
 import type { JOScript } from "../client/embedded/EmbeddedStarter.js";
 
 /**
- * Die IDE-Logik von J-Pad.
+ * Die IDE-Logik von JPad.
  *
  * Wir erben von MainEmbedded (Embedded-IDE von Martin Pabst) und übernehmen damit
  * Compiler, Interpreter, Ausgabe, Grafik und das automatische Speichern in der IndexedDB
@@ -56,7 +56,7 @@ export class JPadMain extends MainEmbedded {
         this.onActiveFileChanged?.(file);
     }
 
-    // Embedded-IDE: Code-Reset-Knopf. In J-Pad gibt es keinen „Ausgangszustand“.
+    // Embedded-IDE: Code-Reset-Knopf. In JPad gibt es keinen „Ausgangszustand“.
     considerShowingCodeResetButton() { }
     showResetButton() { }
 
@@ -89,7 +89,7 @@ export class JPadMain extends MainEmbedded {
 
     adjustWidthToWorld(): void { }
 
-    // ---------- Dateiverwaltung für die J-Pad-Oberfläche ----------
+    // ---------- Dateiverwaltung für die JPad-Oberfläche ----------
 
     getFiles(): GUIFile[] {
         return <GUIFile[]>this.currentWorkspace?.getFiles() || [];

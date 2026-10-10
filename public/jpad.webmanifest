@@ -1,6 +1,6 @@
 {
-  "name": "J-Pad – Java am iPad",
-  "short_name": "J-Pad",
+  "name": "JPad – Java am iPad",
+  "short_name": "JPad",
   "lang": "de",
   "start_url": "./jpad.html",
   "scope": "./",

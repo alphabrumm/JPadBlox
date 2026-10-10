@@ -15,7 +15,7 @@ import { GUIFile } from "../client/workspace/File.js";
 import { LanguageBridge } from "./LanguageBridge.js";
 
 /**
- * Der sichtbare Editor von J-Pad (CodeMirror 6).
+ * Der sichtbare Editor von JPad (CodeMirror 6).
  *
  * CodeMirror verwendet ein natives contenteditable-Element. Dadurch funktionieren auf
  * iPad und Handy die systemeigene Textauswahl (Griffe, Lupe), Diktat, Autokorrektur-Leiste
@@ -220,7 +220,7 @@ export class TouchEditor {
         }
         // Sicherheitsnetz: Bei Abweichungen den Modellinhalt angleichen
         if (model.getValueLength() != this.view.state.doc.length) {
-            console.warn("J-Pad: Editor und Modell waren nicht synchron, gleiche an.");
+            console.warn("JPad: Editor und Modell waren nicht synchron, gleiche an.");
             model.setValue(this.view.state.doc.toString());
         }
     }

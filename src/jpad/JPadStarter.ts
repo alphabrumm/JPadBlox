@@ -61,11 +61,11 @@ async function boot() {
     } catch (e: any) {
         console.error(e);
         root.removeAttribute("aria-busy");
-        root.innerHTML = `<div class="jp-fatal"><h1>J-Pad konnte nicht starten</h1>
+        root.innerHTML = `<div class="jp-fatal"><h1>JPad konnte nicht starten</h1>
             <p>Lade die Seite neu. Wenn das nicht hilft, nutze einen aktuellen Browser (Safari ab iOS 16, Chrome, Edge, Firefox).</p>
             <pre>${String(e?.message || e).replace(/</g, "&lt;")}</pre></div>`;
     }
-    console.log("J-Pad auf Basis der Online-IDE " + APP_VERSION);
+    console.log("JPad auf Basis der Online-IDE " + APP_VERSION);
 }
 
 if (document.readyState == "loading") document.addEventListener("DOMContentLoaded", boot);
