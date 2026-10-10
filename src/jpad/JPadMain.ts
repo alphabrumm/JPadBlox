@@ -34,7 +34,14 @@ export class JPadMain extends MainEmbedded {
             withErrorList: false,
             speed: "max",
             libraries: [],
-            cacheUserEdits: true
+            cacheUserEdits: true,
+            settings: {
+                // Die Online-IDE ergänzt fehlende Semikolons automatisch in allen Zeilen außer der
+                // Cursorzeile von Monaco. Da Monaco in JPad unsichtbar ist und seinen Cursor nicht
+                // mitbewegt, kämen die Semikolons sofort beim Tippen – oft an falscher Stelle.
+                // Außerdem sollen Schüler das Semikolon selbst setzen.
+                "editor.autoSemicolons": false
+            }
         }).split('"').join("'"));
         super($outerDiv);
     }

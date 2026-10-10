@@ -170,8 +170,16 @@ export class LanguageBridge {
                     return div;
                 } : undefined,
                 apply: (view: EditorView, _c: Completion, _from: number, to: number) => {
-                    // Seit der Anfrage weiter getippte Zeichen mit ersetzen
-                    const end = Math.max(to, rangeEnd + (to - requestPos));
+                    // Die Online-IDE ersetzt auch Buchstaben hinter dem Cursor („if|a = 4“ → „a“ verschwindet).
+                    // Das ist nur beim Ändern eines bestehenden Aufrufs sinnvoll („h.lau|fe(5)“);
+                    // sonst ersetzen wir nur bis zum Cursor.
+                    let end = to;
+                    if (rangeEnd > requestPos) {
+                        const afterCursor = view.state.sliceDoc(to, rangeEnd + (to - requestPos) + 1);
+                        if (/^[\wäöüÄÖÜß]*\(/.test(afterCursor) && insertText.indexOf("(") >= 0) {
+                            end = Math.max(to, rangeEnd + (to - requestPos));
+                        }
+                    }
                     const start = Math.min(rangeStart, _from);
                     if (rawSnippet && hasSnippetFields(insertText)) {
                         snippet(convertSnippet(insertText))(view, _c, start, end);
