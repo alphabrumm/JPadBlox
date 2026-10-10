@@ -1285,3 +1285,10 @@ html.ipad-window-controls .jp-topbar { padding-left: 84px; }
 .jp-color-text { display: flex; flex-direction: column; min-width: 0; }
 .jp-color-name { font-family: var(--font-code); font-size: 15px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
 .jp-color-hex { font-family: var(--font-code); font-size: 12px; color: var(--ink-2); white-space: nowrap; }
+
+/* Hilfsleiste: Abstand zum Bildschirmrand (iOS-Wischgesten am Rand) und Druck-Rückmeldung */
+.jp-keybar {
+    padding-left: max(8px, env(safe-area-inset-left));
+    padding-right: max(8px, env(safe-area-inset-right));
+}
+.jp-keybar button.is-pressed { background: var(--accent); color: var(--accent-ink); }

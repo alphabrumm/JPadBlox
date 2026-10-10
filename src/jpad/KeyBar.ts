@@ -61,16 +61,34 @@ export class KeyBar {
         this.el.addEventListener("pointerdown", e => {
             if ((<HTMLElement>e.target).closest("button")) e.preventDefault();
         });
+
+        /*
+         * iOS Safari (vor allem auf dem iPhone) nimmt dem Editor beim Tippen auf einen Knopf
+         * trotzdem den Fokus, wenn der Knopf nicht in einem scrollbaren Bereich liegt – dann
+         * klappt die Tastatur zu, bevor die Aktion ausgeführt ist. Für die fest stehenden
+         * Knöpfe links und rechts behandeln wir die Berührung deshalb selbst: touchstart wird
+         * abgefangen (kein Fokuswechsel) und die Aktion bei touchend ausgeführt.
+         */
+        let touched: HTMLElement | null = null;
+        this.el.querySelectorAll<HTMLElement>(".jp-keybar-fixed button").forEach(b => {
+            b.addEventListener("touchstart", e => {
+                e.preventDefault();
+                touched = b;
+                b.classList.add("is-pressed");
+            }, { passive: false });
+            b.addEventListener("touchend", e => {
+                e.preventDefault();
+                b.classList.remove("is-pressed");
+                if (touched == b) this.activate(b);
+                touched = null;
+            }, { passive: false });
+            b.addEventListener("touchcancel", () => { b.classList.remove("is-pressed"); touched = null; });
+        });
+
+        // Maus, Trackpad, Tastatur und die scrollbare Zeichenleiste
         this.el.addEventListener("click", e => {
             const b = (<HTMLElement>e.target).closest<HTMLElement>("button");
-            if (!b) return;
-            if (b.dataset.key != null) {
-                const k = KEYS[parseInt(b.dataset.key)];
-                if (k.action == "tab") this.editor.indentMore();
-                else if (k.insert) this.editor.insert(k.insert);
-            } else {
-                this.runAction(b.dataset.action!);
-            }
+            if (b) this.activate(b);
         });
 
         // Leiste über der Bildschirmtastatur halten
@@ -84,6 +102,16 @@ export class KeyBar {
             vv.addEventListener("resize", update);
             vv.addEventListener("scroll", update);
             update();
+        }
+    }
+
+    private activate(b: HTMLElement) {
+        if (b.dataset.key != null) {
+            const k = KEYS[parseInt(b.dataset.key)];
+            if (k.action == "tab") this.editor.indentMore();
+            else if (k.insert) this.editor.insert(k.insert);
+        } else if (b.dataset.action) {
+            this.runAction(b.dataset.action);
         }
     }
 
