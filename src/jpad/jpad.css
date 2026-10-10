@@ -1162,3 +1162,79 @@ html.ipad-window-controls .jp-topbar { padding-left: 84px; }
     text-underline-offset: 3px;
 }
 .jp-api-head[aria-expanded="true"] .jp-api-summary { display: none; }
+
+/* ---------- Sprite Bibliothek ---------- */
+
+.jp-sprite-example {
+    margin: 4px 16px 4px;
+    padding: 10px 14px;
+    border-radius: var(--radius-m);
+    background: var(--surface-2);
+}
+
+.jp-sprite-example pre {
+    margin: 0;
+    font-family: var(--font-code);
+    font-size: 14.5px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.jp-sprite-example p { margin: 6px 0 0; font-size: 14px; color: var(--ink-2); line-height: 1.4; }
+.tok-type { color: var(--syn-type); }
+.tok-kw { color: var(--syn-keyword); font-weight: 600; }
+.tok-num { color: var(--syn-number); }
+
+.jp-sprite-set { padding: 6px 4px 14px; border-bottom: 1px solid var(--line); }
+
+.jp-sprite-set h3 {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 10px 4px 10px;
+    font-size: 15px;
+}
+
+.jp-sprite-set h3 code { font-family: var(--font-code); color: var(--syn-type); font-size: 15.5px; }
+.jp-sprite-set h3 span { font-weight: 400; color: var(--ink-2); font-size: 13px; }
+
+.jp-sprite-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 8px;
+}
+
+.jp-sprite-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 4px 6px;
+    border-radius: var(--radius-m);
+    border: 1.5px solid transparent;
+    background: var(--surface-2);
+}
+
+.jp-sprite-tile:active { border-color: var(--accent); }
+.jp-sprite-tile.is-copied { border-color: var(--marker); background: var(--marker-soft); }
+
+.jp-sprite-box {
+    display: grid;
+    place-items: center;
+    width: 76px;
+    height: 76px;
+    /* Schachbrett zeigt transparente Bereiche */
+    background-color: #fff;
+    background-image:
+        linear-gradient(45deg, #e6e9ef 25%, transparent 25%, transparent 75%, #e6e9ef 75%),
+        linear-gradient(45deg, #e6e9ef 25%, transparent 25%, transparent 75%, #e6e9ef 75%);
+    background-size: 12px 12px;
+    background-position: 0 0, 6px 6px;
+    border-radius: 6px;
+}
+
+.jp-sprite-img { display: block; background-repeat: no-repeat; }
+.jp-sprite-img.is-pixelated { image-rendering: pixelated; }
+
+.jp-sprite-nr { font-family: var(--font-code); font-weight: 600; font-size: 14px; }
+.jp-sprite-size { font-size: 11.5px; color: var(--ink-2); }

@@ -211,6 +211,7 @@ export class App {
                 <h2>Nachschlagen</h2>
                 <div class="jp-menu-actions">
                     <button data-ref="handbookBtn">${icon("book")}<span>Class Handbuch</span></button>
+                    <button data-ref="spritesBtn">${icon("image")}<span>Sprite Bibliothek</span></button>
                 </div>
 
                 <h2>Über JPad</h2>
@@ -258,6 +259,11 @@ export class App {
             this.closeDrawer();
             const { openHandbook } = await import("./Handbook.js");
             openHandbook(this.root);
+        });
+        this.el.spritesBtn.addEventListener("click", async () => {
+            this.closeDrawer();
+            const { openSpriteLibrary } = await import("./SpriteLibraryView.js");
+            openSpriteLibrary(this.root, (t, i) => this.toast(t, i));
         });
         this.el.saveFileBtn.addEventListener("click", () => { this.closeDrawer(); this.exportProject(); });
 

@@ -38,6 +38,7 @@ const paths: Record<string, string> = {
     variables: '<path d="M7 4C5 4 5 6 5 8s-1 3-2 4c1 1 2 2 2 4s0 4 2 4"/><path d="M17 4c2 0 2 2 2 4s1 3 2 4c-1 1-2 2-2 4s0 4-2 4"/><path d="M9.5 9l5 6M14.5 9l-5 6"/>',
     search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
     book: '<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/><path d="M9 8h6M9 12h4"/>',
+    image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/>',
     split: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M13 4v16"/>',
 };
 
