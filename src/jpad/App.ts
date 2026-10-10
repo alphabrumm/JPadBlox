@@ -12,6 +12,16 @@ import { GUIFile } from "../client/workspace/File.js";
 import { JavaLanguage } from "../compiler/java/JavaLanguage.js";
 import { SchedulerState } from "../compiler/common/interpreter/SchedulerState.js";
 import { WorkspaceExporter } from "../client/workspace/WorkspaceImporterExporter.js";
+import { JCM } from "../compiler/java/language/JavaCompilerMessages.js";
+
+/**
+ * Bei einem fehlenden Semikolon meldet der Compiler zwei Fehler: „Strichpunkt hier einfügen“
+ * (Hilfsmarkierung für die automatische Korrektur) und „Erwartet wird ein Strichpunkt …“.
+ * Für Schüler ist das ein Fehler – die Hilfsmarkierung zählen und listen wir deshalb nicht.
+ */
+function isHelperMarker(m: monaco.editor.IMarker): boolean {
+    return m.message.startsWith(JCM.insertSemicolonHere());
+}
 
 type View = "code" | "output" | "variables" | "problems";
 type SideView = "output" | "variables" | "problems";
@@ -347,9 +357,17 @@ export class App {
         this.main.onCompiled = () => this.onCompiled();
         this.main.onFilesChanged = () => this.renderFileTabs();
 
+        // Fehlermarkierungen werden erst NACH dem Kompilieren gesetzt. Deshalb auch die
+        // Fehleranzahl in den Dateireitern hier aktualisieren (nicht nur bei „kompiliert“),
+        // sonst zeigen die Reiter den Stand des vorherigen Durchlaufs.
+        let markerTimer: any;
         monaco.editor.onDidChangeMarkers(() => {
             this.editor.updateDiagnostics();
-            this.renderProblems();
+            clearTimeout(markerTimer);
+            markerTimer = setTimeout(() => {
+                this.renderProblems();
+                this.renderFileTabs();
+            }, 30);
         });
 
         // Programmzeiger und Exception-Markierung aus dem (unsichtbaren) Monaco-Editor übernehmen
@@ -474,7 +492,7 @@ export class App {
     private errorsOf(file: GUIFile): monaco.editor.IMarker[] {
         const model = file.getMonacoModel();
         if (!model) return [];
-        return monaco.editor.getModelMarkers({ resource: model.uri }).filter(m => m.severity >= monaco.MarkerSeverity.Error);
+        return monaco.editor.getModelMarkers({ resource: model.uri }).filter(m => m.severity >= monaco.MarkerSeverity.Error && !isHelperMarker(m));
     }
 
     renderFileTabs() {
@@ -582,7 +600,7 @@ export class App {
             const model = file.getMonacoModel();
             if (!model) continue;
             for (const m of monaco.editor.getModelMarkers({ resource: model.uri })) {
-                if (m.severity < monaco.MarkerSeverity.Warning) continue;
+                if (m.severity < monaco.MarkerSeverity.Warning || isHelperMarker(m)) continue;
                 if (m.severity >= monaco.MarkerSeverity.Error) count++;
                 entries.push({ file, marker: m });
             }
