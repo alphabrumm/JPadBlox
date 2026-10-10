@@ -259,6 +259,8 @@ export class App {
             b.addEventListener("click", () => this.setSpeedIndex(parseInt(b.dataset.speed!))));
         this.renderSettings();
 
+        this.watchWindowControls();
+
         // Breites Layout (iPad quer, Laptop) oder Reiter-Layout (Handy, iPad hoch)
         const mq = matchMedia("(min-width: 900px) and (min-aspect-ratio: 1/1)");
         const applyLayout = () => {
@@ -267,6 +269,28 @@ export class App {
         };
         mq.addEventListener("change", applyLayout);
         applyLayout();
+    }
+
+    /**
+     * iPadOS 26 blendet bei Apps im Fenstermodus die Fenster-Steuerelemente („Ampel“) oben links
+     * über den Inhalt. Web-Apps erfahren davon nichts (safe-area-inset bleibt 0). Deshalb machen
+     * wir oben links Platz, wenn JPad als Home-Bildschirm-App in einem Fenster läuft, das kleiner
+     * als der Bildschirm ist.
+     */
+    private watchWindowControls() {
+        const isIPad = navigator.maxTouchPoints > 1 && /iPad|Macintosh/.test(navigator.userAgent);
+        const standalone = matchMedia("(display-mode: standalone)").matches || (navigator as any).standalone === true;
+        const update = () => {
+            // Vollbild = Fenstergröße entspricht dem Bildschirm (in einer der beiden Ausrichtungen)
+            const big = Math.max(screen.width, screen.height), small = Math.min(screen.width, screen.height);
+            const near = (x: number, y: number) => Math.abs(x - y) <= 40;
+            const w = window.innerWidth, h = window.innerHeight;
+            const fullscreen = (near(w, big) && near(h, small)) || (near(w, small) && near(h, big));
+            const isWindowed = !fullscreen;
+            document.documentElement.classList.toggle("ipad-window-controls", isIPad && standalone && isWindowed);
+        };
+        update();
+        window.addEventListener("resize", update);
     }
 
     // =====================================================================
