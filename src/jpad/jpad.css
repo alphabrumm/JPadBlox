@@ -1238,3 +1238,50 @@ html.ipad-window-controls .jp-topbar { padding-left: 84px; }
 
 .jp-sprite-nr { font-family: var(--font-code); font-weight: 600; font-size: 14px; }
 .jp-sprite-size { font-size: 11.5px; color: var(--ink-2); }
+
+/* ---------- Color Handbuch ---------- */
+
+.tok-fn { color: var(--syn-method); }
+.jp-color-intro { margin: 0 0 6px !important; color: var(--ink) !important; }
+.jp-sprite-example code { font-family: var(--font-code); font-size: 0.95em; }
+
+.jp-color-tools { display: flex; align-items: center; gap: 10px; margin: 6px 16px 10px; }
+.jp-color-tools .jp-handbook-search { flex: 1; margin: 0; }
+.jp-color-sort { flex: none; }
+.jp-color-sort button { min-height: 38px; padding: 0 12px; }
+
+@media (max-width: 520px) {
+    .jp-color-tools { flex-direction: column; align-items: stretch; }
+}
+
+.jp-color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 6px;
+    padding: 4px 4px 8px;
+}
+
+.jp-color-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 10px 6px 6px;
+    border-radius: var(--radius-m);
+    border: 1.5px solid transparent;
+    text-align: left;
+}
+
+.jp-color-item:active { background: var(--surface-2); }
+.jp-color-item.is-copied { border-color: var(--marker); background: var(--marker-soft); }
+
+.jp-color-swatch {
+    flex: none;
+    width: 56px;
+    height: 40px;
+    border-radius: 8px;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+.jp-color-text { display: flex; flex-direction: column; min-width: 0; }
+.jp-color-name { font-family: var(--font-code); font-size: 15px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+.jp-color-hex { font-family: var(--font-code); font-size: 12px; color: var(--ink-2); white-space: nowrap; }

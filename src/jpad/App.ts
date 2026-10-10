@@ -210,6 +210,7 @@ export class App {
 
                 <h2>Nachschlagen</h2>
                 <div class="jp-menu-actions">
+                    <button data-ref="colorsBtn">${icon("palette")}<span>Color Handbuch</span></button>
                     <button data-ref="handbookBtn">${icon("book")}<span>Class Handbuch</span></button>
                     <button data-ref="spritesBtn">${icon("image")}<span>Sprite Bibliothek</span></button>
                 </div>
@@ -259,6 +260,11 @@ export class App {
             this.closeDrawer();
             const { openHandbook } = await import("./Handbook.js");
             openHandbook(this.root);
+        });
+        this.el.colorsBtn.addEventListener("click", async () => {
+            this.closeDrawer();
+            const { openColorBook } = await import("./ColorBook.js");
+            openColorBook(this.root, (t, i) => this.toast(t, i));
         });
         this.el.spritesBtn.addEventListener("click", async () => {
             this.closeDrawer();
