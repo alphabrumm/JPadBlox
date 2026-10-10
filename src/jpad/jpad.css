@@ -1292,3 +1292,9 @@ html.ipad-window-controls .jp-topbar { padding-left: 84px; }
     padding-right: max(8px, env(safe-area-inset-right));
 }
 .jp-keybar button.is-pressed { background: var(--accent); color: var(--accent-ink); }
+
+/* Variablenansicht im Dunkelmodus: Blaugrau wie der Editor, eine Spur heller */
+:root[data-effective="dark"] .jp-variables { background: #212735; }
+:root[data-effective="dark"] .jp-variables .jo_treeview_outer { background-color: #212735 !important; }
+:root[data-effective="dark"] .jp-variables .jo_treeview_caption { background-color: #2A3142 !important; color: var(--ink-2); }
+:root[data-effective="dark"] .jp-variables .jo_treeview_selected { background-color: var(--accent-soft) !important; }
