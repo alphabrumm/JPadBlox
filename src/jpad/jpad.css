@@ -1311,3 +1311,152 @@ html.ipad-window-controls .jp-topbar { padding-left: 84px; }
 .jp-layoutbtn .jp-icon { width: 20px; height: 20px; }
 /* Nur sinnvoll, wenn der Bildschirm breit genug für das Nebeneinander ist */
 .jp-app:not([data-wide="true"]) .jp-layoutbtn { display: none; }
+
+/* ---------- Diagramm (Klassen- und Objektkarten) ---------- */
+
+.jp-app:not([data-side="diagram"]) .jp-diagram { display: none; }
+
+.jp-diagram {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    --uml-line: var(--ink-2);
+    --uml-card: var(--surface);
+    --uml-head-class: var(--accent-soft);
+    --uml-head-object: var(--surface-2);
+    --uml-border: color-mix(in srgb, var(--ink) 55%, transparent);
+}
+
+:root[data-effective="dark"] .jp-diagram {
+    --uml-card: #232a39;
+    --uml-head-object: #2c3446;
+    --uml-border: color-mix(in srgb, var(--ink) 40%, transparent);
+}
+
+.jp-diagram-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    flex: none;
+    flex-wrap: wrap;
+}
+
+.jp-diagram-mode { flex: none; }
+.jp-diagram-mode button { min-height: 36px; padding: 0 14px; }
+.jp-diagram-status { flex: 1; font-size: 13px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.jp-diagram-tools { display: flex; gap: 2px; }
+.jp-diagram-tools .jp-iconbtn { width: 38px; height: 38px; }
+.jp-diagram-tools .jp-icon { width: 19px; height: 19px; }
+
+.jp-diagram-viewport {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    background-image: radial-gradient(color-mix(in srgb, var(--ink-2) 22%, transparent) 1px, transparent 1px);
+    background-size: 22px 22px;
+    border-top: 1px solid var(--line);
+}
+
+.jp-diagram-stage { position: relative; }
+.jp-diagram-svg { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+.jp-diagram-cards { position: absolute; left: 0; top: 0; }
+
+.jp-diagram-empty {
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 4px;
+    text-align: center;
+    padding: 40px 24px;
+    min-height: 100%;
+    color: var(--ink-2);
+}
+.jp-diagram-empty .jp-icon { width: 40px; height: 40px; color: var(--accent); }
+.jp-diagram-empty p { margin: 4px 0; max-width: 40ch; }
+.jp-diagram-empty code { font-family: var(--font-code); }
+
+/* Karten */
+.jp-uml-card {
+    position: absolute;
+    left: 0;
+    top: 0;
+    min-width: 140px;
+    max-width: 380px;
+    background: var(--uml-card);
+    border: 1.5px solid var(--uml-border);
+    color: var(--ink);
+    font-family: var(--font-code);
+    font-size: 13.5px;
+    line-height: 1.45;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: grab;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.jp-uml-card.is-dragging { cursor: grabbing; box-shadow: var(--shadow-lg); z-index: 5; }
+
+/* Klassenkarten: eckig */
+.jp-uml-card.is-class { border-radius: 0; }
+.jp-uml-card.is-class header { background: var(--uml-head-class); }
+
+/* Objektkarten: abgerundet */
+.jp-uml-card.is-object { border-radius: 14px; overflow: hidden; }
+.jp-uml-card.is-object header { background: var(--uml-head-object); }
+
+.jp-uml-card header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6px 14px;
+    border-bottom: 1.5px solid var(--uml-border);
+    text-align: center;
+}
+
+.jp-uml-stereo { font-size: 11.5px; color: var(--ink-2); }
+.jp-uml-name { font-weight: 600; font-size: 14.5px; color: var(--syn-type); }
+.jp-uml-name.is-abstract { font-style: italic; }
+.jp-uml-objname { font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.jp-uml-objtype { color: var(--syn-type); }
+
+.jp-uml-section {
+    list-style: none;
+    margin: 0;
+    padding: 5px 12px;
+    white-space: nowrap;
+}
+.jp-uml-section + .jp-uml-section { border-top: 1.5px solid var(--uml-border); }
+.jp-uml-section li.is-static { text-decoration: underline; text-underline-offset: 3px; }
+.jp-uml-section li.is-abstract { font-style: italic; }
+.jp-uml-none { color: var(--ink-2); font-style: italic; }
+.jp-uml-vis { display: inline-block; width: 1ch; color: var(--ink-2); }
+.jp-uml-type { color: var(--ink-2); }
+.jp-uml-attr { color: var(--syn-field); }
+.jp-uml-val { color: var(--syn-string); }
+.jp-uml-ref { color: var(--accent); font-weight: 600; }
+
+/* Linien */
+.jp-uml-edge { stroke: var(--uml-line); stroke-width: 1.6; fill: none; }
+.jp-uml-edge.is-implements { stroke-dasharray: 7 5; }
+.jp-uml-edge.is-link { stroke: var(--accent); }
+.jp-uml-tri { fill: var(--uml-card); stroke: var(--uml-line); stroke-width: 1.6; stroke-linejoin: round; }
+.jp-uml-open { fill: none; stroke: var(--uml-line); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.jp-uml-label, .jp-uml-mult {
+    font-family: var(--font-code);
+    font-size: 12px;
+    fill: var(--ink);
+    paint-order: stroke;
+    stroke: var(--surface);
+    stroke-width: 4px;
+}
+.jp-uml-mult { font-weight: 600; fill: var(--accent); }
+
+@media (max-width: 520px) {
+    .jp-diagram-status { display: none; }
+}
+.jp-uml-open.is-link { stroke: var(--accent); }

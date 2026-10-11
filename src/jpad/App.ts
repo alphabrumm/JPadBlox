@@ -7,6 +7,7 @@ import { ProjectInfo, ProjectStore, STARTER_FILES, ProjectFile } from "./Project
 import { icon } from "./Icons.js";
 import { Dialogs } from "./Dialogs.js";
 import { KeyBar } from "./KeyBar.js";
+import { DiagramView } from "./Diagram.js";
 import { ThemeManager } from "../client/main/gui/ThemeManager.js";
 import { GUIFile } from "../client/workspace/File.js";
 import { JavaLanguage } from "../compiler/java/JavaLanguage.js";
@@ -23,8 +24,8 @@ function isHelperMarker(m: monaco.editor.IMarker): boolean {
     return m.message.startsWith(JCM.insertSemicolonHere());
 }
 
-type View = "code" | "output" | "variables" | "problems";
-type SideView = "output" | "variables" | "problems";
+type View = "code" | "output" | "variables" | "diagram" | "problems";
+type SideView = "output" | "variables" | "diagram" | "problems";
 type ThemeChoice = "auto" | "light" | "dark";
 
 const SPEEDS: { label: string, value: number | "max" }[] = [
@@ -49,6 +50,7 @@ export class App {
     bridge!: LanguageBridge;
     dialogs!: Dialogs;
     keyBar!: KeyBar;
+    diagram!: DiagramView;
 
     root: HTMLElement;
     el: Record<string, HTMLElement> = {};
@@ -88,6 +90,11 @@ export class App {
         await this.main.init(starterScripts);
 
         this.setupVariablesView();
+        this.diagram = new DiagramView(this.el.diagram, this.main, () => this.project.id, (file, line, column) => {
+            this.main.setFileActive(file);
+            if (this.root.dataset.layout == "tabs") this.setView("code");
+            this.editor.revealLine(line, column, true);
+        });
 
         this.bridge = new LanguageBridge(<JavaLanguage>this.main.getCurrentProgrammingLanguage(),
             () => this.main.getActiveFile()?.getMonacoModel());
@@ -170,10 +177,12 @@ export class App {
                 <div class="jp-segmented jp-side-switch" role="tablist">
                     <button role="tab" data-side="output">${icon("output")}<span>Ausgabe</span></button>
                     <button role="tab" data-side="variables">${icon("variables")}<span>Variablen</span></button>
+                    <button role="tab" data-side="diagram">${icon("diagram")}<span>Diagramm</span></button>
                     <button role="tab" data-side="problems">${icon("problems")}<span>Probleme</span><span class="jp-badge" data-ref="sideBadge"></span></button>
                 </div>
                 <div class="jp-output" data-ref="outputHost"></div>
                 <div class="jp-variables joeCssFence" data-ref="variables"></div>
+                <div class="jp-diagram" data-ref="diagram"></div>
                 <div class="jp-problems" data-ref="problems"></div>
             </section>
         </main>
@@ -182,6 +191,7 @@ export class App {
             <button data-view="code">${icon("code")}<span>Code</span></button>
             <button data-view="output">${icon("output")}<span>Ausgabe</span></button>
             <button data-view="variables">${icon("variables")}<span>Variablen</span></button>
+            <button data-view="diagram">${icon("diagram")}<span>Diagramm</span></button>
             <button data-view="problems">${icon("problems")}<span>Probleme</span><span class="jp-badge" data-ref="navBadge"></span></button>
         </nav>
 
@@ -406,6 +416,7 @@ export class App {
     }
 
     private onCompiled() {
+        this.diagram?.onCompiled();
         this.renderProblems();
         this.renderFileTabs();
     }
@@ -470,6 +481,8 @@ export class App {
         if (view != "code") this.sideView = view;
         this.root.dataset.view = view;
         this.root.dataset.side = this.sideView;
+        const diagramVisible = this.sideView == "diagram" && (this.root.dataset.layout == "split" || view == "diagram");
+        this.diagram?.setVisible(diagramVisible);
         this.root.querySelectorAll<HTMLElement>(".jp-bottomnav [data-view]").forEach(b =>
             b.setAttribute("aria-current", String(b.dataset.view == view)));
         this.root.querySelectorAll<HTMLElement>(".jp-side-switch [data-side]").forEach(b =>
