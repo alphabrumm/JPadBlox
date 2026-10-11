@@ -2,8 +2,9 @@ import * as monaco from 'monaco-editor';
 import { EditorState, Extension, StateEffect, StateField, Compartment, Transaction, EditorSelection } from "@codemirror/state";
 import {
     EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, Decoration, DecorationSet,
-    highlightSpecialChars, dropCursor
+    highlightSpecialChars, dropCursor, gutter, GutterMarker
 } from "@codemirror/view";
+import { RangeSet } from "@codemirror/state";
 import { defaultKeymap, history, historyKeymap, indentWithTab, undo, redo, undoDepth, redoDepth, toggleComment } from "@codemirror/commands";
 import { java } from "@codemirror/lang-java";
 import { syntaxHighlighting, HighlightStyle, indentOnInput, bracketMatching, indentUnit } from "@codemirror/language";
@@ -39,6 +40,42 @@ export const javaHighlight = HighlightStyle.define([
 ]);
 
 // ----- Programmzeiger (aktuelle Zeile beim schrittweisen Ausführen, Fehlerstelle bei Exceptions) -----
+
+// ----- Haltepunkte: Markierung am Zeilenanfang (Rand) und dezente Zeilenfarbe -----
+
+class BreakpointMarker extends GutterMarker {
+    constructor(readonly active: boolean) { super(); }
+    eq(other: BreakpointMarker) { return other.active == this.active; }
+    toDOM() {
+        const el = document.createElement("span");
+        el.className = "jp-bp-marker" + (this.active ? "" : " is-inactive");
+        el.title = this.active ? "Haltepunkt" : "Haltepunkt (in dieser Zeile gibt es keine Anweisung)";
+        return el;
+    }
+}
+const activeMarker = new BreakpointMarker(true), inactiveMarker = new BreakpointMarker(false);
+
+export type BreakpointMark = { line: number, active: boolean };
+const setBreakpoints = StateEffect.define<BreakpointMark[]>();
+
+const breakpointField = StateField.define<{ gutter: RangeSet<GutterMarker>, lines: DecorationSet }>({
+    create: () => ({ gutter: RangeSet.empty, lines: Decoration.none }),
+    update(value, tr) {
+        let { gutter: g, lines } = value;
+        g = g.map(tr.changes);
+        lines = lines.map(tr.changes);
+        for (const e of tr.effects) {
+            if (e.is(setBreakpoints)) {
+                const valid = e.value.filter(b => b.line >= 1 && b.line <= tr.state.doc.lines)
+                    .sort((a, b) => a.line - b.line);
+                g = RangeSet.of(valid.map(b => (b.active ? activeMarker : inactiveMarker).range(tr.state.doc.line(b.line).from)));
+                lines = Decoration.set(valid.map(b => Decoration.line({ class: "jp-line-breakpoint" }).range(tr.state.doc.line(b.line).from)));
+            }
+        }
+        return { gutter: g, lines };
+    },
+    provide: f => EditorView.decorations.from(f, v => v.lines)
+});
 
 type LineMark = { line: number, kind: "pointer" | "exception" };
 const setLineMarks = StateEffect.define<LineMark[]>();
@@ -104,7 +141,27 @@ export class TouchEditor {
 
     constructor(parent: HTMLElement, private bridge: LanguageBridge, private listener: EditorListener, fontSize: number) {
         this.extensions = [
-            lineNumbers(),
+            breakpointField,
+            gutter({
+                class: "jp-bp-gutter",
+                markers: v => v.state.field(breakpointField).gutter,
+                initialSpacer: () => activeMarker,
+                domEventHandlers: {
+                    click: (view, line) => {
+                        this.onToggleBreakpoint?.(view.state.doc.lineAt(line.from).number);
+                        return true;
+                    }
+                }
+            }),
+            lineNumbers({
+                domEventHandlers: {
+                    // Tippen auf die Zeilennummer setzt/entfernt einen Haltepunkt
+                    click: (view, line) => {
+                        this.onToggleBreakpoint?.(view.state.doc.lineAt(line.from).number);
+                        return true;
+                    }
+                }
+            }),
             highlightActiveLineGutter(),
             highlightSpecialChars(),
             history(),
@@ -304,6 +361,16 @@ export class TouchEditor {
     }
 
     // ----- Programmzeiger -----
+
+    onToggleBreakpoint: ((line: number) => void) | undefined;
+
+    setBreakpoints(marks: BreakpointMark[]) {
+        this.view.dispatch({ effects: setBreakpoints.of(marks) });
+    }
+
+    getCursorLine(): number {
+        return this.view.state.doc.lineAt(this.view.state.selection.main.head).number;
+    }
 
     setLineMarks(marks: LineMark[]) {
         this.view.dispatch({ effects: setLineMarks.of(marks) });

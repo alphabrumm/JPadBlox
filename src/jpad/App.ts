@@ -114,6 +114,7 @@ export class App {
         (window as any).jpad = this;
 
         this.keyBar = new KeyBar(this.root, this.editor, this.bridge, (html) => this.showInfo(html));
+        this.editor.onToggleBreakpoint = (line) => this.toggleBreakpoint(line);
 
         this.wireMain();
         this.wireRunButtons();
@@ -407,12 +408,39 @@ export class App {
             return;
         }
         const marks: { line: number, kind: "pointer" | "exception" }[] = [];
+        const breakpoints: { line: number, active: boolean }[] = [];
         for (const d of model.getAllDecorations()) {
             const cls = d.options.className || "";
+            const margin = d.options.marginClassName || "";
             if (cls.indexOf("jo_revealProgramPointer") >= 0) marks.push({ line: d.range.startLineNumber, kind: "pointer" });
             else if (cls.indexOf("jo_revealExceptionPosition") >= 0) marks.push({ line: d.range.startLineNumber, kind: "exception" });
+            if (margin == "jo_margin_breakpoint" || margin == "jo_margin_breakpoint_inactive") {
+                breakpoints.push({ line: d.range.startLineNumber, active: margin == "jo_margin_breakpoint" });
+            }
         }
         this.editor.setLineMarks(marks);
+        this.editor.setBreakpoints(breakpoints);
+    }
+
+    /**
+     * Haltepunkte verwaltet der BreakpointManager der Online-IDE (als Markierungen im Monaco-Modell).
+     * Läuft das Programm bis zu einer solchen Zeile, hält der Interpreter vor ihr an – wie beim
+     * schrittweisen Ausführen.
+     */
+    toggleBreakpoint(line: number) {
+        const bm = this.main.getInterpreter().breakpointManager;
+        if (!bm) return;
+        const file = this.editor.getFile();
+        if (file && this.main.getActiveFile() != file) this.main.setFileActive(file);
+        bm.toggleBreakpoint(line);
+        this.updateProgramPointer();
+        const isSet = this.hasBreakpointAt(line);
+        this.toast(isSet ? `Haltepunkt in Zeile ${line} gesetzt. Das Programm hält vor dieser Zeile an.` : `Haltepunkt in Zeile ${line} entfernt.`, "breakpoint");
+    }
+
+    private hasBreakpointAt(line: number): boolean {
+        const model = this.main.getMainEditor().getModel();
+        return !!model?.getAllDecorations().some(d => (d.options.marginClassName || "").startsWith("jo_margin_breakpoint") && d.range.startLineNumber == line);
     }
 
     private onCompiled() {
@@ -466,8 +494,13 @@ export class App {
         // Pause-Knopf wird von der Online-IDE ein- und ausgeblendet; anfangs aus
         jQuery(this.el.pauseBtn).hide();
 
-        this.main.getInterpreter().eventManager.on("stateChanged", (_old: SchedulerState, state: SchedulerState) => {
+        this.main.getInterpreter().eventManager.on("stateChanged", (old: SchedulerState, state: SchedulerState) => {
             this.root.dataset.runstate = SchedulerState[state];
+            // An einem Haltepunkt angehalten: Code mit der markierten Zeile zeigen
+            if (old == SchedulerState.running && state == SchedulerState.paused
+                && this.root.dataset.layout == "tabs" && this.view == "output") {
+                this.setView("code");
+            }
         });
         this.root.dataset.runstate = "stopped";
     }

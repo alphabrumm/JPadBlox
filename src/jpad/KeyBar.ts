@@ -51,6 +51,7 @@ export class KeyBar {
                 ${KEYS.map((k, i) => `<button data-key="${i}" ${k.aria ? `aria-label="${k.aria}"` : ""}>${k.label}</button>`).join("")}
             </div>
             <div class="jp-keybar-fixed">
+                <button data-action="breakpoint" aria-label="Haltepunkt in dieser Zeile setzen oder entfernen" class="jp-key-breakpoint">${icon("breakpoint")}</button>
                 <button data-action="complete" aria-label="Vorschläge anzeigen" class="jp-key-accent">${icon("lightbulb")}</button>
                 <button data-action="info" aria-label="Info zur Stelle am Cursor">${icon("info")}</button>
                 <button data-action="hide" aria-label="Tastatur ausblenden">${icon("keyboardDown")}</button>
@@ -122,6 +123,7 @@ export class KeyBar {
             case "complete": this.editor.startCompletion(); break;
             case "info": this.showInfo(await this.bridge.hover(this.editor.getCursorOffset())); break;
             case "hide": this.editor.view.contentDOM.blur(); break;
+            case "breakpoint": this.editor.onToggleBreakpoint?.(this.editor.getCursorLine()); break;
         }
     }
 

@@ -1460,3 +1460,40 @@ html.ipad-window-controls .jp-topbar { padding-left: 84px; }
     .jp-diagram-status { display: none; }
 }
 .jp-uml-open.is-link { stroke: var(--accent); }
+
+/* ---------- Haltepunkte ---------- */
+
+.jp-editor .jp-bp-gutter { width: 18px; cursor: pointer; }
+.jp-editor .jp-bp-gutter .cm-gutterElement { display: flex; align-items: center; justify-content: center; }
+.jp-editor .cm-lineNumbers .cm-gutterElement { cursor: pointer; }
+.jp-bp-marker {
+    display: inline-block;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--syn-string);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--syn-string) 30%, transparent);
+}
+.jp-bp-marker.is-inactive { background: transparent; border: 2px solid var(--syn-string); box-shadow: none; }
+.jp-editor .cm-line.jp-line-breakpoint { background: color-mix(in srgb, var(--syn-string) 11%, transparent); }
+/* Steht der Programmzeiger auf dem Haltepunkt, gewinnt der Textmarker */
+.jp-editor .cm-line.jp-line-breakpoint.jp-line-pointer {
+    background: linear-gradient(transparent 12%, var(--marker-soft) 12%, var(--marker-soft) 88%, transparent 88%);
+}
+
+/* ---------- Hilfsleiste: größer, Bereiche getrennt ---------- */
+
+.jp-keybar { height: 56px; padding-top: 6px; padding-bottom: 6px; }
+@media (pointer: coarse) {
+    html.editor-focused .jp-app { bottom: calc(var(--keyboard-offset) + 56px); }
+}
+.jp-keybar button { min-width: 48px; font-size: 18px; }
+.jp-keybar .jp-icon { width: 22px; height: 22px; }
+.jp-keybar-fixed:first-child { padding-right: 8px; border-right: 1px solid var(--line); }
+.jp-keybar-fixed:last-child { padding-left: 8px; border-left: 1px solid var(--line); }
+.jp-keybar-scroll { padding: 0 8px; }
+.jp-keybar .jp-key-breakpoint { color: var(--syn-string); }
+.jp-keybar .jp-key-breakpoint:active, .jp-keybar .jp-key-breakpoint.is-pressed { background: var(--syn-string); color: var(--surface); }
+.jp-keybar-fixed:first-child, .jp-keybar-fixed:last-child { border-color: color-mix(in srgb, var(--ink-2) 40%, transparent); }
+.jp-keybar-fixed:first-child { margin-right: 4px; }
+.jp-keybar-fixed:last-child { margin-left: 4px; }
