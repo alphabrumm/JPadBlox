@@ -1497,3 +1497,32 @@ html.ipad-window-controls .jp-topbar { padding-left: 84px; }
 .jp-keybar-fixed:first-child, .jp-keybar-fixed:last-child { border-color: color-mix(in srgb, var(--ink-2) 40%, transparent); }
 .jp-keybar-fixed:first-child { margin-right: 4px; }
 .jp-keybar-fixed:last-child { margin-left: 4px; }
+
+/* Hilfsleiste: Zeichen und rechter Bereich in einem gemeinsamen Scrollbereich.
+   Auf Tablet und Laptop bleibt der rechte Bereich rechts stehen (sticky),
+   auf dem Handy scrollt er mit, damit die Zeichen genug Platz haben. */
+.jp-keybar-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+}
+.jp-keybar-main::-webkit-scrollbar { display: none; }
+.jp-keybar-main .jp-keybar-scroll { flex: 1 0 auto; overflow: visible; }
+.jp-keybar-fixed.is-right {
+    position: sticky;
+    right: 0;
+    flex: none;
+    margin-left: 4px;
+    padding-left: 8px;
+    background: var(--surface-2);
+    border-left: 1px solid color-mix(in srgb, var(--ink-2) 40%, transparent);
+}
+@media (max-width: 600px) {
+    .jp-keybar-fixed.is-right { position: static; background: transparent; }
+    .jp-keybar-fixed.is-left { padding-right: 6px; margin-right: 2px; gap: 4px; }
+    .jp-keybar-fixed.is-left button { min-width: 44px; }
+}

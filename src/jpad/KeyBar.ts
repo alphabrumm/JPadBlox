@@ -43,18 +43,20 @@ export class KeyBar {
         this.el.setAttribute("role", "toolbar");
         this.el.setAttribute("aria-label", "Sonderzeichen");
         this.el.innerHTML = `
-            <div class="jp-keybar-fixed">
+            <div class="jp-keybar-fixed is-left">
                 <button data-action="left" aria-label="Cursor nach links">${icon("left")}</button>
                 <button data-action="right" aria-label="Cursor nach rechts">${icon("right")}</button>
             </div>
+            <div class="jp-keybar-main">
             <div class="jp-keybar-scroll">
                 ${KEYS.map((k, i) => `<button data-key="${i}" ${k.aria ? `aria-label="${k.aria}"` : ""}>${k.label}</button>`).join("")}
             </div>
-            <div class="jp-keybar-fixed">
+            <div class="jp-keybar-fixed is-right">
                 <button data-action="breakpoint" aria-label="Haltepunkt in dieser Zeile setzen oder entfernen" class="jp-key-breakpoint">${icon("breakpoint")}</button>
                 <button data-action="complete" aria-label="Vorschläge anzeigen" class="jp-key-accent">${icon("lightbulb")}</button>
                 <button data-action="info" aria-label="Info zur Stelle am Cursor">${icon("info")}</button>
                 <button data-action="hide" aria-label="Tastatur ausblenden">${icon("keyboardDown")}</button>
+            </div>
             </div>`;
         root.appendChild(this.el);
 
@@ -71,13 +73,19 @@ export class KeyBar {
          * abgefangen (kein Fokuswechsel) und die Aktion bei touchend ausgeführt.
          */
         let touched: HTMLElement | null = null;
+        // Auf dem Handy scrollt der rechte Bereich mit der Zeichenleiste mit – dort muss ein
+        // Wischen über die Knöpfe weiterhin scrollen, also keine eigene Behandlung.
+        const narrow = matchMedia("(max-width: 600px)");
+        const handleSelf = (b: HTMLElement) => !!b.closest(".is-left") || !narrow.matches;
         this.el.querySelectorAll<HTMLElement>(".jp-keybar-fixed button").forEach(b => {
             b.addEventListener("touchstart", e => {
+                if (!handleSelf(b)) return;
                 e.preventDefault();
                 touched = b;
                 b.classList.add("is-pressed");
             }, { passive: false });
             b.addEventListener("touchend", e => {
+                if (touched != b) return;
                 e.preventDefault();
                 b.classList.remove("is-pressed");
                 if (touched == b) this.activate(b);
