@@ -115,6 +115,7 @@ export class App {
 
         this.keyBar = new KeyBar(this.root, this.editor, this.bridge, (html) => this.showInfo(html));
         this.editor.onToggleBreakpoint = (line) => this.toggleBreakpoint(line);
+        this.placeKeyBar();
 
         this.wireMain();
         this.wireRunButtons();
@@ -139,6 +140,30 @@ export class App {
     // =====================================================================
     // Grundgerüst
     // =====================================================================
+
+    /**
+     * Auf dem Smartphone sitzt die Hilfsleiste fest unter den Dateireitern statt über der
+     * Bildschirmtastatur (dort passt sie neben Zoom und Tastatur nicht zuverlässig hin).
+     * Tablet und Laptop behalten die schwebende Leiste über der Tastatur.
+     * Handy = Touch-Gerät, dessen kürzere Bildschirmseite unter 600 px liegt
+     * (gilt im Hoch- wie im Querformat; das kleinste iPad hat 744 px).
+     */
+    private placeKeyBar() {
+        const coarse = matchMedia("(pointer: coarse)");
+        const update = () => {
+            const phone = coarse.matches && Math.min(screen.width, screen.height) < 600;
+            document.documentElement.classList.toggle("phone", phone);
+            const bar = this.keyBar.el;
+            if (phone) {
+                if (bar.previousElementSibling != this.el.filebar) this.el.filebar.after(bar);
+            } else if (bar.parentElement != this.root) {
+                this.root.appendChild(bar);
+            }
+        };
+        coarse.addEventListener?.("change", update);
+        window.addEventListener("resize", update);
+        update();
+    }
 
     private buildShell() {
         this.root.insertAdjacentHTML("beforeend", `
@@ -167,7 +192,7 @@ export class App {
 
         <main class="jp-main">
             <section class="jp-pane jp-pane-code" aria-label="Quelltext">
-                <div class="jp-filebar">
+                <div class="jp-filebar" data-ref="filebar">
                     <nav class="jp-filetabs" data-ref="fileTabs" aria-label="Dateien"></nav>
                     <button class="jp-iconbtn jp-layoutbtn" data-ref="layoutBtn"></button>
                 </div>

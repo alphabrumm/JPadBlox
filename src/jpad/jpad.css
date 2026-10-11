@@ -1526,3 +1526,29 @@ html.ipad-window-controls .jp-topbar { padding-left: 84px; }
     .jp-keybar-fixed.is-left { padding-right: 6px; margin-right: 2px; gap: 4px; }
     .jp-keybar-fixed.is-left button { min-width: 44px; }
 }
+
+/* ---------- Smartphone: Hilfsleiste fest unter den Dateireitern ----------
+   Auf dem Handy schwebt die Leiste nicht über der Bildschirmtastatur, sondern
+   steht immer sichtbar oben im Code-Bereich. So springt nichts, wenn die
+   Tastatur hochfährt, und Safari kann sie nicht verschieben. */
+html.phone .jp-keybar {
+    position: static;
+    display: flex;
+    flex: none;
+    z-index: auto;
+    height: 52px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 6px;
+    padding-right: 6px;
+    background: var(--surface-2);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-top: 0;
+    border-bottom: 1px solid var(--line);
+}
+html.phone .jp-keybar button { min-width: 44px; }
+html.phone .jp-keybar-fixed.is-right { background: var(--surface-2); }
+@media (pointer: coarse) {
+    html.phone.editor-focused .jp-app { bottom: var(--keyboard-offset); }
+}
