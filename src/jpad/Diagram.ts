@@ -109,18 +109,19 @@ export class DiagramView {
             this.setMode(<Mode>b.dataset.mode);
         }));
         host.querySelector("[data-act=relayout]")!.addEventListener("click", () => this.relayout());
-        host.querySelector("[data-act=zoomin]")!.addEventListener("click", () => this.setZoom(this.zoom * 1.2));
-        host.querySelector("[data-act=zoomout]")!.addEventListener("click", () => this.setZoom(this.zoom / 1.2));
-        host.querySelector("[data-act=fit]")!.addEventListener("click", () => this.fit());
+        host.querySelector("[data-act=zoomin]")!.addEventListener("click", () => { this.userZoomed = true; this.setZoom(this.zoom * 1.2); });
+        host.querySelector("[data-act=zoomout]")!.addEventListener("click", () => { this.userZoomed = true; this.setZoom(this.zoom / 1.2); });
+        host.querySelector("[data-act=fit]")!.addEventListener("click", () => { this.userZoomed = false; this.fit(); });
 
         // Pinch-Zoom (Safari auf iPad/iPhone)
         let startZoom = 1;
         this.el.viewport.addEventListener("gesturestart", (e: any) => { e.preventDefault(); startZoom = this.zoom; });
-        this.el.viewport.addEventListener("gesturechange", (e: any) => { e.preventDefault(); this.setZoom(startZoom * e.scale); });
+        this.el.viewport.addEventListener("gesturechange", (e: any) => { e.preventDefault(); this.userZoomed = true; this.setZoom(startZoom * e.scale); });
         // Strg/⌘ + Mausrad bzw. Trackpad-Pinch auf dem Mac
         this.el.viewport.addEventListener("wheel", e => {
             if (!e.ctrlKey && !e.metaKey) return;
             e.preventDefault();
+            this.userZoomed = true;
             this.setZoom(this.zoom * (e.deltaY < 0 ? 1.08 : 1 / 1.08));
         }, { passive: false });
 
@@ -163,6 +164,7 @@ export class DiagramView {
 
     private setMode(m: Mode) {
         this.mode = m;
+        this.userZoomed = false;
         try { localStorage.setItem("jpad.diagram.mode", m); } catch (e) { }
         this.updateModeButtons();
         this.refresh();
@@ -581,6 +583,7 @@ export class DiagramView {
     }
 
     private relayout() {
+        this.userZoomed = false;
         if (this.mode == "classes") {
             try { localStorage.removeItem(this.storageKey()); } catch (e) { }
         } else {
@@ -619,6 +622,15 @@ export class DiagramView {
         this.drawEdges();
         this.applyZoom();
         if (firstLayout) this.fit(true);
+        // Objektansicht: Kommen Objekte hinzu, die nicht mehr in die Fläche passen, verkleinern –
+        // solange niemand selbst gezoomt hat. Sonst sähe man z. B. nur zwei von drei Schafen.
+        if (mode == "objects" && !this.userZoomed) {
+            const vw = this.el.viewport.clientWidth - 8, vh = this.el.viewport.clientHeight - 8;
+            if (vw > 0 && vh > 0 && (this.contentW * this.zoom > vw || this.contentH * this.zoom > vh)) {
+                this.setZoom(Math.max(0.45, Math.min(1, vw / this.contentW, vh / this.contentH)));
+                this.el.viewport.scrollTo({ left: 0, top: 0 });
+            }
+        }
         if (mode == "classes" && firstLayout) this.saveClassPositions();
     }
 
@@ -826,6 +838,9 @@ export class DiagramView {
         inner.style.width = this.contentW + "px";
         inner.style.height = this.contentH + "px";
     }
+
+    /** true, sobald jemand selbst zoomt; dann passt die Objektansicht nicht mehr automatisch ein */
+    private userZoomed = false;
 
     private fit(onlyShrink: boolean = false) {
         if (!this.contentW) return;
