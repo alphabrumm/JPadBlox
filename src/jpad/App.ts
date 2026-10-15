@@ -14,6 +14,8 @@ import { JavaLanguage } from "../compiler/java/JavaLanguage.js";
 import { SchedulerState } from "../compiler/common/interpreter/SchedulerState.js";
 import { WorkspaceExporter } from "../client/workspace/WorkspaceImporterExporter.js";
 import { JCM } from "../compiler/java/language/JavaCompilerMessages.js";
+import { SpritesheetData } from "../client/spritemanager/SpritesheetData.js";
+import { bytesToBase64, base64ToBytes } from "../tools/Base64.js";
 
 /**
  * Bei einem fehlenden Semikolon meldet der Compiler zwei Fehler: „Strichpunkt hier einfügen“
@@ -88,6 +90,7 @@ export class App {
         const starterScripts = STARTER_FILES.map(f => ({ title: f.name, text: f.text }));
         // Liegt das Projekt schon in der Datenbank, lädt MainEmbedded es von dort.
         await this.main.init(starterScripts);
+        await this.applyUserSprites(await this.store.readSpritesheet(this.project.id).catch(() => null));
 
         this.setupVariablesView();
         this.diagram = new DiagramView(this.el.diagram, this.main, () => this.project.id, (file, line, column) => {
@@ -233,6 +236,7 @@ export class App {
                     <button data-ref="newProjectBtn">${icon("plus")}<span>Neues Projekt</span></button>
                     <button data-ref="openFileBtn">${icon("open")}<span>Projekt aus Datei öffnen</span></button>
                     <button data-ref="saveFileBtn">${icon("save")}<span>Projekt als Datei sichern</span></button>
+                    <button data-ref="userSpritesBtn">${icon("imagePlus")}<span>Eigene Sprites</span></button>
                 </div>
                 <ul class="jp-projectlist" data-ref="projectList"></ul>
 
@@ -314,6 +318,20 @@ export class App {
             this.closeDrawer();
             const { openColorBook } = await import("./ColorBook.js");
             openColorBook(this.root, (t, i) => this.toast(t, i));
+        });
+        this.el.userSpritesBtn.addEventListener("click", async () => {
+            this.closeDrawer();
+            const { openUserSprites } = await import("./UserSprites.js");
+            openUserSprites(this.root, {
+                dialogs: this.dialogs,
+                toast: (t, i) => this.toast(t, i),
+                load: () => this.store.readSpritesheet(this.project.id),
+                save: async (zip) => {
+                    await this.store.writeSpritesheet(this.project.id, zip);
+                    await this.applyUserSprites(zip);
+                    this.markModified();
+                }
+            });
         });
         this.el.spritesBtn.addEventListener("click", async () => {
             this.closeDrawer();
@@ -823,6 +841,19 @@ export class App {
         }
     }
 
+    /**
+     * Meldet die eigenen Sprites des Projekts bei Compiler und Grafik an (Code von Martin Pabst)
+     * und kompiliert neu, damit SpriteLibrary.<Name> sofort bekannt ist.
+     */
+    async applyUserSprites(zip: Uint8Array | null) {
+        try {
+            await new SpritesheetData().initializeSpritesheetForWorkspace(this.main.getCurrentWorkspace(), this.main, zip ?? undefined);
+        } catch (e) {
+            console.error("Eigene Sprites konnten nicht geladen werden", e);
+        }
+        this.main.getCompiler()?.triggerCompile();
+    }
+
     async exportProject() {
         this.main.flush();
         const files: ProjectFile[] = this.main.getFiles().map(f => ({ name: f.name, text: f.getText() }));
@@ -833,6 +864,10 @@ export class App {
         } catch (e) {
             exported = ProjectStore.toExportedWorkspace(this.project.name, files);
         }
+        try {
+            const zip = await this.store.readSpritesheet(this.project.id);
+            if (zip) exported.spritesheetBase64 = bytesToBase64(zip);
+        } catch (e) { console.error(e); }
         const json = JSON.stringify(exported, undefined, 2);
         const filename = this.project.name.replace(/[\\/:*?"<>|]/g, "_") + ".json";
         const file = new File([json], filename, { type: "application/json" });
@@ -864,11 +899,15 @@ export class App {
     async importProject(file: File) {
         try {
             const text = await file.text();
-            const { name, files } = ProjectStore.parseImport(text, file.name);
+            const { name, files, spritesheetBase64 } = ProjectStore.parseImport(text, file.name);
             const p = this.store.createInfo(name);
             p.exported = p.modified;
             this.store.update(p.id, { exported: p.modified });
             await this.store.writeFiles(p.id, files);
+            if (spritesheetBase64) {
+                try { await this.store.writeSpritesheet(p.id, base64ToBytes(spritesheetBase64)); }
+                catch (e) { console.error("Spritesheet der Projektdatei ist beschädigt", e); }
+            }
             this.closeDrawer();
             this.toast(`„${p.name}“ geöffnet.`, "check");
             this.switchToProject(p.id);

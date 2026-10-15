@@ -166,6 +166,20 @@ export class ProjectStore {
         });
     }
 
+    // ---------- Eigene Sprites (Zip im Format der Online-IDE) ----------
+
+    async readSpritesheet(projectId: string): Promise<Uint8Array | null> {
+        await this.open();
+        const entry: any = await this.request("readonly", s => s.get(ProjectStore.scriptIdFor(projectId) + "-spritesheet"));
+        return entry?.zip instanceof Uint8Array ? entry.zip : null;
+    }
+
+    async writeSpritesheet(projectId: string, zip: Uint8Array | null): Promise<void> {
+        await this.open();
+        const key = ProjectStore.scriptIdFor(projectId) + "-spritesheet";
+        await this.request("readwrite", s => zip ? s.put({ scriptId: key, zip }) : s.delete(key));
+    }
+
     async deleteProject(projectId: string): Promise<void> {
         await this.open();
         const files = await this.readFiles(projectId);
@@ -174,6 +188,7 @@ export class ProjectStore {
             for (const f of files || []) s.delete(sid + f.name);
             s.delete(sid);
             s.delete(sid + "-classDiagram");
+            s.delete(sid + "-spritesheet");
         });
         this.saveList(this.list().filter(p => p.id != projectId));
         if (this.getCurrentId() == projectId) {
@@ -199,7 +214,7 @@ export class ProjectStore {
     }
 
     /** Liest eine Datei im Format der Online-IDE. Wirft eine Exception mit verständlicher Meldung. */
-    static parseImport(text: string, filename: string): { name: string, files: ProjectFile[] } {
+    static parseImport(text: string, filename: string): { name: string, files: ProjectFile[], spritesheetBase64?: string } {
         let data: any;
         try {
             data = JSON.parse(text);
@@ -217,6 +232,7 @@ export class ProjectStore {
             throw new Error(`„${filename}“ enthält keine Java-Dateien.`);
         }
         let name: string = data.name || filename.replace(/\.json$/i, "");
-        return { name, files };
+        const spritesheetBase64 = typeof data.spritesheetBase64 == "string" && data.spritesheetBase64.length > 0 ? data.spritesheetBase64 : undefined;
+        return { name, files, spritesheetBase64 };
     }
 }

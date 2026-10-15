@@ -39,6 +39,11 @@ async function loadSets() {
     return cache;
 }
 
+/** Namen aller eingebauten Reihen (eigene Sprites dürfen nicht genauso heißen) */
+export async function builtinSpriteNames(): Promise<Set<string>> {
+    return new Set((await loadSets()).sets.map(s => s.name));
+}
+
 export async function openSpriteLibrary(root: HTMLElement, toast: (text: string, iconName?: string) => void) {
     const layer = document.createElement("div");
     layer.className = "jp-sheet-layer jp-handbook-layer";

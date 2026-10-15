@@ -18,6 +18,9 @@ Bedienung und Gestaltung.
 - **Color Handbuch** im Menü: alle 149 Farben der Klasse `Color` mit Farbmuster, Suche (auch „rot“, „grün“ …) und Sortierung nach Farbton.
 - **Class Handbuch** im Menü: durchsuchbare Klassenreferenz der Online-IDE mit Syntax-Hervorhebung.
 - **Sprite Bibliothek** im Menü: alle eingebauten Sprites mit Nummern; ein Tipp kopiert den passenden `new Sprite(…)`-Code.
+- **Eigene Sprites** im Menü: Bilder aus Fotos/Dateien werden zu einem Spritesheet im Format der Online-IDE gepackt
+  und sind im Code als `SpriteLibrary.<Name>` verfügbar. Sie gehören zum Projekt und stehen in der Projektdatei
+  (`spritesheetBase64`), auch Online-IDE-Projekte mit eigenen Sprites lassen sich öffnen.
 - **Haltepunkte**: Knopf in der Hilfsleiste (oder Tippen auf die Zeilennummer). Das Programm hält vor der Zeile an
   und kann dann Schritt für Schritt weiterlaufen.
 - **Kein Mouse-over nötig**: alle Funktionen sind per Tippen erreichbar.
@@ -39,7 +42,8 @@ Bedienung und Gestaltung.
 | `src/jpad/LanguageBridge.ts` | ruft die Monaco-Provider der Online-IDE auf (Vervollständigung, Hover, Signaturen, Formatieren) |
 | `src/jpad/App.ts` | Oberfläche: Kopfzeile, Dateireiter, Ausgabe, Probleme, Menü |
 | `src/jpad/Diagram.ts` | Klassen- und Objektdiagramm |
-| `src/jpad/ProjectStore.ts` | Projektliste, Import/Export |
+| `src/jpad/ProjectStore.ts` | Projektliste, Import/Export, eigene Spritesheets |
+| `src/jpad/UserSprites.ts` | „Eigene Sprites“: Bilder einlesen, Spritesheet packen/entpacken, Oberfläche |
 | `src/jpad/jpad.css` | Gestaltung, Hell/Dunkel |
 
 Der Code der Online-IDE (`src/compiler`, `src/client`) bleibt unverändert. Updates von Martin Pabst

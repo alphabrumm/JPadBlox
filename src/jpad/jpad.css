@@ -1552,3 +1552,14 @@ html.phone .jp-keybar-fixed.is-right { background: var(--surface-2); }
 @media (pointer: coarse) {
     html.phone.editor-focused .jp-app { bottom: var(--keyboard-offset); }
 }
+
+/* ---------- Eigene Sprites ---------- */
+.jp-usersprites-bar { display: flex; align-items: center; gap: 12px; margin: 8px 16px 6px; flex-wrap: wrap; }
+.jp-usersprites-bar .jp-btn { display: inline-flex; align-items: center; gap: 8px; }
+.jp-usersprites-bar .jp-icon { width: 20px; height: 20px; }
+.jp-usersprites-busy { color: var(--ink-2); font-size: 14px; }
+.jp-usersprites .jp-sprite-set h3 { align-items: center; flex-wrap: wrap; }
+.jp-usersprites-seriesbtns { margin-left: auto; display: inline-flex; gap: 2px; }
+.jp-usersprites-seriesbtns .jp-iconbtn { width: 38px; height: 38px; color: var(--ink-2); }
+.jp-usersprites-seriesbtns .jp-iconbtn .jp-icon { width: 19px; height: 19px; }
+.jp-usersprites img.jp-sprite-img { object-fit: contain; }
