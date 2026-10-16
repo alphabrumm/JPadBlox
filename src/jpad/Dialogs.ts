@@ -92,6 +92,24 @@ export class Dialogs {
         }).then(v => v === true);
     }
 
+    /** Mehrzeiliges Feld, in das man selbst einsetzt (Rückfall, wenn die Zwischenablage nicht lesbar ist). */
+    pasteArea(o: { title: string, text: string, confirm: string }): Promise<string | null> {
+        return this.open(`
+            <h2 class="jp-sheet-title">${escapeHtml(o.title)}</h2>
+            <p class="jp-sheet-text">${escapeHtml(o.text)}</p>
+            <form class="jp-form">
+                <textarea class="jp-paste-area" rows="8" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+                <div class="jp-sheet-buttons">
+                    <button type="button" class="jp-btn" data-cancel>Abbrechen</button>
+                    <button type="submit" class="jp-btn jp-btn-primary">${escapeHtml(o.confirm)}</button>
+                </div>
+            </form>`, (sheet, close) => {
+            const ta = sheet.querySelector("textarea")!;
+            setTimeout(() => ta.focus(), 60);
+            sheet.querySelector("form")!.addEventListener("submit", (e) => { e.preventDefault(); close(ta.value); });
+        });
+    }
+
     alert(o: { title: string, text: string }): Promise<void> {
         return this.open(`
             <h2 class="jp-sheet-title">${escapeHtml(o.title)}</h2>

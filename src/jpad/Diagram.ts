@@ -321,7 +321,8 @@ export class DiagramView {
             if (m.isConstructor && m.identifier != t.identifier) continue;
             if (hidden.indexOf(m.identifier) >= 0 && (isEnum || m.identifier.endsWith("Json"))) continue;
             if (!m.identifierRange || m.identifierRange.startLineNumber < 1) continue; // generierte Methoden
-            const params = m.parameters.map(p => `${escapeHtml(p.identifier)}: ${escapeHtml(typeName(p.type))}`).join(", ");
+            // geschütztes Leerzeichen: Umbruch nur zwischen den Parametern, nicht in „n: String“
+            const params = m.parameters.map(p => `<span class="jp-uml-param">${escapeHtml(p.identifier)}:&nbsp;${escapeHtml(typeName(p.type))}</span>`).join(", ");
             const ret = m.isConstructor || !m.returnParameterType || m.returnParameterType.identifier == "void" ? "" : `<span class="jp-uml-type">: ${escapeHtml(typeName(m.returnParameterType))}</span>`;
             const cls = [m.isStatic ? "is-static" : "", (m.isAbstract || isInterface) ? "is-abstract" : ""].filter(Boolean).join(" ");
             methodsHtml += `<li class="${cls}" data-jump="${m.identifierRange.startLineNumber}"><span class="jp-uml-vis">${visibilitySymbol(m.visibility)}</span> ${escapeHtml(m.identifier)}(${params})${ret}</li>`;

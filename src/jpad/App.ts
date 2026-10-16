@@ -612,6 +612,17 @@ export class App {
         add.innerHTML = icon("plus") + "<span>Klasse</span>";
         add.addEventListener("click", () => this.newClass());
         container.appendChild(add);
+        const sep = document.createElement("span");
+        sep.className = "jp-filetabs-sep";
+        sep.setAttribute("aria-hidden", "true");
+        container.appendChild(sep);
+        const paste = document.createElement("button");
+        paste.className = "jp-filetab jp-filetab-add jp-filetab-paste";
+        paste.setAttribute("aria-label", "Text aus der Zwischenablage in neue Datei einsetzen");
+        paste.title = "Text aus der Zwischenablage in neue Datei einsetzen";
+        paste.innerHTML = icon("pastePlus");
+        paste.addEventListener("click", () => this.pasteAsNewFile());
+        container.appendChild(paste);
         container.querySelector(".is-active")?.scrollIntoView({ block: "nearest", inline: "nearest" });
     }
 
@@ -623,6 +634,48 @@ export class App {
             return `Es gibt schon eine Datei „${name}“.`;
         }
         return null;
+    }
+
+    /** Legt eine neue Datei mit dem Text aus der Zwischenablage an. */
+    async pasteAsNewFile() {
+        const ok = await this.dialogs.confirm({
+            title: "Kopierten Text der Zwischenablage in neue Datei einsetzen?",
+            text: "JPad legt eine neue Datei an und setzt dort den Text ein, der gerade in der Zwischenablage liegt.",
+            confirm: "Einsetzen"
+        });
+        if (!ok) return;
+        let text: string | null = null;
+        try {
+            text = await navigator.clipboard.readText();
+        } catch (e) {
+            // Browser erlaubt kein direktes Lesen: Text von Hand in ein Feld einsetzen lassen
+            text = await this.dialogs.pasteArea({
+                title: "Text hier einsetzen",
+                text: "JPad darf die Zwischenablage nicht direkt lesen. Halte den Finger in das Feld und wähle „Einsetzen“.",
+                confirm: "Einsetzen"
+            });
+        }
+        if (text == null) return;
+        text = text.replace(/\r\n?/g, "\n");
+        if (text.trim().length == 0) {
+            this.toast("Die Zwischenablage ist leer. Kopiere zuerst Code, zum Beispiel aus einem Lernkurs.", "info", 5000);
+            return;
+        }
+        const name = this.nameForPastedCode(text);
+        const file = this.main.createFile(name + ".java", text.endsWith("\n") ? text : text + "\n");
+        this.main.setFileActive(file);
+        this.setView("code");
+        this.toast(`Neue Datei „${name}“ mit dem Text aus der Zwischenablage angelegt.`, "pastePlus", 4000);
+    }
+
+    /** Name der neuen Datei: erste Klasse im eingefügten Text, sonst „Eingefuegt“; bei Bedarf mit Nummer. */
+    private nameForPastedCode(text: string): string {
+        const m = text.match(/\b(?:class|interface|enum)\s+([A-Za-z_][A-Za-z0-9_]*)/);
+        const base = m ? m[1] : "Eingefuegt";
+        if (!this.validateClassName(base)) return base;
+        let i = 2;
+        while (this.validateClassName(base + i)) i++;
+        return base + i;
     }
 
     async newClass() {

@@ -38,6 +38,7 @@ const paths: Record<string, string> = {
     variables: '<path d="M7 4C5 4 5 6 5 8s-1 3-2 4c1 1 2 2 2 4s0 4 2 4"/><path d="M17 4c2 0 2 2 2 4s1 3 2 4c-1 1-2 2-2 4s0 4-2 4"/><path d="M9.5 9l5 6M14.5 9l-5 6"/>',
     search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
     book: '<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/><path d="M9 8h6M9 12h4"/>',
+    pastePlus: '<path d="M15 4h2a2 2 0 0 1 2 2v5"/><path d="M9 4H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h6"/><rect x="9" y="2.5" width="6" height="3.5" rx="1"/><path d="M18 14.5v7M14.5 18h7"/>',
     copyFile: '<rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2"/><path d="M11.5 13l-1.5 1.5 1.5 1.5M16.5 13l1.5 1.5-1.5 1.5"/>',
     copyAll: '<rect x="10" y="10" width="11" height="11" rx="2"/><path d="M17 10V8a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/><path d="M13 6V4a1.5 1.5 0 0 0-1.5-1.5H4.5A1.5 1.5 0 0 0 3 4v7a1.5 1.5 0 0 0 1.5 1.5H6"/>',
     imagePlus: '<path d="M21 12v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-4-4-10 8"/><path d="M18 2v6M15 5h6"/>',
