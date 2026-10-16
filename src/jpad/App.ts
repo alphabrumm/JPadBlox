@@ -178,6 +178,8 @@ export class App {
             </button>
             <div class="jp-topbar-spacer"></div>
             <div class="jp-toolgroup jp-edit-tools">
+                <button class="jp-iconbtn" data-ref="copyAllBtn" aria-label="Code aller Dateien kopieren" title="Code aller Dateien kopieren">${icon("copyAll")}</button>
+                <button class="jp-iconbtn" data-ref="copyFileBtn" aria-label="Code dieser Datei kopieren" title="Code dieser Datei kopieren">${icon("copyFile")}</button>
                 <button class="jp-iconbtn" data-ref="undo" aria-label="Rückgängig" title="Rückgängig">${icon("undo")}</button>
                 <button class="jp-iconbtn" data-ref="redo" aria-label="Wiederholen" title="Wiederholen">${icon("redo")}</button>
                 <button class="jp-iconbtn jp-wide-only" data-ref="formatBtn" aria-label="Code formatieren" title="Code formatieren">${icon("format")}</button>
@@ -287,6 +289,8 @@ export class App {
         this.el.drawerClose.addEventListener("click", () => this.closeDrawer());
         this.el.drawerBackdrop.addEventListener("click", () => this.closeDrawer());
         this.el.projectBtn.addEventListener("click", () => this.renameProject());
+        this.el.copyAllBtn.addEventListener("click", () => this.copyCode(true));
+        this.el.copyFileBtn.addEventListener("click", () => this.copyCode(false));
         this.el.undo.addEventListener("click", () => this.editor.undo());
         this.el.redo.addEventListener("click", () => this.editor.redo());
         this.el.formatBtn.addEventListener("click", () => this.formatCode());
@@ -1011,7 +1015,27 @@ export class App {
     // =====================================================================
 
     private toastTimer: any;
-    toast(text: string, iconName: string = "info") {
+    /**
+     * Kopiert den Quelltext in die Zwischenablage – alle Dateien nacheinander
+     * (Reihenfolge wie die Reiter) oder nur die geöffnete Datei.
+     */
+    async copyCode(all: boolean) {
+        this.main.flush();
+        const files = all ? this.main.getFiles() : [this.main.getActiveFile()].filter(f => f != null) as GUIFile[];
+        if (files.length == 0) return;
+        const text = files.map(f => f.getText().replace(/\s+$/, "")).join("\n\n") + "\n";
+        const ok = await copyToClipboard(text);
+        const hint = "Füge den Code woanders wieder ein (z.B. bei einer Abgabe in einem Lernkurs).";
+        if (!ok) {
+            this.toast("Kopieren hat nicht geklappt. Markiere den Code im Editor und kopiere ihn von Hand.", "info", 5000);
+        } else if (all) {
+            this.toast("Code aller Dateien in die Zwischenablage kopiert. " + hint, "copyAll", 5000);
+        } else {
+            this.toast(`Code der Datei „${files[0].name.replace(/\.java$/, "")}“ in die Zwischenablage kopiert. ` + hint, "copyFile", 5000);
+        }
+    }
+
+    toast(text: string, iconName: string = "info", duration: number = 3200) {
         let t = this.root.querySelector<HTMLElement>(".jp-toast");
         if (!t) {
             t = document.createElement("div");
@@ -1022,6 +1046,27 @@ export class App {
         t.innerHTML = icon(iconName) + `<span>${escapeHtml(text)}</span>`;
         t.classList.add("is-visible");
         clearTimeout(this.toastTimer);
-        this.toastTimer = setTimeout(() => t!.classList.remove("is-visible"), 3200);
+        this.toastTimer = setTimeout(() => t!.classList.remove("is-visible"), duration);
     }
+}
+
+/** Zwischenablage mit Rückfall für ältere Browser (z. B. ohne Clipboard-API im http-Betrieb). */
+async function copyToClipboard(text: string): Promise<boolean> {
+    try {
+        await navigator.clipboard.writeText(text);
+        return true;
+    } catch (e) { /* weiter mit dem Rückfall */ }
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-1000px";
+    ta.style.fontSize = "16px";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    let ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { }
+    ta.remove();
+    return ok;
 }
