@@ -199,6 +199,11 @@ export class App {
             <section class="jp-pane jp-pane-code" aria-label="Quelltext">
                 <div class="jp-filebar" data-ref="filebar">
                     <nav class="jp-filetabs" data-ref="fileTabs" aria-label="Dateien"></nav>
+                    <div class="jp-filebar-actions">
+                        <button class="jp-filetab-add" data-ref="newFileBtn" aria-label="Neue Datei" title="Neue Datei">${icon("plus")}</button>
+                        <span class="jp-filetabs-sep" aria-hidden="true"></span>
+                        <button class="jp-filetab-add jp-filetab-paste" data-ref="pasteFileBtn" aria-label="Text aus der Zwischenablage in neue Datei einsetzen" title="Text aus der Zwischenablage in neue Datei einsetzen">${icon("pastePlus")}</button>
+                    </div>
                     <button class="jp-iconbtn jp-layoutbtn" data-ref="layoutBtn"></button>
                 </div>
                 <div class="jp-editor" data-ref="editorHost"></div>
@@ -289,6 +294,8 @@ export class App {
         this.el.drawerClose.addEventListener("click", () => this.closeDrawer());
         this.el.drawerBackdrop.addEventListener("click", () => this.closeDrawer());
         this.el.projectBtn.addEventListener("click", () => this.renameProject());
+        this.el.newFileBtn.addEventListener("click", () => this.newFile());
+        this.el.pasteFileBtn.addEventListener("click", () => this.pasteAsNewFile());
         this.el.copyAllBtn.addEventListener("click", () => this.copyCode(true));
         this.el.copyFileBtn.addEventListener("click", () => this.copyCode(false));
         this.el.undo.addEventListener("click", () => this.editor.undo());
@@ -606,29 +613,12 @@ export class App {
             });
             container.appendChild(b);
         }
-        const add = document.createElement("button");
-        add.className = "jp-filetab jp-filetab-add";
-        add.setAttribute("aria-label", "Neue Klasse");
-        add.innerHTML = icon("plus") + "<span>Klasse</span>";
-        add.addEventListener("click", () => this.newClass());
-        container.appendChild(add);
-        const sep = document.createElement("span");
-        sep.className = "jp-filetabs-sep";
-        sep.setAttribute("aria-hidden", "true");
-        container.appendChild(sep);
-        const paste = document.createElement("button");
-        paste.className = "jp-filetab jp-filetab-add jp-filetab-paste";
-        paste.setAttribute("aria-label", "Text aus der Zwischenablage in neue Datei einsetzen");
-        paste.title = "Text aus der Zwischenablage in neue Datei einsetzen";
-        paste.innerHTML = icon("pastePlus");
-        paste.addEventListener("click", () => this.pasteAsNewFile());
-        container.appendChild(paste);
         container.querySelector(".is-active")?.scrollIntoView({ block: "nearest", inline: "nearest" });
     }
 
     private validateClassName(name: string, except?: GUIFile): string | null {
         if (!/^[A-Za-zÄÖÜäöü_][A-Za-z0-9ÄÖÜäöüß_]*$/.test(name)) {
-            return "Ein Klassenname beginnt mit einem Buchstaben und enthält nur Buchstaben, Ziffern und _.";
+            return "Ein Dateiname beginnt mit einem Buchstaben und enthält nur Buchstaben, Ziffern und _ (keine Leerzeichen).";
         }
         if (this.main.getFiles().some(f => f != except && f.name.toLowerCase() == (name + ".java").toLowerCase())) {
             return `Es gibt schon eine Datei „${name}“.`;
@@ -678,10 +668,11 @@ export class App {
         return base + i;
     }
 
-    async newClass() {
+    /** Neue, leere Datei (ohne Klassengerüst). */
+    async newFile() {
         const name = await this.dialogs.prompt({
-            title: "Neue Klasse",
-            label: "Name der Klasse",
+            title: "Neue Datei",
+            label: "Name der Datei",
             placeholder: "z. B. Auto",
             confirm: "Anlegen",
             validate: (v) => this.validateClassName(v.trim()),
@@ -689,10 +680,10 @@ export class App {
         });
         if (!name) return;
         const n = name.trim();
-        const file = this.main.createFile(n + ".java", `class ${n} {\n\n   \n\n}\n`);
+        const file = this.main.createFile(n + ".java", "");
         this.main.setFileActive(file);
         this.setView("code");
-        setTimeout(() => { this.editor.revealLine(3, 4, true); this.editor.focus(); }, 50);
+        setTimeout(() => { this.editor.revealLine(1, 1, true); this.editor.focus(); }, 50);
     }
 
     async fileActions(file: GUIFile) {
