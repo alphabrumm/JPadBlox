@@ -1646,3 +1646,17 @@ html.tablet .jp-app[data-layout="tabs"][data-view="code"] .jp-bottomnav {
 .jp-debuglog-bar b { flex: 1; }
 .jp-debuglog-bar button { background: rgba(255,255,255,.15); color: inherit; border-radius: 6px; padding: 4px 8px; font: inherit; }
 .jp-debuglog pre { margin: 0; padding: 6px 8px; overflow: auto; white-space: pre-wrap; word-break: break-word; flex: 1; }
+
+/* ---------- Testmodus „?kb=einfach“ (Tablet) ----------
+   Wie in qPad: Die App ist nicht fest positioniert, sondern im normalen Fluss und genau
+   so hoch wie der sichtbare Bereich (--app-height). Die Hilfsleiste sitzt unten in der App. */
+html.kb-simple.tablet body { position: static; }
+html.kb-simple.tablet .jp-app {
+    position: relative;
+    inset: auto !important;
+    height: var(--app-height, 100dvh);
+    padding-bottom: 56px;
+}
+html.kb-simple.tablet:not(.keyboard-open) .jp-app { padding-bottom: calc(56px + env(safe-area-inset-bottom)); }
+html.kb-simple.tablet .jp-app[data-layout="tabs"]:not([data-view="code"]) { padding-bottom: 0; }
+html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }

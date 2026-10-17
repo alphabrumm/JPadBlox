@@ -30,6 +30,17 @@ const KEYS: Key[] = [
     { label: "++", insert: "++" },
 ];
 
+/** Testmodus für die Tastatur-Behandlung: „?kb=einfach“ schaltet ein, „?kb=normal“ aus (wird gemerkt). */
+function simpleKeyboardMode(): boolean {
+    const m = /[?&]kb=(einfach|normal)\b/.exec(location.search);
+    try {
+        if (m) localStorage.setItem("jpad.kb", m[1]);
+        return localStorage.getItem("jpad.kb") == "einfach";
+    } catch (e) {
+        return m?.[1] == "einfach";
+    }
+}
+
 export class KeyBar {
 
     el: HTMLElement;
@@ -112,10 +123,26 @@ export class KeyBar {
              * erst, wenn gerade nicht getippt wird.
              */
             let lastOffset = -1, lastOpen: boolean | null = null, lastTouch = 0, timer: any;
+            const simple = simpleKeyboardMode();
+            document.documentElement.classList.toggle("kb-simple", simple);
             const update = () => {
                 clearTimeout(timer);
                 const offset = Math.max(0, Math.round(window.innerHeight - (vv.height + vv.offsetTop)));
                 const open = offset > 80;
+                if (simple) {
+                    /*
+                     * Testmodus „?kb=einfach“ (wie qPad): Die App liegt nicht mehr fest positioniert
+                     * über der Seite, sondern ist genau so hoch wie der sichtbare Bereich. Jede
+                     * Änderung wird sofort übernommen, die Seite nach oben geschoben und der Editor
+                     * sofort neu vermessen – so passt Safaris Layout schon beim nächsten Tipp.
+                     */
+                    document.documentElement.style.setProperty("--app-height", Math.round(vv.height) + "px");
+                    document.documentElement.style.setProperty("--keyboard-offset", offset + "px");
+                    document.documentElement.classList.toggle("keyboard-open", open);
+                    if (window.scrollY || window.scrollX || vv.offsetTop) window.scrollTo(0, 0);
+                    this.editor.view.requestMeasure();
+                    return;
+                }
                 if (open === lastOpen && Math.abs(offset - lastOffset) < 2) return;
                 const quiet = Date.now() - lastTouch;
                 if (open === lastOpen && quiet < 700) { timer = setTimeout(update, 700 - quiet); return; }
