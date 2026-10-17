@@ -156,6 +156,10 @@ export class App {
         const update = () => {
             const phone = coarse.matches && Math.min(screen.width, screen.height) < 600;
             document.documentElement.classList.toggle("phone", phone);
+            // Tablet: Touch-Gerät, das kein Handy ist. maxTouchPoints zusätzlich, weil Safari
+            // bei angeschlossenem Trackpad (Magic Keyboard) keinen groben Zeiger mehr meldet.
+            const touch = coarse.matches || navigator.maxTouchPoints > 1;
+            document.documentElement.classList.toggle("tablet", touch && !phone);
             const bar = this.keyBar.el;
             if (phone) {
                 if (bar.previousElementSibling != this.el.filebar) this.el.filebar.after(bar);
