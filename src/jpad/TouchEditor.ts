@@ -32,44 +32,53 @@ import { LanguageBridge } from "./LanguageBridge.js";
  * schnellen Fingertipps an, ersetzen wir sie durch das angetippte Wort. Echte Auswahlen
  * (Griffe ziehen, „Alles auswählen“) sind davon nicht betroffen.
  */
+/** Diagnose-Ausgabe (nur aktiv mit ?debug, siehe DebugLog.ts) */
+const dbg = (msg: string) => { (window as any).__jpadDbg?.(msg); };
+
 function iosDoubleTapFix(): Extension {
     const taps: number[] = [];
     // Wort unter dem Finger beim zweiten Tipp eines Doppeltipps
     let expected: { from: number, to: number, time: number } | null = null;
+    const onTapEnd = (e: TouchEvent, view: EditorView): boolean => {
+        if (e.touches.length != 0 || e.changedTouches.length != 1) return false;
+        dbg(`tap ${e.type} #${taps.length + 1}`);
+        const now = Date.now();
+        taps.push(now);
+        if (taps.length > 2) taps.shift();
+        expected = null;
+        if (taps.length == 2 && taps[1] - taps[0] < 600) {
+            const t = e.changedTouches[0];
+            const pos = view.posAtCoords({ x: t.clientX, y: t.clientY });
+            const word = pos == null ? null : view.state.wordAt(pos);
+            if (word) {
+                dbg(`erwartetes Wort ${word.from}-${word.to} „${view.state.sliceDoc(word.from, word.to)}“`);
+                expected = { from: word.from, to: word.to, time: now };
+                // Ragt die sichtbare Auswahl kurz danach aus dem Editor heraus (Anfang vor dem
+                // Editor auf der Seite), sichtbare Auswahl auf das Wort zurücksetzen.
+                const w = expected;
+                const repair = () => {
+                    const ds = document.getSelection();
+                    if (!ds || ds.rangeCount == 0 || !view.hasFocus) return;
+                    const inside = view.contentDOM.contains(ds.anchorNode) && view.contentDOM.contains(ds.focusNode);
+                    if (inside) return;
+                    const sel = view.state.selection.main;
+                    if (sel.to < w.from || sel.from > w.to) return;
+                    const a = view.domAtPos(w.from), b = view.domAtPos(w.to);
+                    dbg("sichtbare Auswahl lag außerhalb → auf Wort gesetzt");
+                    ds.setBaseAndExtent(a.node, a.offset, b.node, b.offset);
+                    if (sel.from != w.from || sel.to != w.to) view.dispatch({ selection: EditorSelection.range(w.from, w.to), userEvent: "select.pointer" });
+                };
+                setTimeout(repair, 350);
+                setTimeout(repair, 800);
+            }
+        }
+        return false;
+    };
     return [
         EditorView.domEventHandlers({
-            touchend: (e, view) => {
-                if (e.touches.length != 0 || e.changedTouches.length != 1) return false;
-                const now = Date.now();
-                taps.push(now);
-                if (taps.length > 2) taps.shift();
-                expected = null;
-                if (taps.length == 2 && taps[1] - taps[0] < 600) {
-                    const t = e.changedTouches[0];
-                    const pos = view.posAtCoords({ x: t.clientX, y: t.clientY });
-                    const word = pos == null ? null : view.state.wordAt(pos);
-                    if (word) {
-                        expected = { from: word.from, to: word.to, time: now };
-                        // Ragt die sichtbare Auswahl kurz danach aus dem Editor heraus (Anfang vor dem
-                        // Editor auf der Seite), sichtbare Auswahl auf das Wort zurücksetzen.
-                        const w = expected;
-                        const repair = () => {
-                            const ds = document.getSelection();
-                            if (!ds || ds.rangeCount == 0 || !view.hasFocus) return;
-                            const inside = view.contentDOM.contains(ds.anchorNode) && view.contentDOM.contains(ds.focusNode);
-                            if (inside) return;
-                            const sel = view.state.selection.main;
-                            if (sel.to < w.from || sel.from > w.to) return;
-                            const a = view.domAtPos(w.from), b = view.domAtPos(w.to);
-                            ds.setBaseAndExtent(a.node, a.offset, b.node, b.offset);
-                            if (sel.from != w.from || sel.to != w.to) view.dispatch({ selection: EditorSelection.range(w.from, w.to), userEvent: "select.pointer" });
-                        };
-                        setTimeout(repair, 350);
-                        setTimeout(repair, 800);
-                    }
-                }
-                return false;
-            }
+            // iOS meldet den zweiten Tipp eines Doppeltipps teils als touchcancel
+            touchend: onTapEnd,
+            touchcancel: onTapEnd
         }),
         EditorState.transactionFilter.of(tr => {
             if (!expected || !tr.selection || tr.docChanged || !tr.isUserEvent("select")) return tr;
@@ -80,6 +89,7 @@ function iosDoubleTapFix(): Extension {
             // Nur eingreifen, wenn die Auswahl bis an das angetippte Wort reicht oder es enthält
             // (Safari setzt den Anfang dann an den Text- bzw. Seitenanfang).
             if (sel.to < expected.from || sel.from > expected.to) return tr;
+            dbg(`Auswahl ${sel.from}-${sel.to} → Wort ${expected.from}-${expected.to} ersetzt`);
             return [tr, { selection: EditorSelection.range(expected.from, expected.to), userEvent: "select.pointer", sequential: true }];
         })
     ];

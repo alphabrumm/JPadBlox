@@ -115,6 +115,8 @@ export class App {
 
         // Für Fehlersuche in der Browser-Konsole
         (window as any).jpad = this;
+        // Diagnose-Protokoll für Fehlersuche auf echten Geräten: jpad…/?debug
+        if (/[?&]debug\b/.test(location.search)) import("./DebugLog.js").then(m => m.startDebugLog(this.editor.view));
 
         this.keyBar = new KeyBar(this.root, this.editor, this.bridge, (html) => this.showInfo(html));
         this.editor.onToggleBreakpoint = (line) => this.toggleBreakpoint(line);
