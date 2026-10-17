@@ -1,8 +1,8 @@
 import * as monaco from 'monaco-editor';
 import { EditorState, Extension, StateEffect, StateField, Compartment, Transaction, EditorSelection } from "@codemirror/state";
 import {
-    EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, Decoration, DecorationSet,
-    highlightSpecialChars, dropCursor, gutter, GutterMarker
+    EditorView, keymap, lineNumbers, highlightActiveLineGutter, Decoration, DecorationSet,
+    highlightSpecialChars, dropCursor, gutter, GutterMarker, layer, RectangleMarker
 } from "@codemirror/view";
 import { RangeSet } from "@codemirror/state";
 import { defaultKeymap, history, historyKeymap, indentWithTab, undo, redo, undoDepth, redoDepth, toggleComment } from "@codemirror/commands";
@@ -25,6 +25,34 @@ import { LanguageBridge } from "./LanguageBridge.js";
  * Jede Datei hat ihren eigenen EditorState (eigene Rückgängig-Historie). Änderungen werden
  * sofort in das Monaco-Modell der Datei übertragen, auf dem Compiler und Sprachdienste arbeiten.
  */
+
+/**
+ * Hervorhebung der Cursorzeile als eigene Ebene hinter dem Text.
+ *
+ * CodeMirrors highlightActiveLine() setzt die Klasse „cm-activeLine“ direkt an den Zeilen im
+ * bearbeitbaren Bereich. Auf iPhone/iPad passiert das beim ersten Tipp eines Doppeltipps – Safari
+ * verliert dadurch den Ankerpunkt der Wortauswahl und markiert alles vom Textanfang bis zum Wort
+ * (außer in der Zeile, in der der Cursor schon stand). Diese Ebene liegt außerhalb des
+ * contenteditable-Elements und verändert die Zeilen nicht.
+ */
+const activeLineLayer = layer({
+    above: false,
+    class: "jp-activeline-layer",
+    update: (update) => update.selectionSet || update.docChanged || update.viewportChanged || update.geometryChanged || update.focusChanged,
+    markers: (view) => {
+        const sel = view.state.selection.main;
+        if (!sel.empty) return [];
+        const block = view.lineBlockAt(sel.head);
+        // Bezugspunkt wie bei CodeMirrors eigenen Ebenen: linke obere Ecke des Scrollbereichs
+        const scroller = view.scrollDOM.getBoundingClientRect();
+        const content = view.contentDOM.getBoundingClientRect();
+        const baseLeft = scroller.left - view.scrollDOM.scrollLeft * view.scaleX;
+        const baseTop = scroller.top - view.scrollDOM.scrollTop * view.scaleY;
+        const top = (view.documentTop + block.top * view.scaleY - baseTop) / view.scaleY;
+        const left = (content.left - baseLeft) / view.scaleX;
+        return [new RectangleMarker("jp-activeline", left, top, content.width / view.scaleX, block.height)];
+    }
+});
 
 export const javaHighlight = HighlightStyle.define([
     { tag: [t.keyword, t.modifier, t.controlKeyword, t.operatorKeyword, t.definitionKeyword, t.moduleKeyword], color: "var(--syn-keyword)", fontWeight: "600" },
@@ -177,7 +205,7 @@ export class TouchEditor {
                     : []
             }),
             closeBrackets(),
-            highlightActiveLine(),
+            activeLineLayer,
             highlightSelectionMatches(),
             java(),
             syntaxHighlighting(javaHighlight),
