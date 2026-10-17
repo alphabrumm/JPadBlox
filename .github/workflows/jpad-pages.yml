@@ -38,6 +38,8 @@ jobs:
   # Übertragen werden nur geänderte Dateien (Merkdatei .ftp-deploy-sync-state.json im Zielordner).
   webspace:
     needs: build
+    # Nur Stände aus main gehen an die Schüler – Test-Branches landen nur auf GitHub Pages
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     concurrency:
       group: webspace
