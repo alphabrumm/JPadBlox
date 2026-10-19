@@ -60,6 +60,15 @@ Das Ergebnis liegt in `dist-jpad/` und kann auf jeden Webspace mit HTTPS hochgel
 (eine `.htaccess` für Apache liegt bei). Bei jedem Push auf `main` baut GitHub Actions JPad automatisch,
 veröffentlicht es auf GitHub Pages und stellt den Ordner als Artefakt „j-pad-webspace“ zum Download bereit.
 
+### Veröffentlichen auf jpad.pandapy.de
+
+1. Push auf `main` → GitHub Pages (alphabrumm.github.io/jpad) zum Testen.
+2. Testen.
+3. Erst danach ein Tag `live-JJJJ-MM-TT-n` auf den getesteten Commit setzen und pushen. Der Workflow
+   `jpad-webspace.yml` holt das unveränderte Paket aus dem Pages-Lauf dieses Commits und überträgt es per
+   FTP(S) auf den Webspace (nur geänderte Dateien). Benötigt die Secrets `FTP_SERVER`, `FTP_USERNAME`,
+   `FTP_PASSWORD`, `FTP_DIR`. Ein Push auf `main` allein ändert am Webspace nichts.
+
 ## Lizenz
 
 GNU GPL v3, wie die Online-IDE.

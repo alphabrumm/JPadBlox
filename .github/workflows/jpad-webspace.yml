@@ -1,0 +1,67 @@
+name: JPad auf den Webspace (jpad.pandapy.de)
+# Schritt 3 des Ablaufs: Bauen & auf GitHub Pages testen → erst nach ausdrücklichem „Go“
+# wird genau der getestete Stand per FTP auf den Webspace übertragen.
+#
+# Ausgelöst durch ein Tag „live-…“ auf dem getesteten Commit (z. B. live-2026-10-19-1)
+# oder von Hand (Actions → diesen Workflow → Run workflow; dann der neueste Pages-Stand).
+# Übertragen wird das unveränderte Paket aus dem erfolgreichen Pages-Lauf dieses Commits –
+# also Byte für Byte das, was auf alphabrumm.github.io/jpad getestet wurde.
+#
+# Benötigt die Repository-Secrets FTP_SERVER, FTP_USERNAME, FTP_PASSWORD, FTP_DIR.
+on:
+  workflow_dispatch:
+  push:
+    tags: ['live-*']
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: webspace
+  cancel-in-progress: false
+jobs:
+  webspace:
+    runs-on: ubuntu-latest
+    steps:
+      - name: FTP-Zugang vorhanden?
+        env:
+          S: ${{ secrets.FTP_SERVER }}
+          U: ${{ secrets.FTP_USERNAME }}
+          P: ${{ secrets.FTP_PASSWORD }}
+          D: ${{ secrets.FTP_DIR }}
+        run: |
+          if [ -z "$S" ] || [ -z "$U" ] || [ -z "$P" ] || [ -z "$D" ]; then
+            echo "::error::FTP-Secrets fehlen (FTP_SERVER, FTP_USERNAME, FTP_PASSWORD, FTP_DIR) – unter Settings → Secrets and variables → Actions anlegen."
+            exit 1
+          fi
+      - name: Getestetes Paket von GitHub Pages holen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT" = "push" ]; then
+            RUN=$(gh run list -R "$REPO" --workflow jpad-pages.yml --commit "$SHA" --status success -L 1 --json databaseId -q '.[0].databaseId')
+          else
+            RUN=$(gh run list -R "$REPO" --workflow jpad-pages.yml --branch main --status success -L 1 --json databaseId -q '.[0].databaseId')
+          fi
+          if [ -z "$RUN" ]; then
+            echo "::error::Kein erfolgreicher Pages-Lauf für diesen Stand gefunden – erst auf GitHub Pages veröffentlichen und testen."
+            exit 1
+          fi
+          INFO=$(gh run view "$RUN" -R "$REPO" --json headSha,displayTitle,updatedAt -q '.headSha[0:7]+" – "+.displayTitle+" ("+.updatedAt+")"')
+          echo "Übertrage Pages-Lauf $RUN: $INFO"
+          echo "### Auf jpad.pandapy.de übertragen" >> "$GITHUB_STEP_SUMMARY"
+          echo "$INFO" >> "$GITHUB_STEP_SUMMARY"
+          gh run download "$RUN" -R "$REPO" -n j-pad-webspace -D dist-jpad
+          test -f dist-jpad/jpad.html
+      # Übertragen werden nur geänderte Dateien (Merkdatei .ftp-deploy-sync-state.json im Zielordner).
+      - uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_DIR }}
+          local-dir: ./dist-jpad/
+          protocol: ${{ vars.FTP_PROTOCOL || 'ftps' }}
+          log-level: standard
