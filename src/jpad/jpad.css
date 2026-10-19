@@ -118,7 +118,6 @@ button:focus-visible, input:focus-visible, a:focus-visible {
 .jp-app {
     position: fixed;
     inset: 0;
-    top: var(--vv-top, 0px); /* mit Tastatur: oben am sichtbaren Bereich (Safari verschiebt ihn) */
     display: grid;
     grid-template-rows: auto 1fr auto;
     padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
