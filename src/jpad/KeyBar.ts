@@ -140,7 +140,7 @@ export class KeyBar {
              * Deshalb: nur echte Änderungen schreiben, Tastatur auf/zu sofort, kleine Verschiebungen
              * erst, wenn gerade nicht getippt wird.
              */
-            let lastOffset = -1, lastOpen: boolean | null = null, lastTouch = 0, timer: any;
+            let lastOffset = -1, lastOpen: boolean | null = null, lastTouch = 0, lastTop = 0, openedAt = 0, timer: any;
             const simple = simpleKeyboardMode();
             document.documentElement.classList.toggle("kb-simple", simple);
             const update = () => {
@@ -161,12 +161,23 @@ export class KeyBar {
                     this.editor.view.requestMeasure();
                     return;
                 }
-                if (open === lastOpen && Math.abs(offset - lastOffset) < 2) return;
-                const quiet = Date.now() - lastTouch;
-                if (open === lastOpen && quiet < 700) { timer = setTimeout(update, 700 - quiet); return; }
-                lastOffset = offset; lastOpen = open;
+                /*
+                 * Beim Öffnen der Tastatur schiebt Safari (vor allem auf dem iPhone) den sichtbaren
+                 * Bereich ein Stück nach unten (vv.offsetTop > 0). Die fest positionierte App würde
+                 * dann oben aus dem Bild rutschen – samt Kopfzeile. Deshalb beginnt die App oben am
+                 * sichtbaren Bereich (--vv-top) und endet unten an der Tastatur (--keyboard-offset).
+                 */
+                const top = open ? Math.max(0, Math.round(vv.offsetTop)) : 0;
+                if (open === lastOpen && Math.abs(offset - lastOffset) < 2 && Math.abs(top - lastTop) < 2) return;
+                const now = Date.now(), quiet = now - lastTouch;
+                // Kurz nach dem Öffnen sofort anpassen (Safari schiebt erst nach), sonst erst, wenn gerade nicht getippt wird
+                if (open === lastOpen && quiet < 700 && now - openedAt > 1500) { timer = setTimeout(update, 700 - quiet); return; }
+                if (open !== lastOpen && open) openedAt = now;
+                lastOffset = offset; lastOpen = open; lastTop = top;
                 document.documentElement.style.setProperty("--keyboard-offset", offset + "px");
+                document.documentElement.style.setProperty("--vv-top", top + "px");
                 document.documentElement.classList.toggle("keyboard-open", open);
+                if (open && (window.scrollY || window.scrollX)) window.scrollTo(0, 0);
             };
             const touched = () => { lastTouch = Date.now(); };
             document.addEventListener("touchstart", touched, { capture: true, passive: true });
