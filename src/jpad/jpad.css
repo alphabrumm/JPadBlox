@@ -1661,3 +1661,11 @@ html.kb-simple.tablet .jp-app {
 html.kb-simple.tablet:not(.keyboard-open) .jp-app { padding-bottom: calc(56px + env(safe-area-inset-bottom)); }
 html.kb-simple.tablet .jp-app[data-layout="tabs"]:not([data-view="code"]) { padding-bottom: 0; }
 html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
+
+/* Testmodus „?kb=einfach“ auch auf dem Smartphone (Hilfsleiste liegt dort ohnehin im Fluss unter den Reitern) */
+html.kb-simple.phone body { position: static; }
+html.kb-simple.phone .jp-app {
+    position: relative;
+    inset: auto !important;
+    height: var(--app-height, 100dvh);
+}
