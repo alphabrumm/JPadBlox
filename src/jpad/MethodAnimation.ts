@@ -51,7 +51,7 @@ function gearPath(teeth: number, rOuter: number, rInner: number): string {
 const CSS = `
 .jp-manim { color: var(--ink, #2B3140); position: relative; }
 .jp-manim svg { display: block; width: 100%; height: auto; }
-.jp-manim .ink { fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.jp-manim .ink { fill: none; stroke: currentColor; stroke-width: 2.8; stroke-linecap: round; stroke-linejoin: round; }
 .jp-manim .thin { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .jp-manim .hand { font-family: "Chalkboard SE", "Bradley Hand", "Segoe Print", "Comic Sans MS", cursive; fill: currentColor; }
 .jp-manim .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; fill: currentColor; }
@@ -77,9 +77,9 @@ const CSS = `
 @keyframes jp-manim-in {
     0%   { opacity: 0; transform: translate(0, 0); }
     12%  { opacity: 1; }
-    45%  { transform: translate(-24px, -10px); }
-    85%  { opacity: 1; transform: translate(-58px, 34px) scale(.8); }
-    100% { opacity: 0; transform: translate(-70px, 42px) scale(.6); }
+    45%  { transform: translate(-28px, -8px); }
+    85%  { opacity: 1; transform: translate(-56px, 42px) scale(.8); }
+    100% { opacity: 0; transform: translate(-66px, 50px) scale(.6); }
 }
 .jp-manim .token-out { opacity: 0; }
 .jp-manim.out .token-out { animation: jp-manim-out 1.3s cubic-bezier(.4,0,.6,1) forwards; }
@@ -111,8 +111,8 @@ function svgMarkup(): string {
 <svg viewBox="0 0 560 360" role="img" aria-label="Animierte Skizze: Eine Methode als Kiste. Parameter werden rechts durch eine Klappe hineingegeben, die Rückgabe fällt links aus einem Rohr heraus.">
   <defs>
     <filter id="jp-manim-wobble" x="-5%" y="-5%" width="110%" height="110%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="n"/>
-      <feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="1" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.4" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
     <marker id="jp-manim-arrow-b" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="9" markerHeight="9" orient="auto">
       <path d="M1.5 1.5 L10 6 L1.5 10.5" fill="none" stroke="${BLUE}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -163,17 +163,17 @@ function svgMarkup(): string {
   <!-- Becher mit Parameter -->
   <g class="param-part" style="color:${BLUE}">
     <g class="cup anim">
-      <path d="M452 92 L508 92 L500 156 L460 156 Z" fill="#E7EDFF" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round" filter="url(#jp-manim-wobble)"/>
-      <text class="hand" data-ref="paramType" x="480" y="120" text-anchor="middle" font-size="14" font-weight="700"></text>
-      <text class="hand" data-ref="paramName" x="480" y="142" text-anchor="middle" font-size="15" font-weight="700"></text>
+      <path d="M436 82 L526 82 L514 172 L448 172 Z" fill="#E7EDFF" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round" filter="url(#jp-manim-wobble)"/>
+      <text class="hand" data-ref="paramType" x="481" y="118" text-anchor="middle" font-size="16" font-weight="700"></text>
+      <text class="hand" data-ref="paramName" x="481" y="146" text-anchor="middle" font-size="17" font-weight="700"></text>
     </g>
-    <path class="ink" d="M440 74 C 432 96, 420 112, 400 126" marker-end="url(#jp-manim-arrow-b)" style="stroke:${BLUE}" filter="url(#jp-manim-wobble)"/>
-    <text class="hand" x="478" y="196" text-anchor="middle" font-size="17" font-weight="700">Parameter</text>
-    <text class="hand" x="478" y="215" text-anchor="middle" font-size="13">(das gibst du hinein)</text>
+    <path class="ink" d="M426 66 C 420 92, 414 110, 400 126" marker-end="url(#jp-manim-arrow-b)" style="stroke:${BLUE}" filter="url(#jp-manim-wobble)"/>
+    <text class="hand" x="481" y="212" text-anchor="middle" font-size="17" font-weight="700">Parameter</text>
+    <text class="hand" x="481" y="231" text-anchor="middle" font-size="13">(das gibst du hinein)</text>
     <!-- Wert, der in die Klappe fällt -->
     <g class="token-in anim">
-      <rect x="448" y="80" width="34" height="24" rx="6" fill="#fff" stroke="${BLUE}" stroke-width="2"/>
-      <text class="hand" data-ref="paramValue" x="465" y="97" text-anchor="middle" font-size="14" font-weight="700" style="fill:${BLUE}"></text>
+      <rect x="444" y="72" width="38" height="26" rx="6" fill="#fff" stroke="${BLUE}" stroke-width="2"/>
+      <text class="hand" data-ref="paramValue" x="463" y="90" text-anchor="middle" font-size="14" font-weight="700" style="fill:${BLUE}"></text>
     </g>
   </g>
 
