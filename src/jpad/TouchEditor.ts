@@ -521,8 +521,16 @@ export class TouchEditor {
         const block = view.lineBlockAt(head);              // funktioniert auch für Zeilen außerhalb des gezeichneten Bereichs
         const r = sc.getBoundingClientRect();
         const vv = window.visualViewport;
-        const visTop = Math.max(r.top, vv ? vv.offsetTop : 0);
+        let visTop = Math.max(r.top, vv ? vv.offsetTop : 0);
         let visBottom = Math.min(r.bottom, vv ? vv.offsetTop + vv.height : window.innerHeight);
+        // Umgebende Bereiche schneiden den Editor ab (z. B. ist er unten um die Höhe der Dateireiter
+        // abgeschnitten, wenn er so hoch ist wie der ganze Code-Bereich) – nur der Schnitt ist sichtbar
+        for (let el = sc.parentElement; el && el != document.body; el = el.parentElement) {
+            const ov = getComputedStyle(el);
+            if (ov.overflowY == "visible" && ov.overflowX == "visible") continue;
+            const pr = el.getBoundingClientRect();
+            visBottom = Math.min(visBottom, pr.bottom);
+        }
         // Die Hilfsleiste über der Tastatur kann den unteren Rand des Editors verdecken
         const bar = document.querySelector<HTMLElement>(".jp-keybar");
         if (bar && bar.offsetParent) {
@@ -532,8 +540,8 @@ export class TouchEditor {
         const lineTop = view.documentTop + block.top;       // Bildschirmkoordinaten
         const lineBottom = view.documentTop + block.bottom;
         const visible = visBottom - visTop;
-        // Unten großzügig Abstand lassen (mind. 20 % der sichtbaren Höhe), oben den normalen Rand
-        let bottomMargin = Math.max(margin, visible * 0.2);
+        // Unten etwas mehr Abstand lassen (mind. 12 % der sichtbaren Höhe), oben den normalen Rand
+        let bottomMargin = Math.max(margin, visible * 0.12);
         if (visible < margin + bottomMargin + block.height) {
             margin = bottomMargin = Math.max(0, (visible - block.height) / 2);
         }
