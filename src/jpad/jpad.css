@@ -1823,10 +1823,10 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 /* Klassen: Akzent-Blau von JPad (wie der Plus-Knopf), Ablauf: Orange, Daten: Grün */
 [data-group="klasse"] { --g: var(--accent); }
 [data-group="ablauf"] { --g: #D2700A; }
-[data-group="daten"]  { --g: #0B7F57; }
+[data-group="daten"]  { --g: #5F9EA0; }  /* cadetblue */
 :root[data-effective="dark"] [data-group="klasse"] { --g: var(--accent); }
 :root[data-effective="dark"] [data-group="ablauf"] { --g: #F59E3A; }
-:root[data-effective="dark"] [data-group="daten"]  { --g: #34C68F; }
+:root[data-effective="dark"] [data-group="daten"]  { --g: #5F9EA0; }
 .jp-keybar button.jp-block, .jp-blockpanel button.jp-block { color: var(--g); }
 .jp-keybar button.jp-block:active, .jp-keybar button.jp-block.is-pressed,
 .jp-blockpanel button.jp-block:active, .jp-blockpanel button.jp-block.is-pressed { color: var(--surface); }
@@ -2020,3 +2020,19 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
     color: var(--g);
     transform: scale(.97);
 }
+
+/* JPadBlox: schmale Bausteinleiste – alle Bausteine gleich breit untereinander */
+.jp-app[data-cols="narrow"] .jp-blockpanel .jp-blockgroup-items { flex-direction: column; flex-wrap: nowrap; }
+.jp-app[data-cols="narrow"] .jp-blockpanel button.jp-block { flex: none; width: 100%; }
+
+/* JPadBlox: Umschalter Bausteine ⇄ Zeichen in der Hilfsleiste – auffällig wie die Glühbirne
+   (hell: gelb gefüllt, Symbol dunkel; dunkel: ohne Füllung, Symbol gelb) */
+.jp-keybar button.jp-key-mode {
+    background: var(--marker);
+    color: var(--marker-ink);
+    box-shadow: inset 0 0 0 1.5px var(--marker);
+}
+.jp-keybar button.jp-key-mode:active, .jp-keybar button.jp-key-mode.is-pressed { background: var(--marker); color: var(--marker-ink); filter: brightness(0.94); }
+:root[data-effective="dark"] .jp-keybar button.jp-key-mode { background: transparent; box-shadow: none; color: var(--marker); }
+:root[data-effective="dark"] .jp-keybar button.jp-key-mode:active,
+:root[data-effective="dark"] .jp-keybar button.jp-key-mode.is-pressed { background: var(--marker-soft); color: var(--marker); filter: none; }
