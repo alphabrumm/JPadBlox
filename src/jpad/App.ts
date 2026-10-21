@@ -129,6 +129,7 @@ export class App {
             dialogs: this.dialogs,
             projectTypes: () => this.projectTypes(),
             format: () => this.formatAfterBlock(),
+            constructorSuggestion: (offset) => this.bridge.constructorSuggestion(offset),
         };
         wireBlockPanel(this.el.blockPanel, blockContext);
         this.keyBar.blockContext = blockContext;

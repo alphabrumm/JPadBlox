@@ -120,6 +120,97 @@ export class Dialogs {
         });
     }
 
+    /** JPadBlox: Auswahl mehrerer Einträge (Häkchen). Liefert die ids der gewählten Einträge oder null. */
+    choose(o: { title: string, text: string, items: { id: string, label: string, note?: string, checked?: boolean }[], confirm: string }): Promise<string[] | null> {
+        return this.open(`
+            <h2 class="jp-sheet-title">${escapeHtml(o.title)}</h2>
+            <p class="jp-sheet-text">${escapeHtml(o.text)}</p>
+            <form class="jp-form">
+                <div class="jp-checklist">
+                    ${o.items.map(i => `<label class="jp-check">
+                        <input type="checkbox" value="${escapeHtml(i.id)}" ${i.checked ? "checked" : ""}>
+                        <span class="jp-check-label">${escapeHtml(i.label)}</span>
+                        ${i.note ? `<span class="jp-check-note">${escapeHtml(i.note)}</span>` : ""}
+                    </label>`).join("")}
+                </div>
+                <p class="jp-field-error" aria-live="polite"></p>
+                <div class="jp-sheet-buttons">
+                    <button type="button" class="jp-btn" data-cancel>Abbrechen</button>
+                    <button type="submit" class="jp-btn jp-btn-primary">${escapeHtml(o.confirm)}</button>
+                </div>
+            </form>`, (sheet, close) => {
+            const error = sheet.querySelector<HTMLElement>(".jp-field-error")!;
+            sheet.querySelector("form")!.addEventListener("submit", (e) => {
+                e.preventDefault();
+                const ids = [...sheet.querySelectorAll<HTMLInputElement>("input[type=checkbox]:checked")].map(c => c.value);
+                if (ids.length == 0) { error.textContent = "Bitte mindestens ein Attribut auswählen."; return; }
+                close(ids);
+            });
+        });
+    }
+
+    /**
+     * JPadBlox: „Baue Deine neue Methode“ – Name, Rückgabetyp (void oder Datentyp) und Parameter.
+     * Weitere Parameter lassen sich mit „+ weiterer Parameter“ ergänzen; Zeilen ohne Namen zählen nicht.
+     */
+    method(o: { groups: { label: string, items: string[] }[], validate: (name: string) => string | null }):
+        Promise<{ name: string, returnType: string, params: { type: string, name: string }[] } | null> {
+        const typeOptions = o.groups.filter(g => g.items.length > 0).map(g =>
+            `<optgroup label="${escapeHtml(g.label)}">${g.items.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("")}</optgroup>`
+        ).join("");
+        const paramRow = `<div class="jp-param-row">
+                <select class="jp-select" aria-label="Datentyp des Parameters">${typeOptions}</select>
+                <input type="text" placeholder="Parametername" aria-label="Name des Parameters" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off">
+            </div>`;
+        return this.open(`
+            <h2 class="jp-sheet-title">Baue Deine neue Methode</h2>
+            <form class="jp-form">
+                <label class="jp-field">
+                    <span>Name der Methode</span>
+                    <input type="text" data-name autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off" enterkeyhint="next">
+                </label>
+                <label class="jp-field">
+                    <span>Soll die Methode Daten zurückgeben? Datentyp wählen oder leer lassen</span>
+                    <select class="jp-select" data-return><option value="void">void</option>${typeOptions}</select>
+                </label>
+                <div class="jp-field">
+                    <span>Willst Du der Methode Daten mitgeben?</span>
+                    <div class="jp-param-rows">${paramRow}</div>
+                    <button type="button" class="jp-btn jp-btn-small" data-addparam>+ weiterer Parameter</button>
+                </div>
+                <p class="jp-field-error" aria-live="polite"></p>
+                <div class="jp-sheet-buttons">
+                    <button type="button" class="jp-btn" data-cancel>Abbrechen</button>
+                    <button type="submit" class="jp-btn jp-btn-primary">Einfügen</button>
+                </div>
+            </form>`, (sheet, close) => {
+            const nameInput = sheet.querySelector<HTMLInputElement>("[data-name]")!;
+            const error = sheet.querySelector<HTMLElement>(".jp-field-error")!;
+            const rows = sheet.querySelector<HTMLElement>(".jp-param-rows")!;
+            setTimeout(() => nameInput.focus(), 60);
+            sheet.addEventListener("input", () => error.textContent = "");
+            sheet.querySelector("[data-addparam]")!.addEventListener("click", () => {
+                rows.insertAdjacentHTML("beforeend", paramRow);
+                rows.querySelector<HTMLInputElement>(".jp-param-row:last-child input")?.focus();
+            });
+            sheet.querySelector("form")!.addEventListener("submit", (e) => {
+                e.preventDefault();
+                const msg = o.validate(nameInput.value);
+                if (msg) { error.textContent = msg; nameInput.focus(); return; }
+                const params: { type: string, name: string }[] = [];
+                for (const row of rows.querySelectorAll<HTMLElement>(".jp-param-row")) {
+                    const input = row.querySelector("input")!;
+                    if (input.value.trim() == "") continue;
+                    const pm = o.validate(input.value);
+                    if (pm) { error.textContent = "Parameter: " + pm; input.focus(); return; }
+                    if (params.some(p => p.name == input.value.trim())) { error.textContent = `Der Parametername „${input.value.trim()}“ kommt doppelt vor.`; input.focus(); return; }
+                    params.push({ type: row.querySelector("select")!.value, name: input.value.trim() });
+                }
+                close({ name: nameInput.value.trim(), returnType: sheet.querySelector<HTMLSelectElement>("[data-return]")!.value, params });
+            });
+        });
+    }
+
     confirm(o: ConfirmOptions): Promise<boolean> {
         return this.open(`
             <h2 class="jp-sheet-title">${escapeHtml(o.title)}</h2>

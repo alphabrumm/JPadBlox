@@ -270,6 +270,23 @@ export class LanguageBridge {
     }
 
     /**
+     * JPadBlox: Konstruktor, den die Online-IDE an dieser Stelle vorschlägt („insert constructor“:
+     * ein Parameter je Attribut, im Rumpf this.… = …). Liefert den Snippet-Text oder null.
+     */
+    async constructorSuggestion(offset: number): Promise<string | null> {
+        const model = this.getModel();
+        if (!model) return null;
+        try {
+            const list = await this.completionProvider.provideCompletionItems(model, this.toPosition(model, offset),
+                { triggerKind: 0 } as any, noCancel);
+            const item = list?.suggestions?.find(s => typeof s.label != "string" && /insert constructor/.test(s.label.detail ?? ""));
+            return item ? (typeof item.insertText == "string" ? item.insertText : null) : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    /**
      * JPadBlox: Formatier-Änderungen als Zeichenpositionen (für CodeMirror), damit Cursor und
      * Platzhalter eines gerade eingefügten Bausteins an ihrer Stelle bleiben.
      * Liefert auch den Text, auf den sich die Positionen beziehen.

@@ -26,11 +26,16 @@ export type BlockGroup = "klasse" | "ablauf" | "daten";
  * Art des Bausteins:
  *  line     Vorlage in eigener Zeile        inline   Vorlage an der Cursorstelle
  *  else     hängt sich an eine Zeile mit }   text     fester Text an der Cursorstelle (public, break; …)
+ *  visibility  public/private: ersetzt ein vorhandenes public/private/protected in der Zeile
  *  attribut / variable   Dialog mit Datentyp und Name
+ *  constructor  Konstruktor zu den Attributen („insert constructor“ der Online-IDE)
+ *  getter / setter  Auswahl der Attribute, dann get…/set…-Methoden
+ *  method   Dialog: Name, Rückgabetyp, Parameter
  *  new      passender Konstruktor zum Datentyp links vom =
  *  comment  Kommentar einfügen bzw. Zeilen aus- und einkommentieren
  */
-export type BlockKind = "line" | "inline" | "else" | "text" | "attribut" | "variable" | "new" | "comment";
+export type BlockKind = "line" | "inline" | "else" | "text" | "visibility" | "attribut" | "variable" | "new" | "comment"
+    | "constructor" | "getter" | "setter" | "method";
 
 export type Block = {
     label: string;
@@ -53,24 +58,24 @@ export const BLOCKS: Block[] = [
         tip: "Neue Klasse: class Name { … }" },
     { group: "klasse", label: "Attribut", kind: "attribut", tpl: "",
         tip: "Attribut anlegen: Datentyp und Name auswählen. Es landet an der Cursorstelle, wenn sie direkt im Klassenrumpf liegt, sonst unter den Attributen der obersten Klasse" },
-    { group: "klasse", label: "Konstruktor", kind: "line", tpl: "@KLASSE(${}) {\n\t§\n}",
-        tip: "Konstruktor der Klasse, in der der Cursor steht: Name(…) { … }" },
-    { group: "klasse", label: "this.x = x", kind: "line", tpl: "this.${name} = ${name};",
-        tip: "Attribut mit gleichnamigem Parameter belegen: this.name = name;" },
-    { group: "klasse", label: "Methode", kind: "line", tpl: "void ${name}(${}) {\n\t§\n}",
-        tip: "Methode ohne Rückgabewert: void name(…) { … }" },
-    { group: "klasse", label: "Methode → Wert", kind: "line", tpl: "${Integer} ${name}(${}) {\n\t§\n\treturn ${0};\n}",
-        tip: "Methode mit Rückgabewert: Integer name(…) { … return …; }" },
+    { group: "klasse", label: "Konstruktor", kind: "constructor", tpl: "@KLASSE(${}) {\n\t§\n}",
+        tip: "Konstruktor passend zu den Attributen der Klasse: Für jedes Attribut gibt es einen Parameter, der im Rumpf mit this.… = … übernommen wird" },
+    { group: "klasse", label: "Getter", kind: "getter", tpl: "",
+        tip: "Getter-Methoden: Du wählst die Attribute aus, für die eine Methode get…() ergänzt wird, die den Wert zurückgibt" },
+    { group: "klasse", label: "Setter", kind: "setter", tpl: "",
+        tip: "Setter-Methoden: Du wählst die Attribute aus, für die eine Methode set…(…) ergänzt wird, die den Wert setzt" },
+    { group: "klasse", label: "Methode", kind: "method", tpl: "",
+        tip: "Neue Methode: Name, Rückgabetyp (oder void) und Parameter im Dialog festlegen" },
     { group: "klasse", label: "new", kind: "new", tpl: "",
         tip: "Objekt erzeugen: Steht links vom = ein Datentyp (z. B. Auto a = ), wird new Auto() eingefügt; der Cursor steht in den Klammern für Parameter" },
     { group: "klasse", label: "extends", kind: "line", tpl: "class ${Name} extends ${Oberklasse} {\n\t§\n}",
         tip: "Unterklasse: class Name extends Oberklasse { … }" },
-    { group: "klasse", label: "super(…)", kind: "line", tpl: "super(${});",
+    { group: "klasse", label: "super", kind: "line", tpl: "super(${});",
         tip: "Konstruktor der Oberklasse aufrufen: super(…); – muss die erste Anweisung im Konstruktor sein" },
-    { group: "klasse", label: "public", kind: "text", tpl: "public ",
-        tip: "Fügt an der Cursorstelle public ein: von überall aus sichtbar" },
-    { group: "klasse", label: "private", kind: "text", tpl: "private ",
-        tip: "Fügt an der Cursorstelle private ein: nur innerhalb der eigenen Klasse sichtbar" },
+    { group: "klasse", label: "public", kind: "visibility", tpl: "public",
+        tip: "Fügt an der Cursorstelle public ein (von überall aus sichtbar); steht in der Zeile schon private, wird es durch public ersetzt" },
+    { group: "klasse", label: "private", kind: "visibility", tpl: "private",
+        tip: "Fügt an der Cursorstelle private ein (nur innerhalb der eigenen Klasse sichtbar); steht in der Zeile schon public, wird es durch private ersetzt" },
     { group: "klasse", label: "// Kommentar", kind: "comment", tpl: "// ${Kommentar}",
         tip: "Kommentar: In einer leeren Zeile wird ein Kommentar begonnen. Steht Code in der Zeile (oder sind Zeilen markiert), wird er mit // auskommentiert; ist schon eine davon auskommentiert, werden alle wieder einkommentiert" },
 
@@ -140,6 +145,8 @@ export type BlockContext = {
     projectTypes: () => string[];
     /** Code der geöffneten Datei formatieren */
     format: () => Promise<void>;
+    /** Text des Konstruktors, den die Online-IDE an dieser Stelle vorschlägt („insert constructor“), sonst null */
+    constructorSuggestion: (offset: number) => Promise<string | null>;
 };
 
 /** Fügt den Baustein ein (bzw. umschließt die markierten Zeilen) und formatiert danach den Code. */
@@ -159,6 +166,19 @@ export async function insertBlock(ctx: BlockContext, block: Block) {
             break;
         case "text":
             insertText(view, block.tpl);
+            break;
+        case "visibility":
+            setVisibility(view, block.tpl);
+            break;
+        case "constructor":
+            await insertConstructor(ctx, block);
+            break;
+        case "getter":
+        case "setter":
+            done = await insertAccessors(ctx, block.kind);
+            break;
+        case "method":
+            done = await insertMethod(ctx);
             break;
         default:
             insertTemplate(view, block);
@@ -258,6 +278,274 @@ function insertText(view: EditorView, text: string) {
         scrollIntoView: true,
         userEvent: "input"
     });
+}
+
+// ---------------------------------------------------------------- public / private
+
+/** public/private: ein vorhandenes public/private/protected in der Zeile ersetzen, sonst an der Cursorstelle einfügen */
+function setVisibility(view: EditorView, keyword: string) {
+    const state = view.state;
+    const line = state.doc.lineAt(state.selection.main.head);
+    const code = codeOnly(line.text);
+    const m = /\b(public|private|protected)\b/.exec(code);
+    if (m) {
+        if (m[1] != keyword) {
+            const from = line.from + m.index;
+            view.dispatch({
+                changes: { from, to: from + m[1].length, insert: keyword },
+                selection: EditorSelection.cursor(from + keyword.length),
+                userEvent: "input"
+            });
+        }
+        return;
+    }
+    insertText(view, keyword + " ");
+}
+
+// ---------------------------------------------------------------- Klassen im Text
+
+type ClassInfo = { name: string, start: number, open: number, close: number };
+
+/** Alle Klassen/Enums/Interfaces mit Rumpf: Position des Schlüsselworts, der öffnenden und der schließenden Klammer */
+function classesIn(code: string): ClassInfo[] {
+    const result: ClassInfo[] = [];
+    const re = /\b(?:class|enum|interface)\s+([A-Za-z_À-ɏ][\wÀ-ɏ]*)[^{;]*\{/g;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(code))) {
+        const open = m.index + m[0].length - 1;
+        let d = 0, close = code.length;
+        for (let i = open; i < code.length; i++) {
+            if (code[i] == "{") d++;
+            else if (code[i] == "}" && --d == 0) { close = i; break; }
+        }
+        result.push({ name: m[1], start: m.index, open, close });
+    }
+    return result;
+}
+
+/** Innerste Klasse, in deren Rumpf pos liegt */
+function classAt(classes: ClassInfo[], pos: number): ClassInfo | null {
+    let best: ClassInfo | null = null;
+    for (const c of classes) if (c.open < pos && pos <= c.close && (!best || c.open > best.open)) best = c;
+    return best;
+}
+
+/** Klammertiefe zwischen dem Rumpfanfang der Klasse und pos (0 = direkt im Klassenrumpf) */
+function depthInClass(code: string, cls: ClassInfo, pos: number): number {
+    let d = 0;
+    for (let i = cls.open + 1; i < pos; i++) { if (code[i] == "{") d++; else if (code[i] == "}") d--; }
+    return d;
+}
+
+const ATTR_RE = /^\s*(?:(?:private|public|protected|static|final)\s+)*([A-Za-z_][\w.]*(?:<[^;=(){}]*>)?(?:\s*\[\s*\])*)\s+([A-Za-z_]\w*)\s*(?:=[^;]*)?;\s*$/;
+
+/** Attribute (Typ, Name) direkt im Rumpf der Klasse, mit dem Ende ihrer Zeile */
+function attributesOf(code: string, cls: ClassInfo): { type: string, name: string, lineEnd: number }[] {
+    const list: { type: string, name: string, lineEnd: number }[] = [];
+    let d = 0, lineStart = cls.open + 1;
+    for (let i = cls.open + 1; i <= cls.close; i++) {
+        const ch = code[i];
+        if (ch == "\n" || i == cls.close) {
+            if (d == 0) {
+                const m = ATTR_RE.exec(code.slice(lineStart, i));
+                if (m && !/^(return|throw)$/.test(m[1])) list.push({ type: m[1].replace(/\s+/g, ""), name: m[2], lineEnd: i });
+            }
+            lineStart = i + 1;
+        }
+        if (ch == "{") d++;
+        else if (ch == "}") d--;
+    }
+    return list;
+}
+
+/**
+ * Leere, eingerückte Zeile für ein neues Klassenmitglied anlegen und den Cursor hineinsetzen:
+ * Steht der Cursor direkt im Rumpf einer Klasse, an der Cursorstelle. Sonst in der Klasse um den
+ * Cursor (bzw. der obersten Klasse der Datei): unter den Attributen („attributes“) oder am Ende („end“).
+ * Liefert die Klasse, in der die Zeile liegt (null, wenn die Datei keine Klasse hat).
+ */
+function prepareMemberLine(view: EditorView, where: "attributes" | "end"): ClassInfo | null {
+    const state = view.state;
+    const code = codeOnly(state.doc.toString());
+    const head = state.selection.main.head;
+    const classes = classesIn(code);
+    const here = classAt(classes, head);
+    if (classes.length == 0) { prepareOwnLine(view); return null; }
+    if (here && depthInClass(code, here, head) == 0) { prepareOwnLine(view); return here; }
+    const target = here ?? classes[0];
+    const classLine = state.doc.lineAt(target.start);
+    const indent = /^\s*/.exec(classLine.text)![0] + state.facet(indentUnit);
+
+    if (where == "attributes") {
+        const attrs = attributesOf(code, target);
+        const after = attrs.length ? attrs[attrs.length - 1].lineEnd : state.doc.lineAt(target.open).to;
+        const insert = "\n" + indent;
+        view.dispatch({ changes: { from: after, insert }, selection: EditorSelection.cursor(after + insert.length), scrollIntoView: true });
+        return target;
+    }
+    const closeLine = state.doc.lineAt(target.close);
+    if (state.sliceDoc(closeLine.from, target.close).trim() == "") {
+        const insert = indent + "\n";
+        view.dispatch({ changes: { from: closeLine.from, insert }, selection: EditorSelection.cursor(closeLine.from + indent.length), scrollIntoView: true });
+    } else {
+        const insert = "\n" + indent + "\n" + /^\s*/.exec(classLine.text)![0];
+        view.dispatch({ changes: { from: target.close, insert }, selection: EditorSelection.cursor(target.close + 1 + indent.length), scrollIntoView: true });
+    }
+    return target;
+}
+
+/** Mehrzeiligen Code an der (leeren) Cursorzeile einsetzen, eingerückt nach Klammertiefe; Cursor ans Ende von cursorLine */
+function insertLines(view: EditorView, lines: string[], cursorLine = -1) {
+    const state = view.state;
+    const line = state.doc.lineAt(state.selection.main.head);
+    const base = /^\s*/.exec(line.text)![0];
+    const unit = state.facet(indentUnit);
+    let depth = 0;
+    const out = lines.map((raw, i) => {
+        const t = raw.trim();
+        if (t.startsWith("}")) depth = Math.max(0, depth - 1);
+        const l = t == "" && i != cursorLine ? "" : base + unit.repeat(depth) + t;
+        if (t.endsWith("{")) depth++;
+        return l;
+    });
+    const text = out.join("\n");
+    const cursor = cursorLine >= 0 ? out.slice(0, cursorLine + 1).join("\n").length : -1;
+    view.dispatch({
+        changes: { from: line.from, to: line.to, insert: text },
+        selection: EditorSelection.cursor(line.from + (cursor >= 0 ? cursor : text.length)),
+        scrollIntoView: true, userEvent: "input"
+    });
+}
+
+// ---------------------------------------------------------------- Konstruktor
+
+/** Snippet-Text der Online-IDE (Monaco-Schreibweise) in normalen Text umwandeln */
+function monacoSnippetToText(s: string): string {
+    let out = "", open = 0;
+    for (let i = 0; i < s.length; i++) {
+        const m = /^\$\{\d+:/.exec(s.slice(i, i + 8));
+        if (m) { open++; i += m[0].length - 1; continue; }
+        if (s[i] == "}" && open > 0) { open--; continue; }
+        if (s[i] == "$" && /\d/.test(s[i + 1] ?? "")) { i++; continue; }
+        out += s[i];
+    }
+    return out;
+}
+
+const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+/**
+ * Konstruktor zu den Attributen: Die Online-IDE schlägt ihn vor („insert constructor“), sobald der Code
+ * übersetzt ist und es noch keinen Konstruktor gibt. Sonst (oder wenn die Klasse schon einen hat)
+ * ein leerer Konstruktor mit Platzhalter für Parameter.
+ */
+async function insertConstructor(ctx: BlockContext, block: Block) {
+    const view = ctx.view;
+    const cls = prepareMemberLine(view, "attributes");
+    const name = cls?.name ?? enclosingClassName(view.state.doc.toString(), view.state.selection.main.head);
+    const fallback = () => {
+        const pos = view.state.selection.main.head;
+        snippet(block.tpl.replace("§", "${}").replace("@KLASSE", name ?? "${Klassenname}"))(view, null, pos, pos);
+    };
+    if (!cls || !name) { fallback(); return; }
+
+    // Gibt es schon einen Konstruktor? Dann bietet die Online-IDE keinen an
+    const code = codeOnly(view.state.doc.toString());
+    const now = classesIn(code).find(c => c.name == name);
+    if (now && new RegExp(String.raw`(^|[\s;{}])(public\s+|private\s+|protected\s+)?` + name + String.raw`\s*\(`).test(code.slice(now.open + 1, now.close))) {
+        fallback(); return;
+    }
+
+    // Der Vorschlag braucht den übersetzten Stand: einige Male kurz warten und erneut fragen
+    let text: string | null = null;
+    const docBefore = view.state.doc.toString();
+    for (let i = 0; i < 10 && !text; i++) {
+        await wait(i == 0 ? 50 : 250);
+        if (view.state.doc.toString() != docBefore) return;      // inzwischen weitergetippt
+        text = await ctx.constructorSuggestion(view.state.selection.main.head);
+    }
+    if (!text) { fallback(); return; }
+    const lines = monacoSnippetToText(text).split("\n").filter((l, i, a) => l.trim() != "" || (i > 0 && i < a.length - 1));
+    // Cursor in die letzte Zeile vor der schließenden Klammer (dort kann man weiterschreiben)
+    insertLines(view, lines, Math.max(0, lines.length - 2));
+}
+
+// ---------------------------------------------------------------- Getter / Setter
+
+const cap = (s: string) => s.charAt(0).toLocaleUpperCase() + s.slice(1);
+
+async function insertAccessors(ctx: BlockContext, kind: "getter" | "setter"): Promise<boolean> {
+    const view = ctx.view;
+    const code = codeOnly(view.state.doc.toString());
+    const classes = classesIn(code);
+    const cls = classAt(classes, view.state.selection.main.head) ?? classes[0];
+    const title = kind == "getter" ? "Getter ergänzen" : "Setter ergänzen";
+    if (!cls) {
+        await ctx.dialogs.alert({ title, text: "In dieser Datei gibt es noch keine Klasse." });
+        return false;
+    }
+    const attrs = attributesOf(code, cls);
+    if (attrs.length == 0) {
+        await ctx.dialogs.alert({ title, text: `Die Klasse ${cls.name} hat noch keine Attribute.` });
+        return false;
+    }
+    const body = code.slice(cls.open + 1, cls.close);
+    const prefix = kind == "getter" ? "get" : "set";
+    const items = attrs.map(a => {
+        const exists = new RegExp(String.raw`\b` + prefix + cap(a.name) + String.raw`\s*\(`).test(body);
+        return { id: a.name, label: `${a.type} ${a.name}`, note: exists ? "gibt es schon" : "", checked: !exists };
+    });
+    const chosen = await ctx.dialogs.choose({
+        title,
+        text: kind == "getter"
+            ? "Für welche Attribute soll eine Methode get…() ergänzt werden, die den Wert zurückgibt?"
+            : "Für welche Attribute soll eine Methode set…(…) ergänzt werden, die den Wert setzt?",
+        items,
+        confirm: "Ergänzen",
+    });
+    if (!chosen || chosen.length == 0) return false;
+
+    // Cursor ans Ende der Klasse (bzw. an die Cursorstelle im Klassenrumpf)
+    view.dispatch({ selection: EditorSelection.cursor(view.state.selection.main.head) });
+    prepareMemberLine(view, "end");
+    const lines: string[] = [];
+    for (const a of attrs.filter(a => chosen.includes(a.name))) {
+        if (lines.length) lines.push("");
+        if (kind == "getter") lines.push(`public ${a.type} get${cap(a.name)}() {`, `return ${a.name};`, "}");
+        else lines.push(`public void set${cap(a.name)}(${a.type} ${a.name}) {`, `this.${a.name} = ${a.name};`, "}");
+    }
+    insertLines(view, lines);
+    return true;
+}
+
+// ---------------------------------------------------------------- Methode
+
+async function insertMethod(ctx: BlockContext): Promise<boolean> {
+    const own = ctx.projectTypes().filter(t => !BASIC_TYPES.includes(t));
+    const groups = [
+        { label: "Grundtypen", items: BASIC_TYPES },
+        { label: "Eigene Klassen", items: own },
+        { label: "Klassenbibliothek", items: libraryTypes().filter(t => !own.includes(t)) },
+    ];
+    const r = await ctx.dialogs.method({ groups, validate: validateName });
+    if (!r) return false;
+    const view = ctx.view;
+    prepareMemberLine(view, "end");
+    const params = r.params.map(p => `${p.type} ${p.name}`).join(", ");
+    const tpl = r.returnType == "void"
+        ? `void ${r.name}(${escapeForSnippet(params)}) {\n\t\${}\n}`
+        : `${r.returnType} ${r.name}(${escapeForSnippet(params)}) {\n\t\${}\n\treturn \${Wert};\n}`;
+    const pos = view.state.selection.main.head;
+    snippet(tpl)(view, null, pos, pos);
+    return true;
+}
+
+function validateName(name: string): string | null {
+    const n = name.trim();
+    if (n == "") return "Bitte einen Namen eingeben.";
+    if (!/^[A-Za-z_ÄÖÜäöüß][\wÄÖÜäöüß]*$/.test(n)) return "Ein Name besteht aus Buchstaben, Ziffern und _ und beginnt nicht mit einer Ziffer.";
+    if (JAVA_KEYWORDS.has(n)) return `„${n}“ ist ein Schlüsselwort von Java und kann kein Name sein.`;
+    return null;
 }
 
 // ---------------------------------------------------------------- Kommentar
@@ -394,12 +682,7 @@ async function insertDeclaration(ctx: BlockContext, kind: "attribut" | "variable
         ],
         nameLabel: kind == "attribut" ? "Name des Attributs" : "Name der Variablen",
         confirm: "Einfügen",
-        validate: (name) => {
-            if (name.trim() == "") return "Bitte einen Namen eingeben.";
-            if (!/^[A-Za-z_ÄÖÜäöüß][\wÄÖÜäöüß]*$/.test(name.trim())) return "Ein Name besteht aus Buchstaben, Ziffern und _ und beginnt nicht mit einer Ziffer.";
-            if (JAVA_KEYWORDS.has(name.trim())) return `„${name.trim()}“ ist ein Schlüsselwort von Java und kann kein Name sein.`;
-            return null;
-        }
+        validate: validateName
     });
     if (!result) return false;
     const text = `${result.type} ${result.name.trim()};`;

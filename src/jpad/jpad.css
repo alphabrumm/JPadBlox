@@ -1923,3 +1923,25 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 }
 .jp-side-switch button span:not(.jp-badge) { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .jp-side-switch .jp-badge { position: absolute; top: 3px; left: calc(50% + 6px); }
+
+/* JPadBlox: Dialoge für Getter/Setter (Häkchen) und neue Methode (Parameterzeilen) */
+.jp-checklist { display: flex; flex-direction: column; gap: 2px; max-height: 50vh; overflow-y: auto; }
+.jp-check {
+    display: flex; align-items: center; gap: 12px;
+    min-height: 48px; padding: 0 10px; border-radius: var(--radius-m);
+    color: var(--ink); font-size: 17px;
+}
+.jp-check:active { background: var(--surface-2); }
+.jp-check input { width: 22px; height: 22px; accent-color: var(--accent); flex: none; }
+.jp-check-label { flex: 1; min-width: 0; font-family: var(--font-code); font-size: 16px; }
+.jp-check-note { font-size: 13px; color: var(--ink-2); }
+.jp-param-rows { display: flex; flex-direction: column; gap: 8px; }
+.jp-param-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+.jp-field .jp-param-row input {
+    font: inherit; font-size: 17px; color: var(--ink); background: var(--bg);
+    border: 1.5px solid var(--line); border-radius: var(--radius-m); padding: 12px 14px; min-width: 0;
+}
+.jp-field .jp-param-row input::placeholder { color: var(--ink-2); opacity: .7; }
+.jp-field .jp-param-row input:focus { border-color: var(--accent); outline: none; }
+.jp-param-row select { min-width: 0; }
+.jp-btn.jp-btn-small { align-self: flex-start; min-height: 36px; padding: 0 12px; font-size: 14px; margin-top: 4px; }
