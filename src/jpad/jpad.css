@@ -1650,32 +1650,6 @@ html.ipad-window-controls .jp-topbar { padding-left: 84px; }
     .jp-keybar-fixed.is-left button { min-width: 44px; }
 }
 
-/* ---------- Smartphone: Hilfsleiste fest unter den Dateireitern ----------
-   Auf dem Handy schwebt die Leiste nicht über der Bildschirmtastatur, sondern
-   steht immer sichtbar oben im Code-Bereich. So springt nichts, wenn die
-   Tastatur hochfährt, und Safari kann sie nicht verschieben. */
-html.phone .jp-keybar {
-    position: static;
-    display: flex;
-    flex: none;
-    z-index: auto;
-    height: 52px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    padding-left: 6px;
-    padding-right: 6px;
-    background: var(--surface-2);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    border-top: 0;
-    border-bottom: 1px solid var(--line);
-}
-html.phone .jp-keybar button { min-width: 44px; }
-html.phone .jp-keybar-fixed.is-right { background: var(--surface-2); }
-@media (pointer: coarse) {
-    html.phone.editor-focused .jp-app { bottom: var(--keyboard-offset); }
-}
-
 /* ---------- Eigene Sprites ---------- */
 .jp-usersprites-bar { display: flex; align-items: center; gap: 12px; margin: 8px 16px 6px; flex-wrap: wrap; }
 .jp-usersprites-bar .jp-btn { display: inline-flex; align-items: center; gap: 8px; }
@@ -1734,8 +1708,8 @@ html.phone .jp-keybar-fixed.is-right { background: var(--surface-2); }
 }
 .jp-app:not([data-wide="true"]) .jp-filebar-actions { padding-right: 8px; }
 
-/* ---------- Tablet: Hilfsleiste immer sichtbar ----------
-   Auf dem iPad bleibt die Leiste dauerhaft stehen, auch wenn der Editor den Fokus
+/* ---------- Touch-Geräte (iPad und iPhone): Hilfsleiste immer sichtbar ----------
+   Auf iPad und iPhone bleibt die Leiste dauerhaft stehen, auch wenn der Editor den Fokus
    verliert: mit offener Tastatur schwebt sie über der Tastatur, sonst sitzt sie
    unten am Bildschirmrand. Nur in der Reiter-Ansicht ohne Code-Reiter (Konsole,
    Diagramm …) wird sie ausgeblendet. */

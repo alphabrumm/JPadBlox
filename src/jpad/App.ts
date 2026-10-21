@@ -149,27 +149,22 @@ export class App {
     // =====================================================================
 
     /**
-     * Auf dem Smartphone sitzt die Hilfsleiste fest unter den Dateireitern statt über der
-     * Bildschirmtastatur (dort passt sie neben Zoom und Tastatur nicht zuverlässig hin).
-     * Tablet und Laptop behalten die schwebende Leiste über der Tastatur.
-     * Handy = Touch-Gerät, dessen kürzere Bildschirmseite unter 600 px liegt
-     * (gilt im Hoch- wie im Querformat; das kleinste iPad hat 744 px).
+     * Die Hilfsleiste sitzt auf allen Touch-Geräten (iPad wie iPhone) unten: bei offener Tastatur
+     * schwebt sie über der Tastatur, sonst steht sie am unteren Bildschirmrand (Klasse „tablet“).
+     * Die Klasse „phone“ kennzeichnet zusätzlich Handys (kürzere Bildschirmseite unter 600 px,
+     * im Hoch- wie im Querformat; das kleinste iPad hat 744 px) – dort fehlt z. B. die Glühbirne.
      */
     private placeKeyBar() {
         const coarse = matchMedia("(pointer: coarse)");
         const update = () => {
             const phone = coarse.matches && Math.min(screen.width, screen.height) < 600;
             document.documentElement.classList.toggle("phone", phone);
-            // Tablet: Touch-Gerät, das kein Handy ist. maxTouchPoints zusätzlich, weil Safari
-            // bei angeschlossenem Trackpad (Magic Keyboard) keinen groben Zeiger mehr meldet.
+            // Touch-Gerät. maxTouchPoints zusätzlich, weil Safari bei angeschlossenem
+            // Trackpad (Magic Keyboard) keinen groben Zeiger mehr meldet.
             const touch = coarse.matches || navigator.maxTouchPoints > 1;
-            document.documentElement.classList.toggle("tablet", touch && !phone);
+            document.documentElement.classList.toggle("tablet", touch);
             const bar = this.keyBar.el;
-            if (phone) {
-                if (bar.previousElementSibling != this.el.filebar) this.el.filebar.after(bar);
-            } else if (bar.parentElement != this.root) {
-                this.root.appendChild(bar);
-            }
+            if (bar.parentElement != this.root) this.root.appendChild(bar);
         };
         coarse.addEventListener?.("change", update);
         window.addEventListener("resize", update);
