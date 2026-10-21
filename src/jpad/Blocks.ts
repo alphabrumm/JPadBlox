@@ -551,9 +551,9 @@ async function insertMethod(ctx: BlockContext): Promise<boolean> {
 
 function validateName(name: string): string | null {
     const n = name.trim();
-    if (n == "") return "Bitte einen Namen eingeben.";
-    if (!/^[A-Za-z_ÄÖÜäöüß][\wÄÖÜäöüß]*$/.test(n)) return "Ein Name besteht aus Buchstaben, Ziffern und _ und beginnt nicht mit einer Ziffer.";
-    if (JAVA_KEYWORDS.has(n)) return `„${n}“ ist ein Schlüsselwort von Java und kann kein Name sein.`;
+    if (n == "") return "Bitte eintragen, wie es heißen soll.";
+    if (!/^[A-Za-z_ÄÖÜäöüß][\wÄÖÜäöüß]*$/.test(n)) return "Erlaubt sind Buchstaben, Ziffern und _; am Anfang darf keine Ziffer stehen.";
+    if (JAVA_KEYWORDS.has(n)) return `„${n}“ ist ein Schlüsselwort von Java und darf hier nicht stehen.`;
     return null;
 }
 
@@ -696,7 +696,8 @@ async function insertDeclaration(ctx: BlockContext, kind: "attribut" | "variable
             { label: "Eigene Klassen", items: own },
             { label: "Klassenbibliothek", items: lib },
         ],
-        nameLabel: kind == "attribut" ? "Name des Attributs" : kind == "array" ? "Name des Arrays" : "Name der Variablen",
+        // Safari am iPad schlägt bei Feldern mit „Name“ im Text eigene Kontaktdaten vor (zerschießt das Layout)
+        nameLabel: "So soll Deine Variable heißen:",
         countLabel: kind == "array" ? "Wie viele Elemente sollen Platz haben?" : undefined,
         confirm: "Einfügen",
         validate: validateName

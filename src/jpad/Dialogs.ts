@@ -100,7 +100,7 @@ export class Dialogs {
                 </label>
                 <label class="jp-field">
                     <span>${escapeHtml(o.nameLabel)}</span>
-                    <input type="text" data-name autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off" enterkeyhint="${o.countLabel ? "next" : "done"}">
+                    <input type="text" data-ident autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off" enterkeyhint="${o.countLabel ? "next" : "done"}">
                 </label>
                 ${o.countLabel ? `<label class="jp-field">
                     <span>${escapeHtml(o.countLabel)}</span>
@@ -113,7 +113,7 @@ export class Dialogs {
                 </div>
             </form>`, (sheet, close) => {
             const select = sheet.querySelector("select")!;
-            const input = sheet.querySelector<HTMLInputElement>("[data-name]")!;
+            const input = sheet.querySelector<HTMLInputElement>("[data-ident]")!;
             const countInput = sheet.querySelector<HTMLInputElement>("[data-count]");
             const error = sheet.querySelector<HTMLElement>(".jp-field-error")!;
             setTimeout(() => input.focus(), 60);
@@ -177,14 +177,14 @@ export class Dialogs {
         ).join("");
         const paramRow = `<div class="jp-param-row">
                 <select class="jp-select" aria-label="Datentyp des Parameters">${typeOptions}</select>
-                <input type="text" placeholder="Parametername" aria-label="Name des Parameters" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off">
+                <input type="text" placeholder="So heißt der Parameter" aria-label="So heißt der Parameter" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off">
             </div>`;
         return this.open(`
             <h2 class="jp-sheet-title">Baue Deine neue Methode</h2>
             <form class="jp-form">
                 <label class="jp-field">
-                    <span>Name der Methode</span>
-                    <input type="text" data-name autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off" enterkeyhint="next">
+                    <span>So soll Deine Methode heißen:</span>
+                    <input type="text" data-ident autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off" enterkeyhint="next">
                 </label>
                 <label class="jp-field">
                     <span>Soll die Methode Daten zurückgeben? Datentyp wählen oder leer lassen</span>
@@ -201,7 +201,7 @@ export class Dialogs {
                     <button type="submit" class="jp-btn jp-btn-primary">Einfügen</button>
                 </div>
             </form>`, (sheet, close) => {
-            const nameInput = sheet.querySelector<HTMLInputElement>("[data-name]")!;
+            const nameInput = sheet.querySelector<HTMLInputElement>("[data-ident]")!;
             const error = sheet.querySelector<HTMLElement>(".jp-field-error")!;
             const rows = sheet.querySelector<HTMLElement>(".jp-param-rows")!;
             setTimeout(() => nameInput.focus(), 60);
@@ -220,7 +220,7 @@ export class Dialogs {
                     if (input.value.trim() == "") continue;
                     const pm = o.validate(input.value);
                     if (pm) { error.textContent = "Parameter: " + pm; input.focus(); return; }
-                    if (params.some(p => p.name == input.value.trim())) { error.textContent = `Der Parametername „${input.value.trim()}“ kommt doppelt vor.`; input.focus(); return; }
+                    if (params.some(p => p.name == input.value.trim())) { error.textContent = `Der Parameter „${input.value.trim()}“ kommt doppelt vor.`; input.focus(); return; }
                     params.push({ type: row.querySelector("select")!.value, name: input.value.trim() });
                 }
                 close({ name: nameInput.value.trim(), returnType: sheet.querySelector<HTMLSelectElement>("[data-return]")!.value, params });
