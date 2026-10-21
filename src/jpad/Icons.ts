@@ -51,6 +51,7 @@ const paths: Record<string, string> = {
     minus: '<path d="M5 12h14"/>',
     fit: '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
     breakpoint: '<path d="M8.2 3h7.6L21 8.2v7.6L15.8 21H8.2L3 15.8V8.2z"/><path d="M9 12h6"/>',
+    blocks: '<path d="M4 9h3.5a2.5 2.5 0 1 1 5 0H16v3.5a2.5 2.5 0 1 1 0 5V21H4z"/><path d="M16 9V4h-5"/>',
     split: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M13 4v16"/>',
 };
 

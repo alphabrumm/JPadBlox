@@ -1764,3 +1764,55 @@ html.kb-simple.tablet .jp-app {
 html.kb-simple.tablet:not(.keyboard-open) .jp-app { padding-bottom: calc(56px + env(safe-area-inset-bottom)); }
 html.kb-simple.tablet .jp-app[data-layout="tabs"]:not([data-view="code"]) { padding-bottom: 0; }
 html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
+
+/* ---------- JPadBlox: Bausteine in der Hilfsleiste ----------
+   Die Leiste zeigt entweder Sonderzeichen oder Bausteine; der Knopf ganz links schaltet um.
+   Farben je Gruppe wie bei Blockprogrammierung: Klassen blau, Ablauf orange, Daten grün, Mehr lila. */
+.jp-keybar[data-mode="blocks"] .jp-keybar-scroll:not(.jp-blocks-scroll) { display: none; }
+.jp-keybar[data-mode="chars"] .jp-blocks-scroll { display: none; }
+.jp-keybar[data-mode="blocks"] .jp-mode-blocks { display: none; }
+.jp-keybar[data-mode="chars"] .jp-mode-chars { display: none; }
+.jp-keybar .jp-key-mode { color: var(--accent); }
+.jp-keybar .jp-mode-chars { font-family: var(--font-code); font-weight: 700; }
+
+.jp-blocks-scroll { align-items: stretch; }
+.jp-block-group {
+    flex: none;
+    align-self: center;
+    margin: 0 2px 0 8px;
+    font-family: var(--font-ui, system-ui);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--g);
+    padding-left: 8px;
+    border-left: 1px solid color-mix(in srgb, var(--ink-2) 35%, transparent);
+}
+.jp-block-group:first-child { margin-left: 0; padding-left: 0; border-left: 0; }
+.jp-keybar button.jp-block {
+    --g-bg: color-mix(in srgb, var(--g) 16%, var(--surface));
+    background: var(--g-bg);
+    color: var(--ink);
+    border-left: 4px solid var(--g);
+    padding: 0 12px 0 10px;
+    font-size: 16px;
+    white-space: nowrap;
+}
+.jp-keybar button.jp-block:active,
+.jp-keybar button.jp-block.is-pressed { background: var(--g); color: #fff; }
+[data-group="klasse"] { --g: #3B6FF5; }
+[data-group="ablauf"] { --g: #E8890C; }
+[data-group="daten"]  { --g: #14A372; }
+[data-group="mehr"]   { --g: #8A5CF0; }
+:root[data-effective="dark"] [data-group="klasse"] { --g: #6E95FF; }
+:root[data-effective="dark"] [data-group="ablauf"] { --g: #F5A33A; }
+:root[data-effective="dark"] [data-group="daten"]  { --g: #34C68F; }
+:root[data-effective="dark"] [data-group="mehr"]   { --g: #A784FF; }
+
+/* Platzhalter eines eingefügten Bausteins */
+.jp-editor .cm-snippetField {
+    background: color-mix(in srgb, var(--accent) 16%, transparent);
+    border-radius: 3px;
+    box-shadow: inset 0 -1.5px 0 color-mix(in srgb, var(--accent) 55%, transparent);
+}

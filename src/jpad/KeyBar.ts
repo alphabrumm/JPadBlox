@@ -1,6 +1,7 @@
 import { icon } from "./Icons.js";
 import { TouchEditor } from "./TouchEditor.js";
 import { LanguageBridge } from "./LanguageBridge.js";
+import { BLOCKS, GROUP_NAMES, BlockGroup, insertBlock } from "./Blocks.js";
 
 type Key = { label: string, insert?: string, action?: string, aria?: string, tip?: string, help?: string, wide?: boolean };
 
@@ -42,10 +43,32 @@ function simpleKeyboardMode(): boolean {
     }
 }
 
+/** JPadBlox: Die Hilfsleiste zeigt entweder Zeichen oder Bausteine (wird gemerkt). */
+type BarMode = "chars" | "blocks";
+function loadMode(): BarMode {
+    try { return localStorage.getItem("jpadblox.barMode") == "chars" ? "chars" : "blocks"; } catch (e) { return "blocks"; }
+}
+
+function blocksHtml(): string {
+    let html = "", group: BlockGroup | null = null;
+    BLOCKS.forEach((b, i) => {
+        if (b.group != group) {
+            group = b.group;
+            html += `<span class="jp-block-group" data-group="${group}" aria-hidden="true">${GROUP_NAMES[group]}</span>`;
+        }
+        const tip = b.tpl.includes("§")
+            ? b.tip + ". Markierte Zeilen umschließt der Baustein. Tab oder Enter springt zum nächsten Platzhalter."
+            : b.tip + ". Tab oder Enter springt zum nächsten Platzhalter.";
+        html += `<button class="jp-block" data-block="${i}" data-group="${b.group}" data-tip="${tip.replace(/"/g, "&quot;")}">${b.label.replace(/</g, "&lt;")}</button>`;
+    });
+    return html;
+}
+
 export class KeyBar {
 
     el: HTMLElement;
     private editorFocused = false;
+    private mode: BarMode = loadMode();
 
     constructor(root: HTMLElement, private editor: TouchEditor, private bridge: LanguageBridge,
         private showInfo: (html: string | null) => void) {
@@ -56,12 +79,16 @@ export class KeyBar {
         this.el.setAttribute("aria-label", "Sonderzeichen");
         this.el.innerHTML = `
             <div class="jp-keybar-fixed is-left">
+                <button data-action="mode" class="jp-key-mode" aria-label="Zwischen Bausteinen und Sonderzeichen umschalten" data-tip="Umschalten: Code-Bausteine (class, Methode, if, for …) oder Sonderzeichen ({ } ( ) ; = …)">${icon("blocks", "jp-mode-blocks")}<span class="jp-mode-chars">{ }</span></button>
                 <button data-action="left" data-help="left" aria-label="Cursor nach links" data-tip="Cursor ein Zeichen nach links">${icon("left")}</button>
                 <button data-action="right" data-help="right" aria-label="Cursor nach rechts" data-tip="Cursor ein Zeichen nach rechts">${icon("right")}</button>
             </div>
             <div class="jp-keybar-main">
             <div class="jp-keybar-scroll">
                 ${KEYS.map((k, i) => `<button data-key="${i}" ${k.aria ? `aria-label="${k.aria}"` : ""} ${k.tip ? `data-tip="${k.tip.replace(/"/g, "&quot;")}"` : ""} ${k.help ? `data-help="${k.help}"` : ""}>${k.label}</button>`).join("")}
+            </div>
+            <div class="jp-keybar-scroll jp-blocks-scroll">
+                ${blocksHtml()}
             </div>
             <div class="jp-keybar-fixed is-right">
                 <button data-action="breakpoint" data-help="breakpoint" aria-label="Haltepunkt in dieser Zeile setzen oder entfernen" data-tip="Haltepunkt in dieser Zeile setzen oder entfernen – das Programm hält vor der Zeile an" class="jp-key-breakpoint">${icon("breakpoint")}</button>
@@ -70,6 +97,7 @@ export class KeyBar {
             </div>
             </div>`;
         root.appendChild(this.el);
+        this.applyMode();
 
         // Fokus im Editor behalten, sonst schließt sich die Tastatur
         // (wie qPad) auch „mousedown“ – das reicht Safari nach dem Fingertipp nach und verschiebt sonst den Fokus
@@ -223,7 +251,9 @@ export class KeyBar {
     }
 
     private activate(b: HTMLElement) {
-        if (b.dataset.key != null) {
+        if (b.dataset.block != null) {
+            insertBlock(this.editor.view, BLOCKS[parseInt(b.dataset.block)]);
+        } else if (b.dataset.key != null) {
             const k = KEYS[parseInt(b.dataset.key)];
             if (k.action == "tab") this.editor.indentMore();
             else if (k.insert) this.editor.insert(k.insert);
@@ -234,12 +264,24 @@ export class KeyBar {
 
     private async runAction(action: string) {
         switch (action) {
+            case "mode":
+                this.mode = this.mode == "blocks" ? "chars" : "blocks";
+                try { localStorage.setItem("jpadblox.barMode", this.mode); } catch (e) { }
+                this.applyMode();
+                break;
             case "left": this.editor.moveCursor(-1); break;
             case "right": this.editor.moveCursor(1); break;
             case "info": this.showInfo(await this.bridge.hover(this.editor.getCursorOffset())); break;
             case "hide": this.editor.view.contentDOM.blur(); break;
             case "breakpoint": this.editor.onToggleBreakpoint?.(this.editor.getCursorLine()); break;
         }
+    }
+
+    private applyMode() {
+        this.el.dataset.mode = this.mode;
+        this.el.querySelector(".jp-keybar-main")?.scrollTo({ left: 0 });
+        const btn = this.el.querySelector<HTMLElement>('[data-action="mode"]');
+        btn?.setAttribute("aria-pressed", String(this.mode == "blocks"));
     }
 
     setEditorFocused(focused: boolean) {

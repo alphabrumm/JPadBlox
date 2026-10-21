@@ -582,6 +582,8 @@ export class TouchEditor {
     }
 
     indentMore() {
+        // JPadBlox: Nach dem Einfügen eines Bausteins springt Tab zum nächsten Platzhalter
+        if (hasNextSnippetField(this.view.state)) { nextSnippetField(this.view); return; }
         indentWithTab.run!(this.view);
     }
 }
