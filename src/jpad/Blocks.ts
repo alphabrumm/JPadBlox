@@ -792,6 +792,13 @@ function insertAttribute(view: EditorView, text: string) {
 export const BLOCK_COLORS: "solid" | "tint" = "tint";
 document.documentElement.dataset.blockColors = BLOCK_COLORS;
 
+/**
+ * Form der Bausteine: "classic" = Stand vom 21.10.2026 mittags (helle Füllung, farbiger Rand links, eckig);
+ * "mix" = drei Vorschläge zum Vergleichen, je einer pro Kategorie (siehe jpad.css).
+ */
+export const BLOCK_STYLE: "classic" | "mix" = "mix";
+document.documentElement.dataset.blockStyle = BLOCK_STYLE;
+
 /** Hinweistext beim langen Drücken auf einen Baustein */
 export function blockTip(b: Block): string {
     return b.tpl.includes("§")
