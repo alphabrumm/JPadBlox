@@ -205,15 +205,17 @@ export class KeyBar {
                     // 1. Den von iOS nach oben geschobenen Ausschnitt zurück an den Seitenanfang
                     resetScroll();
                     // 2. Zwei Frames warten, bis der Browser den neuen Ausschnitt meldet, dann Höhe neu
-                    //    messen, Layout neu setzen und den Cursor im (jetzt kleineren) Editor sichtbar machen
+                    //    messen und Layout neu setzen
                     requestAnimationFrame(() => requestAnimationFrame(() => {
                         update(true);
-                        this.editor.view.requestMeasure(); // Test: Cursor bewusst NICHT in den sichtbaren Bereich scrollen
+                        this.editor.view.requestMeasure();
                         // 3. Falls iOS den Ausschnitt dabei noch einmal verschoben hat: nachkorrigieren
+                        // 4. Danach nur im Editor selbst zum Cursor scrollen (nicht die umgebenden Bereiche)
                         setTimeout(() => {
                             if (vv.offsetTop > 1 || window.scrollY > 1) resetScroll();
                             update(true);
-                            this.editor.view.requestMeasure(); // Test: Cursor bewusst NICHT in den sichtbaren Bereich scrollen
+                            this.editor.view.requestMeasure();
+                            requestAnimationFrame(() => requestAnimationFrame(() => this.editor.revealCursorInside()));
                         }, 350);
                     }));
                 }, 2000);

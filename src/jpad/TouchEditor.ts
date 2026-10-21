@@ -509,10 +509,25 @@ export class TouchEditor {
         });
     }
 
-    /** Cursor in den sichtbaren Bereich holen (nach einer Änderung der verfügbaren Höhe) */
-    revealCursor() {
-        this.view.requestMeasure();
-        this.view.dispatch({ effects: EditorView.scrollIntoView(this.view.state.selection.main.head, { y: "nearest", yMargin: 40 }) });
+    /**
+     * Cursor in den sichtbaren Bereich holen (nach einer Änderung der verfügbaren Höhe).
+     * Bewusst NICHT über EditorView.scrollIntoView: das scrollt auch alle umgebenden Bereiche
+     * (selbst mit overflow: hidden) und schiebt so z. B. die Dateireiter nach oben weg.
+     * Hier wird nur der eigene Scrollbereich des Editors verschoben.
+     */
+    revealCursorInside(margin = 48) {
+        const view = this.view, sc = view.scrollDOM;
+        const head = view.state.selection.main.head;
+        const block = view.lineBlockAt(head);              // funktioniert auch für Zeilen außerhalb des gezeichneten Bereichs
+        const r = sc.getBoundingClientRect();
+        const vv = window.visualViewport;
+        const visTop = Math.max(r.top, vv ? vv.offsetTop : 0);
+        const visBottom = Math.min(r.bottom, vv ? vv.offsetTop + vv.height : window.innerHeight);
+        const lineTop = view.documentTop + block.top;       // Bildschirmkoordinaten
+        const lineBottom = view.documentTop + block.bottom;
+        if (visBottom - visTop < 2 * margin) margin = Math.max(0, (visBottom - visTop - block.height) / 2);
+        if (lineBottom > visBottom - margin) sc.scrollTop += lineBottom - (visBottom - margin);
+        else if (lineTop < visTop + margin) sc.scrollTop -= (visTop + margin) - lineTop;
     }
 
     // ----- Befehle für Symbolleisten -----
