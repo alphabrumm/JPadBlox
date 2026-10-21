@@ -15,6 +15,9 @@ export type Help = {
     /** häufiger Denkfehler */
     warn?: string,
     note?: string,
+    /** JPadBlox: eingebettete Werkstatt aus den Lernpfaden (siehe SheepLabs.ts) */
+    lab?: "factory" | "ctor" | "param" | "sheep" | "array",
+    labCaption?: string,
 };
 
 export const HELP: Record<string, Help> = {

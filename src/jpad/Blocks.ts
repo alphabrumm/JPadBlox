@@ -44,6 +44,8 @@ export type Block = {
     tpl: string;
     kind: BlockKind;
     tip: string;
+    /** Schlüssel der großen Hilfe (BlockHelp.ts) */
+    help?: string;
     /** steht in der eingeklappten Kategorie „Mehr Bausteine…“ (Farbe bleibt die der eigenen Gruppe) */
     more?: boolean;
 };
@@ -56,63 +58,63 @@ export const GROUP_NAMES: Record<BlockGroup, string> = {
 
 export const BLOCKS: Block[] = [
     // ---------- Klassen ----------
-    { group: "klasse", label: "class", kind: "line", tpl: "class ${Name} {\n\t§\n}",
+    { group: "klasse", label: "class", help: "b-class", kind: "line", tpl: "class ${Name} {\n\t§\n}",
         tip: "Neue Klasse: class Name { … }" },
-    { group: "klasse", label: "Attribut", kind: "attribut", tpl: "",
+    { group: "klasse", label: "Attribut", help: "b-attribut", kind: "attribut", tpl: "",
         tip: "Attribut anlegen: Datentyp und Name auswählen. Es landet an der Cursorstelle, wenn sie direkt im Klassenrumpf liegt, sonst unter den Attributen der obersten Klasse" },
-    { group: "klasse", label: "Konstruktor", kind: "constructor", tpl: "@KLASSE(${}) {\n\t§\n}",
+    { group: "klasse", label: "Konstruktor", help: "b-konstruktor", kind: "constructor", tpl: "@KLASSE(${}) {\n\t§\n}",
         tip: "Konstruktor passend zu den Attributen der Klasse: Für jedes Attribut gibt es einen Parameter, der im Rumpf mit this.… = … übernommen wird" },
-    { group: "klasse", label: "Methode", kind: "method", tpl: "",
+    { group: "klasse", label: "Methode", help: "b-methode", kind: "method", tpl: "",
         tip: "Neue Methode: Name, Rückgabetyp (oder void) und Parameter im Dialog festlegen" },
-    { group: "klasse", label: "Getter", kind: "getter", tpl: "",
+    { group: "klasse", label: "Getter", help: "b-getter", kind: "getter", tpl: "",
         tip: "Getter-Methoden: Du wählst die Attribute aus, für die eine Methode get…() ergänzt wird, die den Wert zurückgibt" },
-    { group: "klasse", label: "Setter", kind: "setter", tpl: "",
+    { group: "klasse", label: "Setter", help: "b-setter", kind: "setter", tpl: "",
         tip: "Setter-Methoden: Du wählst die Attribute aus, für die eine Methode set…(…) ergänzt wird, die den Wert setzt" },
-    { group: "klasse", label: "extends", more: true, kind: "line", tpl: "class ${Name} extends ${Oberklasse} {\n\t§\n}",
+    { group: "klasse", label: "extends", help: "b-extends", more: true, kind: "line", tpl: "class ${Name} extends ${Oberklasse} {\n\t§\n}",
         tip: "Unterklasse: class Name extends Oberklasse { … }" },
-    { group: "klasse", label: "super", more: true, kind: "line", tpl: "super(${});",
+    { group: "klasse", label: "super", help: "b-super", more: true, kind: "line", tpl: "super(${});",
         tip: "Konstruktor der Oberklasse aufrufen: super(…); – muss die erste Anweisung im Konstruktor sein" },
-    { group: "klasse", label: "public", kind: "visibility", tpl: "public",
+    { group: "klasse", label: "public", help: "b-public", kind: "visibility", tpl: "public",
         tip: "Fügt an der Cursorstelle public ein (von überall aus sichtbar); steht in der Zeile schon private, wird es durch public ersetzt" },
-    { group: "klasse", label: "private", kind: "visibility", tpl: "private",
+    { group: "klasse", label: "private", help: "b-private", kind: "visibility", tpl: "private",
         tip: "Fügt an der Cursorstelle private ein (nur innerhalb der eigenen Klasse sichtbar); steht in der Zeile schon public, wird es durch private ersetzt" },
-    { group: "klasse", label: "//", kind: "comment", tpl: "// ${Kommentar}",
+    { group: "klasse", label: "//", help: "b-kommentar", kind: "comment", tpl: "// ${Kommentar}",
         tip: "Kommentar: In einer leeren Zeile wird ein Kommentar begonnen. Steht Code in der Zeile (oder sind Zeilen markiert), wird er mit // auskommentiert; ist schon eine davon auskommentiert, werden alle wieder einkommentiert" },
 
     // ---------- Ablauf ----------
-    { group: "ablauf", label: "if", kind: "line", tpl: "if (${Bedingung}) {\n\t§\n}",
+    { group: "ablauf", label: "if", help: "b-if", kind: "line", tpl: "if (${Bedingung}) {\n\t§\n}",
         tip: "Bedingte Anweisung: if (Bedingung) { … }" },
-    { group: "ablauf", label: "if – else", kind: "line", tpl: "if (${Bedingung}) {\n\t§\n} else {\n\t${}\n}",
+    { group: "ablauf", label: "if – else", help: "b-ifelse", kind: "line", tpl: "if (${Bedingung}) {\n\t§\n} else {\n\t${}\n}",
         tip: "Zweiseitig bedingte Anweisung: if (Bedingung) { … } else { … }" },
-    { group: "ablauf", label: "else if", kind: "else", tpl: "else if (${Bedingung}) {\n\t§\n}",
+    { group: "ablauf", label: "else if", help: "b-elseif", kind: "else", tpl: "else if (${Bedingung}) {\n\t§\n}",
         tip: "Weitere Bedingung nach einem if-Block: else if (Bedingung) { … }" },
-    { group: "ablauf", label: "else", kind: "else", tpl: "else {\n\t§\n}",
+    { group: "ablauf", label: "else", help: "b-else", kind: "else", tpl: "else {\n\t§\n}",
         tip: "Sonst-Teil nach einem if-Block: else { … }" },
-    { group: "ablauf", label: "while", kind: "line", tpl: "while (${Bedingung}) {\n\t§\n}",
+    { group: "ablauf", label: "while", help: "b-while", kind: "line", tpl: "while (${Bedingung}) {\n\t§\n}",
         tip: "Wiederholung mit Bedingung: while (Bedingung) { … }" },
-    { group: "ablauf", label: "for", more: true, kind: "line", tpl: "for (Integer ${i} = 0; ${i} < ${10}; ${i}++) {\n\t§\n}",
+    { group: "ablauf", label: "for", help: "b-for", more: true, kind: "line", tpl: "for (Integer ${i} = 0; ${i} < ${10}; ${i}++) {\n\t§\n}",
         tip: "Zählschleife: for (Integer i = 0; i < 10; i++) { … }" },
-    { group: "ablauf", label: "for-each", kind: "line", tpl: "for (${String} ${element} : ${liste}) {\n\t§\n}",
+    { group: "ablauf", label: "for-each", help: "b-foreach", kind: "line", tpl: "for (${String} ${element} : ${liste}) {\n\t§\n}",
         tip: "Jedes Element einer Liste oder eines Arrays durchlaufen: for (String element : liste) { … }" },
-    { group: "ablauf", label: "do – while", more: true, kind: "line", tpl: "do {\n\t§\n} while (${Bedingung});",
+    { group: "ablauf", label: "do – while", help: "b-dowhile", more: true, kind: "line", tpl: "do {\n\t§\n} while (${Bedingung});",
         tip: "Wiederholung, die mindestens einmal läuft: do { … } while (Bedingung);" },
-    { group: "ablauf", label: "return", kind: "line", tpl: "return ${};",
+    { group: "ablauf", label: "return", help: "b-return", kind: "line", tpl: "return ${};",
         tip: "Methode beenden und Wert zurückgeben: return …;" },
-    { group: "ablauf", label: "break", more: true, kind: "text", tpl: "break;",
+    { group: "ablauf", label: "break", help: "b-break", more: true, kind: "text", tpl: "break;",
         tip: "Fügt an der Cursorstelle break; ein: verlässt die Schleife (oder den switch) sofort" },
 
     // ---------- Daten ----------
-    { group: "daten", label: "Variable", kind: "variable", tpl: "",
+    { group: "daten", label: "Variable", help: "b-variable", kind: "variable", tpl: "",
         tip: "Variable anlegen: Datentyp und Name auswählen, sie wird an der Cursorstelle eingefügt" },
-    { group: "daten", label: "println", kind: "line", tpl: "println(${});",
+    { group: "daten", label: "println", help: "b-println", kind: "line", tpl: "println(${});",
         tip: "Ausgabe mit Zeilenumbruch: println(…);" },
-    { group: "daten", label: "print", kind: "line", tpl: "print(${});",
+    { group: "daten", label: "print", help: "b-print", kind: "line", tpl: "print(${});",
         tip: "Ausgabe ohne Zeilenumbruch: print(…);" },
-    { group: "daten", label: "new", kind: "new", tpl: "",
+    { group: "daten", label: "new", help: "b-new", kind: "new", tpl: "",
         tip: "Objekt erzeugen: Steht links vom = ein Datentyp (z. B. Auto a = ), wird new Auto() eingefügt; der Cursor steht in den Klammern für Parameter" },
-    { group: "daten", label: "Array", kind: "array", tpl: "",
+    { group: "daten", label: "Array", help: "b-array", kind: "array", tpl: "",
         tip: "Array (Feld) anlegen: Datentyp und Name auswählen; Anzahl der Elemente festlegen; eingefügt wird z. B. Integer[] feld = new Integer[10];" },
-    { group: "daten", label: "ArrayList", more: true, kind: "line", tpl: "ArrayList<${String}> ${liste} = new ArrayList<${String}>();",
+    { group: "daten", label: "ArrayList", help: "b-arraylist", more: true, kind: "line", tpl: "ArrayList<${String}> ${liste} = new ArrayList<${String}>();",
         tip: "Liste mit variabler Länge: ArrayList<String> liste = new ArrayList<String>();" },
 ];
 
@@ -808,7 +810,7 @@ export function blockTip(b: Block): string {
 }
 
 function chipHtml(b: Block, i: number): string {
-    return `<button class="jp-block" data-block="${i}" data-group="${b.group}" data-tip="${blockTip(b).replace(/"/g, "&quot;")}">${b.label.replace(/</g, "&lt;")}</button>`;
+    return `<button class="jp-block" data-block="${i}" data-group="${b.group}"${b.help ? ` data-help="${b.help}"` : ""} data-tip="${blockTip(b).replace(/"/g, "&quot;")}">${b.label.replace(/</g, "&lt;")}</button>`;
 }
 
 /** Senkrechte Bausteinleiste (linke Spalte im Querformat), nach Gruppen geordnet; ganz unten „Mehr Bausteine…“ (eingeklappt) */

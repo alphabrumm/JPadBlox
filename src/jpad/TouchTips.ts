@@ -1,5 +1,7 @@
 import { icon } from "./Icons.js";
 import { HELP, Help } from "./TipHelp.js";
+import { BLOCK_HELP } from "./BlockHelp.js";
+import { createLab } from "./SheepLabs.js";
 
 /**
  * Tooltips für Touch-Geräte: Wer eine halbe Sekunde lang den Finger auf einen Button legt,
@@ -131,7 +133,7 @@ export class TouchTips {
     // ---------------------------------------------------------------- Anzeige
 
     private showTip(btn: HTMLElement) {
-        const help = btn.dataset.help ? HELP[btn.dataset.help] : undefined;
+        const help = btn.dataset.help ? (HELP[btn.dataset.help] ?? BLOCK_HELP[btn.dataset.help]) : undefined;
         const pop = document.createElement("div");
         pop.setAttribute("role", "dialog");
         const close = `<button class="jp-iconbtn jp-tip-close" aria-label="Hinweis schließen">${icon("close")}</button>`;
@@ -139,6 +141,13 @@ export class TouchTips {
             pop.className = "jp-tip is-help";
             pop.setAttribute("aria-label", "Hilfe zu " + help.title);
             pop.innerHTML = renderHelp(help, close);
+            // JPadBlox: große Bausteinhilfe mit Werkstatt aus den Lernpfaden
+            if (help.lab) {
+                pop.classList.add("is-wide");
+                const host = pop.querySelector<HTMLElement>("[data-lab]");
+                host?.appendChild(createLab(help.lab));
+            }
+            if (btn.closest(".jp-blockpanel, .jp-blocks-scroll")) pop.classList.add("is-wide");
         } else {
             const text = TouchTips.textFor(btn);
             if (!text) return;
@@ -173,6 +182,16 @@ export class TouchTips {
         const r = anchor.getBoundingClientRect();
         const vw = document.documentElement.clientWidth;
         const vh = window.visualViewport?.height ?? window.innerHeight; // ohne Bildschirmtastatur
+        // JPadBlox: große Bausteinhilfe neben der senkrechten Bausteinleiste – rechts daneben, möglichst hoch
+        if (pop.classList.contains("is-wide") && anchor.closest(".jp-blockpanel") && vw - r.right > 380) {
+            pop.style.maxHeight = Math.round(vh - 16) + "px";
+            const w = Math.min(pop.offsetWidth, vw - r.right - 20);
+            pop.style.width = w + "px";
+            const h = pop.offsetHeight;
+            pop.style.left = (r.right + 10) + "px";
+            pop.style.top = Math.max(8, Math.min(vh - h - 8, r.top - 60)) + "px";
+            return;
+        }
         const below = vh - 8 - (r.bottom + 10), above = r.top - 10 - 8;
         // Unter den Button, wenn es passt oder dort mehr Platz ist – sonst darüber; notfalls scrollt die Hilfe
         const h0 = pop.offsetHeight;
@@ -202,7 +221,7 @@ function inline(t: string): string {
     return esc(t).replace(/`([^`]+)`/g, (_, c) => `<code>${c}</code>`).replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
 }
 
-const KEYWORDS = /^(?:public|private|protected|class|void|new|if|else|while|for|return|true|false|null|static|this)$/;
+const KEYWORDS = /^(?:public|private|protected|class|void|new|if|else|while|for|do|break|return|true|false|null|static|this|super|extends|implements|interface|abstract)$/;
 const TYPES = /^(?:Integer|Double|Boolean|Character|String)$/;
 
 /** Kleine Syntax-Hervorhebung für die Beispiele (Farben wie im Editor) */
@@ -216,7 +235,7 @@ function highlight(code: string): string {
         else if (m[2] || m[3]) out += `<span class="tk-string">${esc(t)}</span>`;
         else if (m[4]) out += `<span class="tk-number">${esc(t)}</span>`;
         else if (KEYWORDS.test(t)) out += `<span class="tk-keyword">${esc(t)}</span>`;
-        else if (TYPES.test(t)) out += `<span class="tk-type">${esc(t)}</span>`;
+        else if (TYPES.test(t) || /^[A-ZÄÖÜ]/.test(t) && code[re.lastIndex] != "(") out += `<span class="tk-type">${esc(t)}</span>`;
         else if (code[re.lastIndex] == "(") out += `<span class="tk-method">${esc(t)}</span>`;
         else out += esc(t);
         last = re.lastIndex;
@@ -239,6 +258,7 @@ function renderHelp(h: Help, close: string): string {
                 <div class="jp-tip-ex-head">${esc(e.caption)}</div>
                 <pre class="jp-tip-code">${highlight(e.code)}</pre>
             </div>`).join("")}
+        ${h.lab ? `<div class="jp-tip-ex"><div class="jp-tip-ex-head">${esc(h.labCaption ?? "Ausprobieren")}</div><div data-lab></div></div>` : ""}
         ${h.warn ? `<p class="jp-tip-warn"><b>Achtung:</b> ${inline(h.warn)}</p>` : ""}
         ${h.note ? `<p class="jp-tip-note">${inline(h.note)}</p>` : ""}`;
 }

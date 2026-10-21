@@ -2056,3 +2056,113 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 .jp-sheet.is-method.sketch-hidden .jp-method-split { grid-template-columns: minmax(0, 1fr); }
 .jp-sheet.is-method.sketch-hidden .jp-method-input { padding-right: 0; }
 .jp-sheet.is-method.sketch-hidden .jp-method-anim { display: none; }
+
+/* ---------- JPadBlox: Werkstätten aus den Lernpfaden in den großen Bausteinhilfen ----------
+   Übernommen aus „Erste Schritte mit JPad“ und „Der Schaf-Konstruktor“, Farben an JPad angepasst. */
+.jp-lab {
+    --kw: var(--syn-keyword); --ty: var(--syn-type); --str: var(--syn-string); --fn: var(--syn-method);
+    --num: var(--syn-number); --com: var(--syn-comment);
+    --next: #ffe7a0; --next-edge: #e3ab1f; --dawn: #5457c4; --dawn-soft: #e4e4fa; --meadow: #2f8a4a;
+    --ghost: #f3ece8; --wool-weiss: #f9f5ec; --wool-schwarz: #34303a; --wool-braun: #8d4f2c; --face: #3b3434;
+    margin: 10px 6px 4px 0;
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+    overflow: hidden;
+    font-size: 14px;
+    line-height: 1.45;
+}
+:root[data-effective="dark"] .jp-lab {
+    --next: #4a3c17; --dawn: #a8abff; --dawn-soft: #2b2a5a; --meadow: #6fd08b;
+    --ghost: #33294f; --wool-weiss: #efe9df; --wool-schwarz: #121014; --wool-braun: #a5603a; --face: #2a2424;
+}
+.jp-lab code { font-family: var(--font-code); font-size: .9em; background: var(--surface-2); border-radius: 5px; padding: 1px 4px; }
+.jp-lab .t-kw { color: var(--kw); font-weight: 600; }
+.jp-lab .t-ty { color: var(--ty); }
+.jp-lab .t-str { color: var(--str); }
+.jp-lab .t-fn { color: var(--fn); }
+.jp-lab .t-num { color: var(--num); }
+.jp-lab .t-com { color: var(--com); font-style: italic; }
+
+/* Schaf-Fabrik */
+.jp-lab .factory-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); }
+.jp-lab .factory-code { border-right: 1px solid var(--line); min-width: 0; }
+.jp-lab .factory-code pre, .jp-lab .lab-code pre { margin: 0; padding: 8px 0; font-family: var(--font-code); font-size: 12.5px; line-height: 1.7; overflow-x: auto; }
+.jp-lab .ln { display: block; white-space: pre; padding-right: 10px; border-left: 4px solid transparent; transition: background .2s; }
+.jp-lab .ln::before { content: attr(data-n); display: inline-block; width: 2.2em; padding-right: .8em; text-align: right; color: var(--com); }
+.jp-lab .ln.is-next { background: var(--next); border-left-color: var(--next-edge); }
+.jp-lab .ln.is-done::before { content: "✓"; color: var(--meadow); }
+.jp-lab .field { padding: 10px; min-width: 0; }
+.jp-lab .blueprints { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.jp-lab .uml { border: 1.5px solid var(--ty); background: var(--surface); font-family: var(--font-code); font-size: 11.5px; line-height: 1.45; }
+.jp-lab .uml .uml-name { background: color-mix(in srgb, var(--ty) 14%, var(--surface)); color: var(--ty); text-align: center; font-weight: 600; padding: 2px 8px; border-bottom: 1.5px solid var(--ty); }
+.jp-lab .uml .uml-sec { padding: 2px 8px; }
+.jp-lab .uml .uml-sec + .uml-sec { border-top: 1.5px solid var(--ty); }
+.jp-lab .uml.is-pulse { animation: jp-lab-pulse .6s ease-out; }
+@keyframes jp-lab-pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ty) 60%, transparent); } 100% { box-shadow: 0 0 0 14px transparent; } }
+.jp-lab .blueprint-label { font-size: 11px; font-weight: 700; color: var(--ink-2); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 3px; }
+
+/* Weide, Schafe, Objektkarten */
+.jp-lab .pasture { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; min-height: 120px; }
+.jp-lab .pasture-empty { color: var(--ink-2); font-size: 13px; padding: 20px 8px; text-align: center; border: 2px dashed var(--line); border-radius: 12px; width: 100%; }
+.jp-lab .critter { display: grid; justify-items: center; gap: 4px; width: 158px; max-width: 100%; position: relative; }
+.jp-lab .critter svg { width: 96px; height: 77px; overflow: visible; }
+.jp-lab .critter.is-new svg { animation: jp-lab-pop .7s cubic-bezier(.3,1.6,.5,1); transform-origin: 50% 90%; }
+@keyframes jp-lab-pop { 0% { transform: translateY(-40px) scale(.2); opacity: 0; } 60% { opacity: 1; } 100% { transform: none; } }
+.jp-lab .sheep .wool { transition: fill .5s; }
+.jp-lab .sheep .wool.is-ghost { fill: var(--ghost); stroke: var(--ink-2); stroke-dasharray: 4 3; stroke-width: 1.5; }
+.jp-lab .sheep .legs rect, .jp-lab .sheep .head { fill: var(--face); }
+.jp-lab .sheep .eye { fill: #fff; }
+.jp-lab .nametag { font-weight: 700; font-size: 13px; }
+.jp-lab .nametag.is-empty { font-weight: 400; color: var(--ink-2); font-size: 12px; }
+.jp-lab .obj { width: 100%; border: 1.5px solid var(--ink-2); border-radius: 9px; background: var(--surface); font-family: var(--font-code); font-size: 10.5px; line-height: 1.45; overflow: hidden; }
+.jp-lab .obj-name { text-align: center; padding: 2px 6px; border-bottom: 1.5px solid var(--ink-2); background: var(--surface-2); text-decoration: underline; text-underline-offset: 2px; color: var(--ty); font-weight: 600; }
+.jp-lab .obj-attrs { padding: 3px 6px; }
+.jp-lab .obj-attrs div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border-radius: 4px; }
+.jp-lab .obj-attrs .v { color: var(--str); }
+.jp-lab .obj-attrs .v.is-null { color: var(--ink-2); font-style: italic; }
+.jp-lab .is-flash { animation: jp-lab-flash 1.1s ease-out; }
+@keyframes jp-lab-flash { 0% { background: var(--next); } 100% { background: transparent; } }
+
+/* Schritt-Werkstatt (Parameter, Konstruktor) */
+.jp-lab .lab-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.jp-lab .lab-code { border-right: 1px solid var(--line); min-width: 0; padding: 4px 0; }
+.jp-lab .lab-code .fn { font-family: var(--font-code); font-size: 11.5px; color: var(--ink-2); padding: 4px 12px 0; }
+.jp-lab .lab-stage { min-width: 0; padding: 10px; }
+.jp-lab .params { display: flex; flex-wrap: wrap; gap: 6px; min-height: 42px; margin-bottom: 10px; padding: 6px; border: 2px dashed var(--line); border-radius: 10px; }
+.jp-lab .params-empty { color: var(--ink-2); font-size: 12.5px; align-self: center; }
+.jp-lab .pbox { font-family: var(--font-code); font-size: 11.5px; border: 2px solid var(--dawn); border-radius: 8px; background: var(--dawn-soft); padding: 2px 7px; }
+.jp-lab .pbox .pn { color: var(--dawn); font-weight: 600; }
+.jp-lab .pbox .pv { color: var(--str); }
+.jp-lab .pbox.is-new { animation: jp-lab-drop .6s cubic-bezier(.3,1.5,.5,1); }
+.jp-lab .pbox.is-gone { opacity: .35; text-decoration: line-through; }
+@keyframes jp-lab-drop { 0% { transform: translateY(-30px); opacity: 0; } 100% { transform: none; opacity: 1; } }
+
+/* Bedienleiste */
+.jp-lab .lab-bar { display: flex; align-items: center; gap: 6px; padding: 8px 10px; border-top: 1px solid var(--line); background: var(--surface-2); flex-wrap: wrap; }
+.jp-lab .fbtn { min-height: 38px; padding: 0 12px; border-radius: 9px; border: 2px solid var(--line); background: var(--surface); font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; color: var(--ink); }
+.jp-lab .fbtn.primary { background: var(--next); border-color: var(--next-edge); }
+.jp-lab .fbtn:disabled { opacity: .45; }
+.jp-lab .lab-say { flex: 1 1 220px; min-width: 0; font-size: 13.5px; line-height: 1.45; }
+
+/* Stille Bilder (Attribute, Array) */
+.jp-lab.still { padding: 10px; }
+.jp-lab .still-say { margin: 8px 2px 0; font-size: 13.5px; }
+.jp-lab .arr { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+.jp-lab .arr-owner { display: grid; justify-items: center; gap: 4px; width: 130px; }
+.jp-lab .arr-owner svg { width: 96px; height: 77px; }
+.jp-lab .arr-body { flex: 1; min-width: 260px; }
+.jp-lab .arr-label { font-size: 12.5px; color: var(--ink-2); margin-bottom: 4px; }
+.jp-lab .arr-cells { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 2px solid var(--ty); border-radius: 10px; overflow: hidden; }
+.jp-lab .arr-cell { display: grid; justify-items: center; gap: 2px; padding: 6px 4px 8px; }
+.jp-lab .arr-cell + .arr-cell { border-left: 2px solid var(--ty); }
+.jp-lab .arr-cell svg { width: 76px; height: 61px; }
+.jp-lab .arr-idx { font-family: var(--font-code); font-size: 11.5px; font-weight: 700; color: var(--ty); }
+
+@media (max-width: 640px) {
+    .jp-lab .factory-top, .jp-lab .lab-top { grid-template-columns: minmax(0, 1fr); }
+    .jp-lab .factory-code, .jp-lab .lab-code { border-right: 0; border-bottom: 1px solid var(--line); }
+}
+
+/* Große Bausteinhilfe: breiter als die übrigen Hinweise */
+.jp-tip.is-help.is-wide { width: min(720px, calc(100vw - 16px)); }
