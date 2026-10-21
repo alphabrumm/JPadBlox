@@ -1842,14 +1842,14 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
    Bausteine | Editor | Ansicht rechts. Aufteilung je nach Vergrößern-Knopf (siehe App.applyLayout). */
 .jp-pane-blocks { display: none; }
 .jp-app[data-layout="split"] .jp-pane-blocks { display: flex; }
-.jp-app[data-layout="split"][data-cols="default"] .jp-main { grid-template-columns: minmax(0, 12.5fr) minmax(0, 67.5fr) minmax(0, 20fr); }
+.jp-app[data-layout="split"][data-cols="default"] .jp-main { grid-template-columns: auto minmax(0, 1fr) 20%; }
 .jp-app[data-layout="split"][data-cols="blocks"] .jp-main { grid-template-columns: minmax(0, 25fr) minmax(0, 55fr) minmax(0, 20fr); }
 /* Editor vergrößert: Ansicht rechts weg, Bausteine behalten ihre Breite */
-.jp-app[data-layout="split"][data-cols="edit-n"] .jp-main { grid-template-columns: minmax(0, 12.5fr) minmax(0, 87.5fr); }
+.jp-app[data-layout="split"][data-cols="edit-n"] .jp-main { grid-template-columns: auto minmax(0, 1fr); }
 .jp-app[data-layout="split"][data-cols="edit-w"] .jp-main { grid-template-columns: minmax(0, 25fr) minmax(0, 75fr); }
 .jp-app[data-layout="split"]:is([data-cols="edit-n"], [data-cols="edit-w"]) .jp-pane-side { display: none; }
 /* Ansicht rechts vergrößert: doppelt so breit, Bausteine schmal; volle Breite: nur die Ansicht rechts */
-.jp-app[data-layout="split"][data-cols="info"] .jp-main { grid-template-columns: minmax(0, 12.5fr) minmax(0, 47.5fr) minmax(0, 40fr); }
+.jp-app[data-layout="split"][data-cols="info"] .jp-main { grid-template-columns: auto minmax(0, 1fr) 40%; }
 .jp-app[data-layout="split"][data-cols="infofull"] .jp-main { grid-template-columns: minmax(0, 1fr); }
 .jp-app[data-layout="split"][data-cols="infofull"] :is(.jp-pane-blocks, .jp-pane-code) { display: none; }
 .jp-layoutbtn[hidden] { display: none !important; }
@@ -2185,3 +2185,12 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 .jp-choice code { font-family: var(--font-code); font-size: .92em; background: var(--surface); border-radius: 5px; padding: 1px 4px; }
 .jp-choice:active { background: color-mix(in srgb, var(--accent) 12%, var(--surface)); border-color: var(--accent); }
 @media (hover: hover) { .jp-choice:hover { border-color: var(--accent); } }
+
+/* JPadBlox: schmale Bausteinleiste so schmal wie möglich – genau so breit wie der breiteste Baustein */
+.jp-app[data-layout="split"][data-bwide="false"] .jp-pane-blocks { width: max-content; max-width: 22vw; }
+.jp-app[data-bwide="false"] .jp-blockpanel { padding: 6px 6px 10px; }
+.jp-app[data-bwide="false"] .jp-blockpanel button.jp-block { padding: 0 10px; }
+.jp-app[data-bwide="false"] .jp-panehead { padding-left: 8px; }
+.jp-app[data-bwide="false"] .jp-panehead-title { font-size: 13px; }
+.jp-app[data-bwide="false"] .jp-more-toggle { white-space: normal; line-height: 1.2; }
+.jp-app[data-bwide="false"] .jp-blockgroup h3 { margin-left: 0; }
