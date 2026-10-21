@@ -179,7 +179,7 @@ export class KeyBar {
              * Tippt man bei ausgeblendeter Tastatur in die untere Hälfte des Codes, schiebt iOS während
              * der Tastatur-Animation den sichtbaren Bereich hin und her; die dabei gemessene Höhe stimmt
              * oft nicht, und die ganze Seite bleibt nach oben verschoben (Kopfzeile weg, Hilfsleiste unter
-             * der Tastatur). Deshalb 2 s nach dem Tipp (Animation fertig) die Seite nach oben zurückscrollen,
+             * der Tastatur). Deshalb 0,5 s nach dem Tipp (Animation fertig) die Seite nach oben zurückscrollen,
              * die nutzbare Höhe neu abfragen, das Layout neu setzen und den Cursor sichtbar machen.
              */
             let lateTimer: any;
@@ -218,7 +218,7 @@ export class KeyBar {
                             requestAnimationFrame(() => requestAnimationFrame(() => this.editor.revealCursorInside()));
                         }, 350);
                     }));
-                }, 2000);
+                }, 500);
             }, { capture: true, passive: true });
         }
     }
