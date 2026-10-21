@@ -178,18 +178,35 @@ export class KeyBar {
             /*
              * Tippt man bei ausgeblendeter Tastatur in die untere Hälfte des Codes, schiebt iOS während
              * der Tastatur-Animation den sichtbaren Bereich hin und her; die dabei gemessene Höhe stimmt
-             * oft nicht. Deshalb 2 s nach dem Tipp (Animation fertig) die nutzbare Höhe noch einmal
-             * abfragen, das Layout neu setzen und den Cursor in den sichtbaren Bereich holen.
+             * oft nicht, und die ganze Seite bleibt nach oben verschoben (Kopfzeile weg, Hilfsleiste unter
+             * der Tastatur). Deshalb 2 s nach dem Tipp (Animation fertig) die Seite nach oben zurückscrollen,
+             * die nutzbare Höhe neu abfragen, das Layout neu setzen und den Cursor sichtbar machen.
              */
             let lateTimer: any;
+            const resetScroll = () => {
+                window.scrollTo(0, 0);
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+            };
             this.editor.view.dom.addEventListener("touchstart", e => {
                 if (e.touches.length != 1 || document.documentElement.classList.contains("keyboard-open")) return;
                 if (e.touches[0].clientY < window.innerHeight / 2) return;
                 clearTimeout(lateTimer);
                 lateTimer = setTimeout(() => {
-                    if (!this.editor.view.hasFocus) return;
-                    update(true);
-                    this.editor.revealCursor();
+                    // 1. Den von iOS nach oben geschobenen Ausschnitt zurück an den Seitenanfang
+                    resetScroll();
+                    // 2. Zwei Frames warten, bis der Browser den neuen Ausschnitt meldet, dann Höhe neu
+                    //    messen, Layout neu setzen und den Cursor im (jetzt kleineren) Editor sichtbar machen
+                    requestAnimationFrame(() => requestAnimationFrame(() => {
+                        update(true);
+                        this.editor.revealCursor();
+                        // 3. Falls iOS den Ausschnitt dabei noch einmal verschoben hat: nachkorrigieren
+                        setTimeout(() => {
+                            if (vv.offsetTop > 1 || window.scrollY > 1) resetScroll();
+                            update(true);
+                            this.editor.revealCursor();
+                        }, 350);
+                    }));
                 }, 2000);
             }, { capture: true, passive: true });
         }
