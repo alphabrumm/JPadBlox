@@ -1,10 +1,13 @@
 import { icon } from "./Icons.js";
+import { HELP, Help } from "./TipHelp.js";
 
 /**
  * Tooltips für Touch-Geräte: Wer eine halbe Sekunde lang den Finger auf einen Button legt,
  * bekommt einen kurzen Hinweis, was der Button bewirkt. Der Button wird dabei NICHT ausgelöst.
  *
- * Text: data-tip, sonst aria-label, sonst title, sonst die Beschriftung des Buttons.
+ * Inhalt: ausführliche Hilfe aus TipHelp (data-help), sonst ein kurzer Text: data-tip, aria-label,
+ * title oder die Beschriftung des Buttons. Wie in QPad bleibt der Hinweis stehen, bis er über
+ * sein ✕ (oder durch Tippen daneben) geschlossen wird.
  *
  * Einige Knöpfe (Start, Schritt, Stopp …) reagieren in der Online-IDE schon beim Aufsetzen
  * des Fingers (pointerdown). Bei Touch halten wir dieses Ereignis zurück und reichen es erst
@@ -26,7 +29,6 @@ export class TouchTips {
     private suppressClick = false;
     private tipEl: HTMLElement | null = null;
     private tipAnchor: HTMLElement | null = null;
-    private hideTimer: any = null;
 
     constructor() {
         const opt = { capture: true, passive: false } as AddEventListenerOptions;
@@ -48,7 +50,6 @@ export class TouchTips {
         window.addEventListener("contextmenu", e => {
             if ((<HTMLElement>e.target)?.closest?.("button")) e.preventDefault();
         }, opt);
-        window.addEventListener("scroll", () => this.hideTip(), passive);
         window.addEventListener("resize", () => this.hideTip());
         document.addEventListener("keydown", e => { if (e.key == "Escape") this.hideTip(); }, true);
     }
@@ -128,14 +129,21 @@ export class TouchTips {
     // ---------------------------------------------------------------- Anzeige
 
     private showTip(btn: HTMLElement) {
-        const text = TouchTips.textFor(btn);
-        if (!text) return;
-        const tip = document.createElement("div");
-        tip.className = "jp-tip";
-        tip.setAttribute("role", "tooltip");
-        tip.textContent = text;
-        this.place(tip, btn);
-        this.hideTimer = setTimeout(() => this.hideTip(), 6000);
+        const help = btn.dataset.help ? HELP[btn.dataset.help] : undefined;
+        const pop = document.createElement("div");
+        pop.setAttribute("role", "dialog");
+        const close = `<button class="jp-iconbtn jp-tip-close" aria-label="Hinweis schließen">${icon("close")}</button>`;
+        if (help) {
+            pop.className = "jp-tip is-help";
+            pop.setAttribute("aria-label", "Hilfe zu " + help.title);
+            pop.innerHTML = renderHelp(help, close);
+        } else {
+            const text = TouchTips.textFor(btn);
+            if (!text) return;
+            pop.className = "jp-tip is-short";
+            pop.innerHTML = `<p>${esc(text)}</p>${close}`;
+        }
+        this.place(pop, btn);
     }
 
     /** Hinweis der Glühbirne (wie in QPad): erklärt das lange Drücken. Erneutes Tippen schließt ihn. */
@@ -148,35 +156,85 @@ export class TouchTips {
             <span class="jp-tip-info-icon">${icon("lightbulb")}</span>
             <p>Weißt Du nicht, was ein Button bewirkt? Lege einfach eine halbe Sekunde lang Deinen Finger auf den Button, um Hilfe zu bekommen.</p>
             <button class="jp-iconbtn jp-tip-close" aria-label="Hinweis schließen">${icon("close")}</button>`;
-        const close = pop.querySelector<HTMLElement>(".jp-tip-close")!;
-        close.addEventListener("pointerdown", e => e.preventDefault()); // Editor-Fokus behalten
-        close.addEventListener("click", () => this.hideTip());
         this.place(pop, anchor);
     }
 
-    /** Unter (oder notfalls über) dem Button platzieren, mit Pfeil auf den Button */
+    /** Unter (oder notfalls über) dem Button platzieren */
     private place(pop: HTMLElement, anchor: HTMLElement) {
         this.hideTip();
+        // Buttons im Hinweis sollen dem Editor den Fokus nicht nehmen (sonst klappt die Tastatur zu)
+        pop.querySelectorAll("button").forEach(b => b.addEventListener("pointerdown", e => e.preventDefault()));
+        pop.querySelector<HTMLElement>(".jp-tip-close")?.addEventListener("click", () => this.hideTip());
         document.body.appendChild(pop);
         this.tipEl = pop;
         this.tipAnchor = anchor;
         const r = anchor.getBoundingClientRect();
         const vw = document.documentElement.clientWidth;
-        const vh = window.visualViewport?.height ?? window.innerHeight;
+        const vh = window.visualViewport?.height ?? window.innerHeight; // ohne Bildschirmtastatur
+        const below = vh - 8 - (r.bottom + 10), above = r.top - 10 - 8;
+        // Unter den Button, wenn es passt oder dort mehr Platz ist – sonst darüber; notfalls scrollt die Hilfe
+        const h0 = pop.offsetHeight;
+        const putBelow = h0 <= below || below >= above;
+        const space = Math.max(120, putBelow ? below : above);
+        pop.style.maxHeight = Math.min(space, Math.round(vh * 0.72), 600) + "px";
         const w = pop.offsetWidth, h = pop.offsetHeight;
         const left = Math.max(8, Math.min(vw - w - 8, r.left + r.width / 2 - w / 2));
-        let top = r.bottom + 10;
-        if (top + h > vh - 8 && r.top - 10 - h >= 8) top = r.top - 10 - h;
+        const top = putBelow ? r.bottom + 10 : r.top - 10 - h;
         pop.style.left = left + "px";
         pop.style.top = Math.max(8, top) + "px";
-        pop.style.setProperty("--arrow-x", Math.max(14, Math.min(w - 14, r.left + r.width / 2 - left)) + "px");
-        pop.classList.toggle("is-above", top < r.top);
     }
 
     hideTip() {
-        clearTimeout(this.hideTimer);
         this.tipEl?.remove();
         this.tipEl = null;
         this.tipAnchor = null;
     }
+}
+
+function esc(t: string): string {
+    return t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+/** `Code` und **fett** im Hilfetext */
+function inline(t: string): string {
+    return esc(t).replace(/`([^`]+)`/g, (_, c) => `<code>${c}</code>`).replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
+}
+
+const KEYWORDS = /^(?:public|private|protected|class|void|int|double|boolean|char|String|new|if|else|while|for|return|true|false|null|static|this)$/;
+
+/** Kleine Syntax-Hervorhebung für die Beispiele (Farben wie im Editor) */
+function highlight(code: string): string {
+    const re = /(\/\/.*$)|("(?:[^"\\]|\\.)*")|('(?:[^'\\]|\\.)*')|(\b\d+(?:\.\d+)?\b)|([A-Za-zÄÖÜäöüß_][A-Za-z0-9ÄÖÜäöüß_]*)/gm;
+    let out = "", last = 0, m: RegExpExecArray | null;
+    while ((m = re.exec(code))) {
+        out += esc(code.slice(last, m.index));
+        const [t] = m;
+        if (m[1]) out += `<span class="tk-comment">${esc(t)}</span>`;
+        else if (m[2] || m[3]) out += `<span class="tk-string">${esc(t)}</span>`;
+        else if (m[4]) out += `<span class="tk-number">${esc(t)}</span>`;
+        else if (KEYWORDS.test(t)) out += `<span class="tk-keyword">${esc(t)}</span>`;
+        else if (code[re.lastIndex] == "(") out += `<span class="tk-method">${esc(t)}</span>`;
+        else out += esc(t);
+        last = re.lastIndex;
+    }
+    return out + esc(code.slice(last));
+}
+
+function renderHelp(h: Help, close: string): string {
+    return `
+        <div class="jp-tip-head">
+            ${h.code ? `<code class="jp-tip-title is-code">${esc(h.title)}</code>` : `<span class="jp-tip-title">${esc(h.title)}</span>`}
+            <span class="jp-tip-kind">${esc(h.kind)}</span>
+            <span class="jp-tip-spacer"></span>
+            ${close}
+        </div>
+        <p class="jp-tip-text">${inline(h.text)}</p>
+        ${h.steps ? `<ol class="jp-tip-steps">${h.steps.map(s => `<li>${inline(s)}</li>`).join("")}</ol>` : ""}
+        ${(h.examples ?? []).map(e => `
+            <div class="jp-tip-ex">
+                <div class="jp-tip-ex-head">${esc(e.caption)}</div>
+                <pre class="jp-tip-code">${highlight(e.code)}</pre>
+            </div>`).join("")}
+        ${h.warn ? `<p class="jp-tip-warn"><b>Achtung:</b> ${inline(h.warn)}</p>` : ""}
+        ${h.note ? `<p class="jp-tip-note">${inline(h.note)}</p>` : ""}`;
 }

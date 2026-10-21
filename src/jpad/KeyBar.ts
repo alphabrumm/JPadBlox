@@ -2,32 +2,33 @@ import { icon } from "./Icons.js";
 import { TouchEditor } from "./TouchEditor.js";
 import { LanguageBridge } from "./LanguageBridge.js";
 
-type Key = { label: string, insert?: string, action?: string, aria?: string, tip?: string, wide?: boolean };
+type Key = { label: string, insert?: string, action?: string, aria?: string, tip?: string, help?: string, wide?: boolean };
 
 /**
  * Hilfsleiste über der Bildschirmtastatur mit den Zeichen, die auf der
  * iPad-Tastatur nur über Umwege erreichbar sind.
  */
 const KEYS: Key[] = [
-    { label: icon("tab"), action: "tab", aria: "Einrücken", tip: "Einrücken (Tabulator)" },
-    { label: "{ }", insert: "{§}", tip: "Geschweifte Klammern { } einfügen – für Klassen-, Methoden- und Blockrümpfe" },
-    { label: "( )", insert: "(§)", tip: "Runde Klammern ( ) einfügen – für Parameter und Bedingungen" },
-    { label: ";", insert: ";", tip: "Strichpunkt ; – beendet eine Anweisung" },
-    { label: "=", insert: " = ", tip: "Zuweisung = – speichert einen Wert in einer Variablen" },
-    { label: "\" \"", insert: "\"§\"", tip: "Anführungszeichen \" \" einfügen – für Text (String)" },
-    { label: ".", insert: ".", tip: "Punkt . – ruft eine Methode oder ein Attribut eines Objekts auf" },
-    { label: "[ ]", insert: "[§]", tip: "Eckige Klammern [ ] einfügen – für Arrays" },
-    { label: "<", insert: "<", tip: "Kleiner als <" },
-    { label: ">", insert: ">", tip: "Größer als >" },
-    { label: "+", insert: "+", tip: "Plus + – addiert Zahlen oder hängt Texte aneinander" },
-    { label: "−", insert: "-", aria: "Minus", tip: "Minus −" },
-    { label: "*", insert: "*", tip: "Mal *" },
-    { label: "/", insert: "/", tip: "Geteilt durch /" },
-    { label: "!", insert: "!", tip: "Nicht ! – kehrt eine Bedingung um" },
-    { label: "&&", insert: " && ", tip: "Und && – beide Bedingungen müssen wahr sein" },
-    { label: "||", insert: " || ", tip: "Oder || – mindestens eine Bedingung muss wahr sein" },
-    { label: "==", insert: " == ", tip: "Vergleich == – prüft, ob zwei Werte gleich sind" },
-    { label: "++", insert: "++", tip: "++ – erhöht eine Zahl um 1" },
+    { label: icon("tab"), action: "tab", aria: "Einrücken", tip: "Einrücken (Tabulator)", help: "tab" },
+    { label: "{ }", insert: "{§}", tip: "Geschweifte Klammern { } einfügen – für Klassen-, Methoden- und Blockrümpfe", help: "braces" },
+    { label: "( )", insert: "(§)", tip: "Runde Klammern ( ) einfügen – für Parameter und Bedingungen", help: "parens" },
+    { label: ";", insert: ";", tip: "Strichpunkt ; – beendet eine Anweisung", help: "semicolon" },
+    { label: "=", insert: " = ", tip: "Zuweisung = – speichert einen Wert in einer Variablen", help: "assign" },
+    { label: "\" \"", insert: "\"§\"", tip: "Anführungszeichen \" \" einfügen – für Text (String)", help: "quotes" },
+    { label: ".", insert: ".", tip: "Punkt . – ruft eine Methode oder ein Attribut eines Objekts auf", help: "dot" },
+    { label: "[ ]", insert: "[§]", tip: "Eckige Klammern [ ] einfügen – für Arrays", help: "brackets" },
+    { label: "<", insert: "<", tip: "Kleiner als <", help: "lt" },
+    { label: ">", insert: ">", tip: "Größer als >", help: "gt" },
+    { label: "+", insert: "+", tip: "Plus + – addiert Zahlen oder hängt Texte aneinander", help: "plus" },
+    { label: "−", insert: "-", aria: "Minus", tip: "Minus −", help: "minus" },
+    { label: "*", insert: "*", tip: "Mal *", help: "times" },
+    { label: "/", insert: "/", tip: "Geteilt durch /", help: "divide" },
+    { label: "%", insert: " % ", tip: "Modulo % – Rest beim ganzzahligen Teilen", help: "modulo" },
+    { label: "!", insert: "!", tip: "Nicht ! – kehrt eine Bedingung um", help: "not" },
+    { label: "&&", insert: " && ", tip: "Und && – beide Bedingungen müssen wahr sein", help: "and" },
+    { label: "||", insert: " || ", tip: "Oder || – mindestens eine Bedingung muss wahr sein", help: "or" },
+    { label: "==", insert: " == ", tip: "Vergleich == – prüft, ob zwei Werte gleich sind", help: "equals" },
+    { label: "++", insert: "++", tip: "++ – erhöht eine Zahl um 1", help: "increment" },
 ];
 
 /** Testmodus für die Tastatur-Behandlung: „?kb=einfach“ schaltet ein, „?kb=normal“ aus (wird gemerkt). */
@@ -55,17 +56,17 @@ export class KeyBar {
         this.el.setAttribute("aria-label", "Sonderzeichen");
         this.el.innerHTML = `
             <div class="jp-keybar-fixed is-left">
-                <button data-action="left" aria-label="Cursor nach links" data-tip="Cursor ein Zeichen nach links">${icon("left")}</button>
-                <button data-action="right" aria-label="Cursor nach rechts" data-tip="Cursor ein Zeichen nach rechts">${icon("right")}</button>
+                <button data-action="left" data-help="left" aria-label="Cursor nach links" data-tip="Cursor ein Zeichen nach links">${icon("left")}</button>
+                <button data-action="right" data-help="right" aria-label="Cursor nach rechts" data-tip="Cursor ein Zeichen nach rechts">${icon("right")}</button>
             </div>
             <div class="jp-keybar-main">
             <div class="jp-keybar-scroll">
-                ${KEYS.map((k, i) => `<button data-key="${i}" ${k.aria ? `aria-label="${k.aria}"` : ""} ${k.tip ? `data-tip="${k.tip.replace(/"/g, "&quot;")}"` : ""}>${k.label}</button>`).join("")}
+                ${KEYS.map((k, i) => `<button data-key="${i}" ${k.aria ? `aria-label="${k.aria}"` : ""} ${k.tip ? `data-tip="${k.tip.replace(/"/g, "&quot;")}"` : ""} ${k.help ? `data-help="${k.help}"` : ""}>${k.label}</button>`).join("")}
             </div>
             <div class="jp-keybar-fixed is-right">
-                <button data-action="breakpoint" aria-label="Haltepunkt in dieser Zeile setzen oder entfernen" data-tip="Haltepunkt in dieser Zeile setzen oder entfernen – das Programm hält vor der Zeile an" class="jp-key-breakpoint">${icon("breakpoint")}</button>
-                <button data-action="info" aria-label="Info zur Stelle am Cursor" data-tip="Info zu dem Namen, auf dem der Cursor steht">${icon("info")}</button>
-                <button data-action="hide" aria-label="Tastatur ausblenden" data-tip="Bildschirmtastatur ausblenden">${icon("keyboardDown")}</button>
+                <button data-action="breakpoint" data-help="breakpoint" aria-label="Haltepunkt in dieser Zeile setzen oder entfernen" data-tip="Haltepunkt in dieser Zeile setzen oder entfernen – das Programm hält vor der Zeile an" class="jp-key-breakpoint">${icon("breakpoint")}</button>
+                <button data-action="info" data-help="info" aria-label="Info zur Stelle am Cursor" data-tip="Info zu dem Namen, auf dem der Cursor steht">${icon("info")}</button>
+                <button data-action="hide" data-help="hide" aria-label="Tastatur ausblenden" data-tip="Bildschirmtastatur ausblenden">${icon("keyboardDown")}</button>
             </div>
             </div>`;
         root.appendChild(this.el);

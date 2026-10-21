@@ -195,12 +195,12 @@ export class App {
                 <button class="jp-iconbtn" data-ref="saveBtn" data-tip="Projekt als Datei sichern. Ein Punkt zeigt Änderungen, die noch nicht gesichert sind." aria-label="Projekt als Datei sichern" title="Projekt als Datei sichern">${icon("save")}<span class="jp-dot"></span></button>
             </div>
             <div class="jp-toolgroup jp-run-tools">
-                <button class="jp-iconbtn jp-step jp-step-more" data-ref="stepOver" data-tip="Methode überspringen: führt einen Methodenaufruf in einem Schritt aus" aria-label="Methode überspringen" title="Methode überspringen">${icon("stepOver")}</button>
-                <button class="jp-iconbtn jp-step jp-step-more jp-wide-only" data-ref="stepOut" data-tip="Methode verlassen: läuft bis zum Ende der aktuellen Methode" aria-label="Methode verlassen" title="Methode verlassen">${icon("stepOut")}</button>
-                <button class="jp-stepbtn" data-ref="stepInto" data-tip="Schritt: führt die nächste Zeile aus – die aktuelle Zeile ist im Code gelb markiert" aria-label="Schritt: nächste Zeile ausführen" title="Schritt: nächste Zeile ausführen">${icon("stepInto")}<span>Schritt</span></button>
+                <button class="jp-iconbtn jp-step jp-step-more" data-ref="stepOver" data-help="stepOver" data-tip="Methode überspringen: führt einen Methodenaufruf in einem Schritt aus" aria-label="Methode überspringen" title="Methode überspringen">${icon("stepOver")}</button>
+                <button class="jp-iconbtn jp-step jp-step-more jp-wide-only" data-ref="stepOut" data-help="stepOut" data-tip="Methode verlassen: läuft bis zum Ende der aktuellen Methode" aria-label="Methode verlassen" title="Methode verlassen">${icon("stepOut")}</button>
+                <button class="jp-stepbtn" data-ref="stepInto" data-help="step" data-tip="Schritt: führt die nächste Zeile aus – die aktuelle Zeile ist im Code gelb markiert" aria-label="Schritt: nächste Zeile ausführen" title="Schritt: nächste Zeile ausführen">${icon("stepInto")}<span>Schritt</span></button>
                 <button class="jp-iconbtn jp-stop" data-ref="stopBtn" data-tip="Programm beenden" aria-label="Programm anhalten">${icon("stop")}</button>
                 <button class="jp-run" data-ref="pauseBtn" data-tip="Programm anhalten (Pause)" aria-label="Pause">${icon("pause")}</button>
-                <button class="jp-run" data-ref="runBtn" data-tip="Programm starten" aria-label="Programm starten">${icon("play")}</button>
+                <button class="jp-run" data-ref="runBtn" data-help="run" data-tip="Programm starten" aria-label="Programm starten">${icon("play")}</button>
             </div>
         </header>
 

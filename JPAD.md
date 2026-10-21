@@ -24,8 +24,9 @@ Bedienung und Gestaltung.
 - **Haltepunkte**: Knopf in der Hilfsleiste (oder Tippen auf die Zeilennummer). Das Programm hält vor der Zeile an
   und kann dann Schritt für Schritt weiterlaufen.
 - **Kein Mouse-over nötig**: alle Funktionen sind per Tippen erreichbar.
-- **Tooltips per langem Drücken**: Wer eine halbe Sekunde den Finger auf einen Button legt, sieht, was er bewirkt
-  (der Button wird dabei nicht ausgelöst). Die Glühbirne neben dem Projektnamen weist darauf hin (auf dem iPhone ausgeblendet).
+- **Hilfe per langem Drücken**: Wer eine halbe Sekunde den Finger auf einen Button legt, sieht, was er bewirkt
+  (der Button wird dabei nicht ausgelöst). Zeichen und Operatoren der Hilfsleiste, Schritt und Haltepunkt bekommen
+  eine ausführliche Hilfe mit Beispielen und „Achtung“-Hinweisen auf typische Denkfehler (Texte in `TipHelp.ts`). Die Glühbirne neben dem Projektnamen weist darauf hin (auf dem iPhone ausgeblendet).
 - **Zwei Layouts**: nebeneinander (iPad quer, Laptop) oder mit Reitern Code/Ausgabe/Probleme (Handy, iPad hoch).
 - **Hell, Dunkel oder automatisch** nach Systemeinstellung.
 - **Ohne Login, ohne Server**: Projekte werden automatisch im Browser gespeichert und lassen sich als
@@ -43,7 +44,7 @@ Bedienung und Gestaltung.
 | `src/jpad/TouchEditor.ts` | CodeMirror-Editor, synchron mit den (unsichtbaren) Monaco-Modellen |
 | `src/jpad/LanguageBridge.ts` | ruft die Monaco-Provider der Online-IDE auf (Vervollständigung, Hover, Signaturen, Formatieren) |
 | `src/jpad/App.ts` | Oberfläche: Kopfzeile, Dateireiter, Ausgabe, Probleme, Menü |
-| `src/jpad/TouchTips.ts` | Tooltips beim langen Drücken auf Buttons, Hinweis der Glühbirne |
+| `src/jpad/TouchTips.ts`, `TipHelp.ts` | Hilfe beim langen Drücken auf Buttons, Hinweis der Glühbirne |
 | `src/jpad/Diagram.ts` | Klassen- und Objektdiagramm |
 | `src/jpad/ProjectStore.ts` | Projektliste, Import/Export, eigene Spritesheets |
 | `src/jpad/UserSprites.ts` | „Eigene Sprites“: Bilder einlesen, Spritesheet packen/entpacken, Oberfläche |
