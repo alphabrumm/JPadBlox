@@ -32,7 +32,7 @@ type View = "code" | "output" | "variables" | "diagram" | "problems";
 type SideView = "output" | "variables" | "diagram" | "problems";
 type ThemeChoice = "auto" | "light" | "dark";
 
-type Cols = "default" | "narrow" | "code" | "full" | "info";
+type Cols = "default" | "blocks" | "code" | "full" | "info";
 
 const SPEEDS: { label: string, value: number | "max" }[] = [
     { label: "Zeitlupe", value: 2 },
@@ -395,12 +395,12 @@ export class App {
         const mq = matchMedia("(min-width: 900px) and (min-aspect-ratio: 1/1)");
         /*
          * JPadBlox: drei Spalten (Bausteine | Editor | Ansicht rechts), jede mit Vergrößern-Knopf.
-         *   default  25 % | 45 % | 30 %
-         *   narrow  12,5 %| 57,5 %| 30 %    (Verkleinern bei den Bausteinen)
-         *   code      –   | 65 % | 35 %     (1. Tipp auf Vergrößern beim Editor)
-         *   full      –   | 100 %| –        (2. Tipp; Ausgabe usw. als Reiter unten wie in JPad)
-         *   info      –   | 35 % | 65 %     (Vergrößern bei der Ansicht rechts)
-         * Verkleinern bei Editor und Ansicht rechts sowie Vergrößern bei den Bausteinen führen zurück zu „default“.
+         *   default  12,5 %| 67,5 %| 20 %    (Bausteine und Ansicht rechts schmal)
+         *   blocks   25 %  | 55 %  | 20 %    (Vergrößern bei den Bausteinen)
+         *   code      –    | 65 %  | 35 %    (1. Tipp auf Vergrößern beim Editor)
+         *   full      –    | 100 % | –       (2. Tipp; Ausgabe usw. als Reiter unten wie in JPad)
+         *   info      –    | 35 %  | 65 %    (Vergrößern bei der Ansicht rechts)
+         * Jeder Verkleinern-Knopf führt zurück zu „default“.
          */
         const setBtn = (btn: HTMLElement, expanded: boolean, expandLabel: string,
             shrinkLabel = "Zurück zur Standardansicht mit drei Spalten") => {
@@ -415,9 +415,7 @@ export class App {
             this.root.dataset.wide = String(mq.matches);
             this.root.dataset.cols = cols;
             this.root.dataset.layout = mq.matches && cols != "full" ? "split" : "tabs";
-            // Bei den Bausteinen ist die Standardansicht die vergrößerte: dort heißt der Knopf „Verkleinern“
-            setBtn(this.el.blocksLayoutBtn, cols != "narrow", "Bausteine wieder breiter anzeigen",
-                "Bausteine schmaler anzeigen, Editor breiter");
+            setBtn(this.el.blocksLayoutBtn, cols == "blocks", "Bausteine breiter anzeigen");
             setBtn(this.el.layoutBtn, cols == "full",
                 cols == "code" ? "Editor auf volle Breite vergrößern" : "Editor vergrößern (Bausteine ausblenden)");
             setBtn(this.el.sideLayoutBtn, cols == "info", "Ansicht rechts vergrößern (Bausteine ausblenden)");
@@ -429,7 +427,7 @@ export class App {
             btn.addEventListener("pointerdown", e => e.preventDefault()); // Tastatur offen lassen
             btn.addEventListener("click", () => { this.setCols(next()); applyLayout(); });
         };
-        layoutButton(this.el.blocksLayoutBtn, () => this.getCols() == "default" ? "narrow" : "default");
+        layoutButton(this.el.blocksLayoutBtn, () => this.getCols() == "blocks" ? "default" : "blocks");
         layoutButton(this.el.layoutBtn, () => {
             const c = this.getCols();
             return c == "code" ? "full" : c == "full" ? "default" : "code";
@@ -1115,13 +1113,13 @@ export class App {
     /** Spaltenaufteilung im Querformat (siehe applyLayout) */
     getCols(): Cols {
         try {
-            const c = localStorage.getItem("jpadblox.cols");
-            return c == "narrow" || c == "code" || c == "full" || c == "info" ? c : "default";
+            const c = localStorage.getItem("jpadblox.layout");
+            return c == "blocks" || c == "code" || c == "full" || c == "info" ? c : "default";
         } catch (e) { return "default"; }
     }
 
     setCols(c: Cols) {
-        try { localStorage.setItem("jpadblox.cols", c); } catch (e) { }
+        try { localStorage.setItem("jpadblox.layout", c); } catch (e) { }
     }
 
     getThemeChoice(): ThemeChoice {

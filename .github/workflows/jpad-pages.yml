@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 concurrency:
@@ -22,6 +22,21 @@ jobs:
       # Zum Herunterladen für den eigenen Webspace
       - uses: actions/upload-artifact@v4
         with: { name: j-pad-webspace, path: dist-jpad, include-hidden-files: true, retention-days: 30 }
+      # JPadBlox: ZIP für den eigenen Webspace zusätzlich im Zweig „webspace-build“ ablegen
+      # (lässt sich ohne Anmeldung per git holen; der Zweig enthält immer nur das neueste ZIP)
+      - name: Webspace-ZIP im Zweig webspace-build ablegen
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          (cd dist-jpad && zip -qr "$RUNNER_TEMP/JPadBlox-webspace.zip" .)
+          mkdir -p "$RUNNER_TEMP/wb" && cp "$RUNNER_TEMP/JPadBlox-webspace.zip" "$RUNNER_TEMP/wb/"
+          cd "$RUNNER_TEMP/wb"
+          echo "${GITHUB_SHA}" > COMMIT.txt
+          git init -q -b webspace-build
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add . && git commit -qm "Webspace-ZIP für ${GITHUB_SHA::8}"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" webspace-build
       - uses: actions/upload-pages-artifact@v3
         with: { path: dist-jpad }
   deploy:

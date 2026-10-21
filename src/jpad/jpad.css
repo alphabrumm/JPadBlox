@@ -1843,9 +1843,9 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 .jp-pane-blocks { display: none; }
 .jp-app[data-layout="split"] .jp-pane-blocks { display: flex; }
 .jp-app[data-layout="split"][data-cols="default"] .jp-main {
-    grid-template-columns: minmax(0, 25fr) minmax(0, 45fr) minmax(0, 30fr);
+    grid-template-columns: minmax(0, 12.5fr) minmax(0, 67.5fr) minmax(0, 20fr);
 }
-.jp-app[data-layout="split"][data-cols="narrow"] .jp-main { grid-template-columns: minmax(0, 12.5fr) minmax(0, 57.5fr) minmax(0, 30fr); }
+.jp-app[data-layout="split"][data-cols="blocks"] .jp-main { grid-template-columns: minmax(0, 25fr) minmax(0, 55fr) minmax(0, 20fr); }
 .jp-app[data-layout="split"][data-cols="code"] .jp-main { grid-template-columns: minmax(0, 65fr) minmax(0, 35fr); }
 .jp-app[data-layout="split"][data-cols="info"] .jp-main { grid-template-columns: minmax(0, 35fr) minmax(0, 65fr); }
 .jp-app[data-layout="split"][data-cols="code"] .jp-pane-blocks,
@@ -2022,8 +2022,8 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 }
 
 /* JPadBlox: schmale Bausteinleiste – alle Bausteine gleich breit untereinander */
-.jp-app[data-cols="narrow"] .jp-blockpanel .jp-blockgroup-items { flex-direction: column; flex-wrap: nowrap; }
-.jp-app[data-cols="narrow"] .jp-blockpanel button.jp-block { flex: none; width: 100%; }
+.jp-app[data-cols="default"] .jp-blockpanel .jp-blockgroup-items { flex-direction: column; flex-wrap: nowrap; }
+.jp-app[data-cols="default"] .jp-blockpanel button.jp-block { flex: none; width: 100%; }
 
 /* JPadBlox: Umschalter Bausteine ⇄ Zeichen in der Hilfsleiste – auffällig wie die Glühbirne
    (hell: gelb gefüllt, Symbol dunkel; dunkel: ohne Füllung, Symbol gelb) */

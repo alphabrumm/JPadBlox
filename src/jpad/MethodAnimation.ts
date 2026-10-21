@@ -244,19 +244,20 @@ export function createMethodAnimation(): HTMLElement {
             root.querySelectorAll<HTMLElement>("[data-scene]").forEach(b => b.setAttribute("aria-current", String(b.dataset.scene == String(i))));
             root.classList.remove("switching");
         });
-        let t = 900;
+        // Doppelt so lange Pausen wie die Bewegungen selbst brauchen, damit man in Ruhe zuschauen kann
+        let t = 1800;
         if (s.param) {
             later(t, () => root.classList.add("open"));
-            later(t + 450, () => root.classList.add("pour"));
-            later(t + 800, () => root.classList.add("drop"));
-            t += 1900;
+            later(t + 900, () => root.classList.add("pour"));
+            later(t + 1600, () => root.classList.add("drop"));
+            t += 3800;
         }
         later(t, () => root.classList.add("run"));
-        t += 1500;
+        t += 3000;
         later(t, () => root.classList.add("out"));
-        later(t + 400, () => root.classList.remove("pour"));
-        later(t + 700, () => root.classList.remove("open"));
-        t += 2600;
+        later(t + 800, () => root.classList.remove("pour"));
+        later(t + 1400, () => root.classList.remove("open"));
+        t += 5200;
         later(t, () => root.classList.remove("run"));
         later(t + 200, () => {
             if (!root.isConnected) { clear(); return; }
