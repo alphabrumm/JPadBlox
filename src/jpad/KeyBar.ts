@@ -208,12 +208,12 @@ export class KeyBar {
                     //    messen, Layout neu setzen und den Cursor im (jetzt kleineren) Editor sichtbar machen
                     requestAnimationFrame(() => requestAnimationFrame(() => {
                         update(true);
-                        this.editor.revealCursor();
+                        this.editor.view.requestMeasure(); // Test: Cursor bewusst NICHT in den sichtbaren Bereich scrollen
                         // 3. Falls iOS den Ausschnitt dabei noch einmal verschoben hat: nachkorrigieren
                         setTimeout(() => {
                             if (vv.offsetTop > 1 || window.scrollY > 1) resetScroll();
                             update(true);
-                            this.editor.revealCursor();
+                            this.editor.view.requestMeasure(); // Test: Cursor bewusst NICHT in den sichtbaren Bereich scrollen
                         }, 350);
                     }));
                 }, 2000);
