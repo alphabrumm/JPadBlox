@@ -63,7 +63,7 @@ export const BLOCKS: Block[] = [
     { group: "klasse", label: "Attribut", help: "b-attribut", kind: "attribut", tpl: "",
         tip: "Attribut anlegen: Datentyp und Name auswählen. Es landet an der Cursorstelle, wenn sie direkt im Klassenrumpf liegt, sonst unter den Attributen der obersten Klasse" },
     { group: "klasse", label: "Konstruktor", help: "b-konstruktor", kind: "constructor", tpl: "@KLASSE(${}) {\n\t§\n}",
-        tip: "Konstruktor passend zu den Attributen der Klasse: Für jedes Attribut gibt es einen Parameter, der im Rumpf mit this.… = … übernommen wird" },
+        tip: "Konstruktor anlegen: leer (Standardkonstruktor) oder passend zu den Attributen – Auswahl im Dialog" },
     { group: "klasse", label: "Methode", help: "b-methode", kind: "method", tpl: "",
         tip: "Neue Methode: Name, Rückgabetyp (oder void) und Parameter im Dialog festlegen" },
     { group: "klasse", label: "Getter", help: "b-getter", kind: "getter", tpl: "",
@@ -177,9 +177,12 @@ export async function insertBlock(ctx: BlockContext, block: Block) {
         case "visibility":
             setVisibility(view, block.tpl);
             break;
-        case "constructor":
-            await insertConstructor(ctx, block);
+        case "constructor": {
+            const choice = await ctx.dialogs.constructorChoice();
+            if (!choice) { done = false; break; }
+            await insertConstructor(ctx, block, choice);
             break;
+        }
         case "getter":
         case "setter":
             done = await insertAccessors(ctx, block.kind);
@@ -503,10 +506,16 @@ const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
  * übersetzt ist und es noch keinen Konstruktor gibt. Sonst (oder wenn die Klasse schon einen hat)
  * ein leerer Konstruktor mit Platzhalter für Parameter.
  */
-async function insertConstructor(ctx: BlockContext, block: Block) {
+async function insertConstructor(ctx: BlockContext, block: Block, mode: "empty" | "attrs") {
     const view = ctx.view;
     const cls = prepareMemberLine(view, "attributes");
     const name = cls?.name ?? enclosingClassName(view.state.doc.toString(), view.state.selection.main.head);
+    if (mode == "empty") {
+        // Leerer Konstruktor (Standardkonstruktor), Cursor im Rumpf
+        const pos = view.state.selection.main.head;
+        snippet(`${name ?? "${Klassenname}"}() {\n\t\${}\n}`)(view, null, pos, pos);
+        return;
+    }
     const fallback = () => {
         const pos = view.state.selection.main.head;
         snippet(block.tpl.replace("§", "${}").replace("@KLASSE", name ?? "${Klassenname}"))(view, null, pos, pos);

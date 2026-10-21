@@ -2173,3 +2173,15 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 /* JPadBlox: Ansicht rechts nur vergrößert mit Namen unter den Symbolen, sonst nur Symbole */
 .jp-app:not([data-cols="info"]):not([data-cols="infofull"]) .jp-side-switch button span:not(.jp-badge) { display: none; }
 .jp-app:not([data-cols="info"]):not([data-cols="infofull"]) .jp-side-switch button { min-height: 40px; }
+
+/* JPadBlox: Auswahl im Konstruktor-Dialog – zwei große Knöpfe übereinander */
+.jp-choice-list { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+.jp-choice {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left;
+    padding: 14px 16px; border-radius: var(--radius-m); border: 1.5px solid var(--line); background: var(--surface-2); color: var(--ink);
+}
+.jp-choice b { font-size: 17px; color: var(--accent); }
+.jp-choice span { font-size: 14px; color: var(--ink-2); line-height: 1.4; }
+.jp-choice code { font-family: var(--font-code); font-size: .92em; background: var(--surface); border-radius: 5px; padding: 1px 4px; }
+.jp-choice:active { background: color-mix(in srgb, var(--accent) 12%, var(--surface)); border-color: var(--accent); }
+@media (hover: hover) { .jp-choice:hover { border-color: var(--accent); } }
