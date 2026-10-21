@@ -794,9 +794,9 @@ document.documentElement.dataset.blockColors = BLOCK_COLORS;
 
 /**
  * Form der Bausteine: "classic" = Stand vom 21.10.2026 mittags (helle Füllung, farbiger Rand links, eckig);
- * "modern" = drei moderne Vorschläge zum Vergleichen, je einer pro Kategorie (siehe jpad.css).
+ * "segment" = wie die Umschalter Ausgabe/Variablen/Diagramm, Schrift in der Farbe der Kategorie (siehe jpad.css).
  */
-export const BLOCK_STYLE: "classic" | "modern" = "modern";
+export const BLOCK_STYLE: "classic" | "segment" = "segment";
 document.documentElement.dataset.blockStyle = BLOCK_STYLE;
 
 /** Hinweistext beim langen Drücken auf einen Baustein */
