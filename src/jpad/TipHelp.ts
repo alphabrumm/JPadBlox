@@ -24,7 +24,7 @@ export const HELP: Record<string, Help> = {
     tab: {
         title: "Einrücken", kind: "Taste",
         text: "Rückt die Zeile am Cursor ein. Die Einrückung zeigt, welche Zeilen zu welchem Block gehören – für Java ist sie egal, für Menschen sehr wichtig.",
-        examples: [{ caption: "Gut lesbar eingerückt", code: "if (alter >= 18) {\n    System.out.println(\"volljährig\");\n}" }],
+        examples: [{ caption: "Gut lesbar eingerückt", code: "if (alter >= 18) {\n    println(\"volljährig\");\n}" }],
         note: "Tipp: Mit „Code formatieren“ rückt JPad die ganze Datei auf einmal richtig ein."
     },
     braces: {
@@ -48,7 +48,7 @@ export const HELP: Record<string, Help> = {
     semicolon: {
         title: ";", kind: "Satzzeichen", code: true,
         text: "Der Strichpunkt beendet eine Anweisung – so wie der Punkt einen Satz.",
-        examples: [{ caption: "Jede Anweisung endet mit ;", code: "Integer zaehler = 0;\nzaehler++;\nSystem.out.println(zaehler);" }],
+        examples: [{ caption: "Jede Anweisung endet mit ;", code: "Integer zaehler = 0;\nzaehler++;\nprintln(zaehler);" }],
         warn: "Kein Strichpunkt nach `if (…)`, `while (…)`, einem Methodenkopf oder `class …`! `if (x > 0); { … }` führt den Block **immer** aus, weil das `if` schon am Strichpunkt endet."
     },
     assign: {
@@ -65,7 +65,7 @@ export const HELP: Record<string, Help> = {
         text: "Anführungszeichen umschließen einen Text (String). Mit `+` lassen sich Texte und Werte aneinanderhängen.",
         examples: [
             { caption: "Einfaches Beispiel", code: "String name = \"Anna\";" },
-            { caption: "Text und Wert verbinden", code: "System.out.println(\"Hallo \" + name + \"!\");" }
+            { caption: "Text und Wert verbinden", code: "println(\"Hallo \" + name + \"!\");" }
         ],
         warn: "`\"name\"` ist der Text name, `name` ist die Variable. Ein einzelnes Zeichen (Character) steht in einfachen Hochkommas: `'a'`."
     },
@@ -83,7 +83,7 @@ export const HELP: Record<string, Help> = {
         text: "Eckige Klammern gehören zu Arrays (Feldern): Sie legen ein Array an und wählen über den Index ein Element aus.",
         examples: [
             { caption: "Array anlegen und füllen", code: "Integer[] noten = new Integer[3];\nnoten[0] = 2;\nnoten[1] = 3;\nnoten[2] = 1;" },
-            { caption: "Alle Elemente durchgehen", code: "for (Integer i = 0; i < noten.length; i++) {\n    System.out.println(noten[i]);\n}" }
+            { caption: "Alle Elemente durchgehen", code: "for (Integer i = 0; i < noten.length; i++) {\n    println(noten[i]);\n}" }
         ],
         warn: "Der Index beginnt bei **0**. Ein Array mit 3 Elementen hat die Indizes 0, 1, 2 – `noten[3]` gibt es nicht (ArrayIndexOutOfBoundsException)."
     },
@@ -91,7 +91,7 @@ export const HELP: Record<string, Help> = {
         title: "<", kind: "Vergleich", code: true,
         text: "„kleiner als“: Das Ergebnis ist `true`, wenn der linke Wert echt kleiner ist als der rechte.",
         examples: [
-            { caption: "Einfaches Beispiel", code: "if (tankinhalt < 5) {\n    System.out.println(\"Bitte tanken!\");\n}" },
+            { caption: "Einfaches Beispiel", code: "if (tankinhalt < 5) {\n    println(\"Bitte tanken!\");\n}" },
             { caption: "Kleiner oder gleich", code: "if (alter <= 13) { ... }" }
         ],
         warn: "`5 < 5` ist `false` – für „kleiner oder gleich“ schreibst du `<=`. Eine Doppelbedingung wie in Mathe (`0 < x < 10`) geht in Java nicht: `0 < x && x < 10`."
@@ -100,7 +100,7 @@ export const HELP: Record<string, Help> = {
         title: ">", kind: "Vergleich", code: true,
         text: "„größer als“: Das Ergebnis ist `true`, wenn der linke Wert echt größer ist als der rechte.",
         examples: [
-            { caption: "Einfaches Beispiel", code: "if (punkte > 50) {\n    System.out.println(\"bestanden\");\n}" },
+            { caption: "Einfaches Beispiel", code: "if (punkte > 50) {\n    println(\"bestanden\");\n}" },
             { caption: "Größer oder gleich", code: "if (alter >= 18) { ... }" }
         ],
         warn: "`18 > 18` ist `false` – für „ab 18“ brauchst du `>=`. Ein häufiger Fehler bei Grenzen!"
@@ -110,7 +110,7 @@ export const HELP: Record<string, Help> = {
         text: "Addiert Zahlen. Steht ein Text (String) daneben, hängt `+` die Werte stattdessen aneinander.",
         examples: [
             { caption: "Rechnen", code: "Integer summe = a + b;" },
-            { caption: "Text verketten", code: "System.out.println(\"Summe: \" + summe);" }
+            { caption: "Text verketten", code: "println(\"Summe: \" + summe);" }
         ],
         warn: "`\"Summe: \" + 2 + 3` ergibt **\"Summe: 23\"**, weil von links gearbeitet wird und schon Text dasteht. Richtig: `\"Summe: \" + (2 + 3)`."
     },
@@ -146,7 +146,7 @@ export const HELP: Record<string, Help> = {
         text: "Liefert den Rest, der beim ganzzahligen Teilen übrig bleibt. Damit prüft man z. B., ob eine Zahl gerade ist oder durch etwas teilbar ist.",
         examples: [
             { caption: "Einfaches Beispiel", code: "Integer rest = 17 % 5;   // 2, denn 17 = 3·5 + 2" },
-            { caption: "Gerade oder ungerade?", code: "if (zahl % 2 == 0) {\n    System.out.println(\"gerade\");\n}" }
+            { caption: "Gerade oder ungerade?", code: "if (zahl % 2 == 0) {\n    println(\"gerade\");\n}" }
         ],
         warn: "`%` hat in Java nichts mit Prozent zu tun! `20 % 3` ist 2 (der Rest), nicht „20 Prozent von 3“."
     },
@@ -173,7 +173,7 @@ export const HELP: Record<string, Help> = {
         text: "Veroderung: Das Ergebnis ist `true`, wenn **mindestens eine** Bedingung wahr ist – auch wenn beide wahr sind.",
         examples: [
             { caption: "Wochenende?", code: "if (tag == 6 || tag == 7) { ... }" },
-            { caption: "Außerhalb eines Bereichs", code: "if (x < 1 || x > 10) {\n    System.out.println(\"ungültig\");\n}" }
+            { caption: "Außerhalb eines Bereichs", code: "if (x < 1 || x > 10) {\n    println(\"ungültig\");\n}" }
         ],
         warn: "Jede Seite braucht einen vollständigen Vergleich: `tag == 6 || 7` geht nicht. Und Vorsicht beim Verneinen: `x != 3 || x != 4` ist **immer** wahr – gemeint ist meist `x != 3 && x != 4`."
     },
@@ -181,7 +181,7 @@ export const HELP: Record<string, Help> = {
         title: "==", kind: "Vergleich: gleich", code: true,
         text: "Prüft, ob zwei Werte gleich sind. Das Ergebnis ist `true` oder `false`.",
         examples: [
-            { caption: "Zahlen vergleichen", code: "if (punkte == 100) {\n    System.out.println(\"Volle Punktzahl!\");\n}" },
+            { caption: "Zahlen vergleichen", code: "if (punkte == 100) {\n    println(\"Volle Punktzahl!\");\n}" },
             { caption: "Texte vergleichen", code: "if (name.equals(\"Anna\")) { ... }" }
         ],
         warn: "`==` (vergleichen) nicht mit `=` (zuweisen) verwechseln! Texte (String) vergleicht man mit `equals`, denn `==` prüft bei Objekten nur, ob es **dasselbe** Objekt ist."
@@ -191,7 +191,7 @@ export const HELP: Record<string, Help> = {
         text: "Erhöht eine Zahl-Variable um 1. `i++` ist die Kurzform von `i = i + 1`.",
         examples: [
             { caption: "Einfaches Beispiel", code: "zaehler++;" },
-            { caption: "In der for-Schleife", code: "for (Integer i = 0; i < 5; i++) {\n    System.out.println(i);\n}" }
+            { caption: "In der for-Schleife", code: "for (Integer i = 0; i < 5; i++) {\n    println(i);\n}" }
         ],
         warn: "Nicht `i = i++;` schreiben – dann bleibt `i` unverändert! Entweder `i++;` oder `i = i + 1;`."
     },
