@@ -183,7 +183,10 @@ export class Dialogs {
         return this.open(`
             <div class="jp-method-split">
             <div class="jp-method-input">
-            <h2 class="jp-sheet-title">Baue Deine neue Methode</h2>
+            <div class="jp-method-head">
+                <h2 class="jp-sheet-title">Baue Deine neue Methode</h2>
+                <button type="button" class="jp-btn jp-btn-small jp-method-toggle" data-togglesketch></button>
+            </div>
             <form class="jp-form">
                 <label class="jp-field">
                     <span>So soll Deine Methode heißen:</span>
@@ -209,7 +212,23 @@ export class Dialogs {
             </div>`, (sheet, close) => {
             // JPadBlox: rechts (bzw. auf schmalen Bildschirmen darunter) die animierte Skizze
             sheet.classList.add("is-method");
-            sheet.querySelector(".jp-method-anim")!.appendChild(createMethodAnimation());
+            // Skizze ein-/ausblenden; die Wahl wird im Browser gemerkt
+            const host = sheet.querySelector<HTMLElement>(".jp-method-anim")!;
+            const toggle = sheet.querySelector<HTMLElement>("[data-togglesketch]")!;
+            const readShow = () => { try { return localStorage.getItem("jpadblox.methodSketch") != "0"; } catch (e) { return true; } };
+            const applySketch = (show: boolean) => {
+                sheet.classList.toggle("sketch-hidden", !show);
+                toggle.textContent = show ? "Skizze ausblenden" : "Skizze einblenden";
+                toggle.setAttribute("aria-expanded", String(show));
+                toggle.dataset.tip = show ? "Die erklärende Skizze ausblenden – die Einstellung wird gemerkt" : "Die erklärende Skizze zu Parametern und Rückgabe wieder einblenden";
+                host.replaceChildren(...(show ? [createMethodAnimation()] : []));
+            };
+            applySketch(readShow());
+            toggle.addEventListener("click", () => {
+                const show = sheet.classList.contains("sketch-hidden");
+                try { localStorage.setItem("jpadblox.methodSketch", show ? "1" : "0"); } catch (e) { }
+                applySketch(show);
+            });
             const nameInput = sheet.querySelector<HTMLInputElement>("[data-ident]")!;
             const error = sheet.querySelector<HTMLElement>(".jp-field-error")!;
             const rows = sheet.querySelector<HTMLElement>(".jp-param-rows")!;

@@ -2047,3 +2047,12 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
     .jp-method-input { padding-right: 0; }
     .jp-method-anim { padding-left: 0; padding-top: 16px; margin-top: 8px; border-left: 0; border-top: 1px solid var(--line); }
 }
+
+/* JPadBlox: Skizze im Methoden-Dialog ein-/ausblenden */
+.jp-method-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.jp-method-head .jp-sheet-title { margin-right: auto; }
+.jp-method-toggle { flex: none; margin-top: 0; white-space: nowrap; }
+.jp-sheet.is-method.sketch-hidden { max-width: 560px; }
+.jp-sheet.is-method.sketch-hidden .jp-method-split { grid-template-columns: minmax(0, 1fr); }
+.jp-sheet.is-method.sketch-hidden .jp-method-input { padding-right: 0; }
+.jp-sheet.is-method.sketch-hidden .jp-method-anim { display: none; }

@@ -190,7 +190,7 @@ function svgMarkup(): string {
     <g class="effect anim">
       <path d="M196 60 Q 196 40 224 40 L 336 40 Q 364 40 364 58 Q 364 74 336 74 L 290 74 L 272 86 L 274 74 L 224 74 Q 196 74 196 60 Z"
             fill="#FFF9DB" stroke="currentColor" stroke-width="2" stroke-linejoin="round" filter="url(#jp-manim-wobble)"/>
-      <text class="hand" data-ref="effect" x="280" y="63" text-anchor="middle" font-size="15" font-weight="700"></text>
+      <text class="hand" data-ref="effect" x="280" y="63" text-anchor="middle" font-size="15" font-weight="700" style="fill:#1B1B12"></text>
     </g>
   </g>
 
