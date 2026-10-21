@@ -44,6 +44,8 @@ export type Block = {
     tpl: string;
     kind: BlockKind;
     tip: string;
+    /** steht in der eingeklappten Kategorie „Mehr Blöcke…“ (Farbe bleibt die der eigenen Gruppe) */
+    more?: boolean;
 };
 
 export const GROUP_NAMES: Record<BlockGroup, string> = {
@@ -68,9 +70,9 @@ export const BLOCKS: Block[] = [
         tip: "Neue Methode: Name, Rückgabetyp (oder void) und Parameter im Dialog festlegen" },
     { group: "klasse", label: "new", kind: "new", tpl: "",
         tip: "Objekt erzeugen: Steht links vom = ein Datentyp (z. B. Auto a = ), wird new Auto() eingefügt; der Cursor steht in den Klammern für Parameter" },
-    { group: "klasse", label: "extends", kind: "line", tpl: "class ${Name} extends ${Oberklasse} {\n\t§\n}",
+    { group: "klasse", label: "extends", more: true, kind: "line", tpl: "class ${Name} extends ${Oberklasse} {\n\t§\n}",
         tip: "Unterklasse: class Name extends Oberklasse { … }" },
-    { group: "klasse", label: "super", kind: "line", tpl: "super(${});",
+    { group: "klasse", label: "super", more: true, kind: "line", tpl: "super(${});",
         tip: "Konstruktor der Oberklasse aufrufen: super(…); – muss die erste Anweisung im Konstruktor sein" },
     { group: "klasse", label: "public", kind: "visibility", tpl: "public",
         tip: "Fügt an der Cursorstelle public ein (von überall aus sichtbar); steht in der Zeile schon private, wird es durch public ersetzt" },
@@ -90,15 +92,15 @@ export const BLOCKS: Block[] = [
         tip: "Sonst-Teil nach einem if-Block: else { … }" },
     { group: "ablauf", label: "while", kind: "line", tpl: "while (${Bedingung}) {\n\t§\n}",
         tip: "Wiederholung mit Bedingung: while (Bedingung) { … }" },
-    { group: "ablauf", label: "for", kind: "line", tpl: "for (Integer ${i} = 0; ${i} < ${10}; ${i}++) {\n\t§\n}",
+    { group: "ablauf", label: "for", more: true, kind: "line", tpl: "for (Integer ${i} = 0; ${i} < ${10}; ${i}++) {\n\t§\n}",
         tip: "Zählschleife: for (Integer i = 0; i < 10; i++) { … }" },
     { group: "ablauf", label: "for-each", kind: "line", tpl: "for (${String} ${element} : ${liste}) {\n\t§\n}",
         tip: "Jedes Element einer Liste oder eines Arrays durchlaufen: for (String element : liste) { … }" },
-    { group: "ablauf", label: "do – while", kind: "line", tpl: "do {\n\t§\n} while (${Bedingung});",
+    { group: "ablauf", label: "do – while", more: true, kind: "line", tpl: "do {\n\t§\n} while (${Bedingung});",
         tip: "Wiederholung, die mindestens einmal läuft: do { … } while (Bedingung);" },
     { group: "ablauf", label: "return", kind: "line", tpl: "return ${};",
         tip: "Methode beenden und Wert zurückgeben: return …;" },
-    { group: "ablauf", label: "break", kind: "text", tpl: "break;",
+    { group: "ablauf", label: "break", more: true, kind: "text", tpl: "break;",
         tip: "Fügt an der Cursorstelle break; ein: verlässt die Schleife (oder den switch) sofort" },
 
     // ---------- Daten ----------
@@ -110,7 +112,7 @@ export const BLOCKS: Block[] = [
         tip: "Ausgabe ohne Zeilenumbruch: print(…);" },
     { group: "daten", label: "Array", kind: "line", tpl: "${Integer}[] ${feld} = new ${Integer}[${10}];",
         tip: "Array (Feld) mit fester Länge: Integer[] feld = new Integer[10];" },
-    { group: "daten", label: "ArrayList", kind: "line", tpl: "ArrayList<${String}> ${liste} = new ArrayList<${String}>();",
+    { group: "daten", label: "ArrayList", more: true, kind: "line", tpl: "ArrayList<${String}> ${liste} = new ArrayList<${String}>();",
         tip: "Liste mit variabler Länge: ArrayList<String> liste = new ArrayList<String>();" },
 ];
 
@@ -612,8 +614,15 @@ function declaredType(doc: string, name: string): string | null {
 function insertNew(view: EditorView) {
     const state = view.state, sel = state.selection.main;
     const line = state.doc.lineAt(sel.from);
-    const before = state.sliceDoc(line.from, sel.from);
+    let before = state.sliceDoc(line.from, sel.from);
     const after = state.sliceDoc(sel.to, line.to);
+
+    // Steht links vom Cursor nur eine Deklaration oder ein Name ohne „=“ (Auto a | oder a |), zuerst „= “ ergänzen
+    let eq = "";
+    if (!before.includes("=") && !/^\s*(return|throw|new|else|case)\b/.test(before) && /^\s*(?:(?:final\s+)?[A-Za-z_][\w.]*(?:<[^=()]*>)?(?:\s*\[\s*\])*\s+)?(?:this\.)?[A-Za-z_]\w*(?:\s*\[[^\]]*\])?\s*$/.test(before)) {
+        eq = (/\s$/.test(before) ? "" : " ") + "= ";
+        before += eq;
+    }
 
     let type: string | null = null;
     const decl = /(?:^|[\s(,;{])(?:final\s+)?([A-Za-z_][\w.]*(?:<[^=]*>)?(?:\s*\[\s*\])*)\s+[A-Za-z_]\w*\s*=\s*$/.exec(before);
@@ -625,7 +634,7 @@ function insertNew(view: EditorView) {
         if (type && /\]\s*=\s*$/.test(before)) type = type.replace(/\s*\[\s*\]\s*$/, "");
     }
 
-    const space = before != "" && !/\s$/.test(before) ? " " : "";
+    const space = eq + (before != "" && !/\s$/.test(before) ? " " : "");
     const semicolon = after.trim() == "" && /=\s*$/.test(before) ? ";" : "";
 
     if (!type) {
@@ -774,28 +783,40 @@ function chipHtml(b: Block, i: number): string {
     return `<button class="jp-block" data-block="${i}" data-group="${b.group}" data-tip="${blockTip(b).replace(/"/g, "&quot;")}">${b.label.replace(/</g, "&lt;")}</button>`;
 }
 
-/** Senkrechte Bausteinleiste (linke Spalte im Querformat), nach Gruppen geordnet */
+/** Senkrechte Bausteinleiste (linke Spalte im Querformat), nach Gruppen geordnet; ganz unten „Mehr Blöcke…“ (eingeklappt) */
 export function blockPanelHtml(): string {
     const groups = Object.keys(GROUP_NAMES) as BlockGroup[];
+    const items = (pred: (b: Block) => boolean) => BLOCKS.map((b, i) => pred(b) ? chipHtml(b, i) : "").join("");
     return groups.map(g => `
         <section class="jp-blockgroup" data-group="${g}">
             <h3>${GROUP_NAMES[g]}</h3>
-            <div class="jp-blockgroup-items">
-                ${BLOCKS.map((b, i) => b.group == g ? chipHtml(b, i) : "").join("")}
-            </div>
-        </section>`).join("");
+            <div class="jp-blockgroup-items">${items(b => b.group == g && !b.more)}</div>
+        </section>`).join("") + `
+        <section class="jp-blockgroup jp-blockgroup-more" data-open="${moreOpen()}">
+            <button class="jp-more-toggle" type="button" aria-expanded="${moreOpen()}" data-tip="Weitere Bausteine ein- oder ausklappen">
+                <span class="jp-more-chevron" aria-hidden="true">›</span>Mehr Blöcke…
+            </button>
+            <div class="jp-blockgroup-items">${items(b => !!b.more)}</div>
+        </section>`;
+}
+
+function moreOpen(): boolean {
+    try { return localStorage.getItem("jpadblox.moreBlocks") == "1"; } catch (e) { return false; }
 }
 
 /** Waagrechte Bausteinreihe für die Hilfsleiste (Hochformat und Handy) */
 export function blockRowHtml(): string {
     let html = "", group: BlockGroup | null = null;
     BLOCKS.forEach((b, i) => {
+        if (b.more) return;
         if (b.group != group) {
             group = b.group;
             html += `<span class="jp-block-group" data-group="${group}" aria-hidden="true">${GROUP_NAMES[group]}</span>`;
         }
         html += chipHtml(b, i);
     });
+    html += `<span class="jp-block-group jp-block-group-more" aria-hidden="true">Mehr</span>`;
+    BLOCKS.forEach((b, i) => { if (b.more) html += chipHtml(b, i); });
     return html;
 }
 
@@ -836,6 +857,16 @@ export function wireBlockPanel(panel: HTMLElement, ctx: BlockContext) {
     }, { passive: false });
     panel.addEventListener("touchcancel", () => { tap?.b.classList.remove("is-pressed"); tap = null; });
     panel.addEventListener("click", e => {
+        const toggle = (<HTMLElement>e.target).closest<HTMLElement>(".jp-more-toggle");
+        if (toggle) {
+            const sec = toggle.parentElement!;
+            const open = sec.dataset.open != "true";
+            sec.dataset.open = String(open);
+            toggle.setAttribute("aria-expanded", String(open));
+            try { localStorage.setItem("jpadblox.moreBlocks", open ? "1" : "0"); } catch (err) { }
+            if (open) setTimeout(() => sec.scrollIntoView({ block: "nearest", behavior: "smooth" }), 50);
+            return;
+        }
         const b = (<HTMLElement>e.target).closest<HTMLElement>("button[data-block]");
         if (b) run(b);
     });

@@ -1945,3 +1945,24 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 .jp-field .jp-param-row input:focus { border-color: var(--accent); outline: none; }
 .jp-param-row select { min-width: 0; }
 .jp-btn.jp-btn-small { align-self: flex-start; min-height: 36px; padding: 0 12px; font-size: 14px; margin-top: 4px; }
+
+/* JPadBlox: „Mehr Blöcke…“ – eingeklappte Kategorie ganz unten in der Bausteinleiste */
+.jp-blockgroup-more { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 4px; }
+.jp-more-toggle {
+    display: flex; align-items: center; gap: 6px; width: 100%;
+    min-height: 40px; padding: 0 2px;
+    font-size: 13px; font-weight: 700; color: var(--ink-2); text-align: left;
+}
+.jp-more-chevron { display: inline-block; width: 12px; font-size: 18px; line-height: 1; transition: transform .15s; }
+.jp-blockgroup-more[data-open="true"] .jp-more-chevron { transform: rotate(90deg); }
+.jp-blockgroup-more[data-open="false"] .jp-blockgroup-items { display: none; }
+.jp-block-group-more { color: var(--ink-2); }
+
+/* JPadBlox: dezente Farben in der Hilfsleiste – Cursortasten blau wie „+“ der Dateireiter,
+   Plus beim Zeile-Einfügen grün wie die Kategorie „Daten“, Minus beim Zeile-Löschen rot wie die Fehlerzahl */
+.jp-keybar .jp-key-nav { color: var(--accent); }
+.jp-keybar .jp-key-line .jp-ic-plus { stroke: #0B7F57; }
+:root[data-effective="dark"] .jp-keybar .jp-key-line .jp-ic-plus { stroke: #34C68F; }
+.jp-keybar .jp-key-line .jp-ic-minus { stroke: var(--danger); }
+.jp-keybar .jp-key-nav:active, .jp-keybar .jp-key-nav.is-pressed,
+.jp-keybar .jp-key-line:active .jp-icon path, .jp-keybar .jp-key-line.is-pressed .jp-icon path { stroke: var(--accent-ink); }

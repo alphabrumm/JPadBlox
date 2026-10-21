@@ -68,10 +68,10 @@ export class KeyBar {
         this.el.innerHTML = `
             <div class="jp-keybar-fixed is-left">
                 <button data-action="mode" class="jp-key-mode" aria-label="Zwischen Bausteinen und Sonderzeichen umschalten" data-tip="Umschalten: Code-Bausteine (class, Methode, if, for …) oder Sonderzeichen ({ } ( ) ; = …)">${icon("blocks", "jp-mode-blocks")}<span class="jp-mode-chars">{ }</span></button>
-                <button data-action="left" data-help="left" aria-label="Cursor nach links" data-tip="Cursor ein Zeichen nach links">${icon("left")}</button>
-                <button data-action="right" data-help="right" aria-label="Cursor nach rechts" data-tip="Cursor ein Zeichen nach rechts">${icon("right")}</button>
-                <button data-action="lineAdd" aria-label="Neue Zeile einfügen" data-tip="Neue, leere Zeile unter der Zeile mit dem Cursor einfügen (richtig eingerückt)">${icon("lineAdd")}</button>
-                <button data-action="lineDelete" aria-label="Zeile löschen" data-tip="Zeile, in der der Cursor steht, löschen">${icon("lineDelete")}</button>
+                <button data-action="left" class="jp-key-nav" data-help="left" aria-label="Cursor nach links" data-tip="Cursor ein Zeichen nach links">${icon("left")}</button>
+                <button data-action="right" class="jp-key-nav" data-help="right" aria-label="Cursor nach rechts" data-tip="Cursor ein Zeichen nach rechts">${icon("right")}</button>
+                <button data-action="lineAdd" class="jp-key-line" aria-label="Neue Zeile einfügen" data-tip="Neue, leere Zeile unter der Zeile mit dem Cursor einfügen (richtig eingerückt)">${icon("lineAdd")}</button>
+                <button data-action="lineDelete" class="jp-key-line" aria-label="Zeile löschen" data-tip="Zeile, in der der Cursor steht, löschen">${icon("lineDelete")}</button>
             </div>
             <div class="jp-keybar-main">
             <div class="jp-keybar-scroll">
