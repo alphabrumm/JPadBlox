@@ -1820,13 +1820,12 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 .jp-keybar button.jp-block.is-pressed { background: var(--g); color: #fff; }
 /* Die Randfarbe ist zugleich die Schriftfarbe der Bausteine
    (im hellen Modus etwas dunkler, damit die Schrift gut lesbar bleibt). */
-/* Klassen: Akzent-Blau von JPad (wie der Plus-Knopf), Ablauf: Gelb der Glühbirne
-   (im hellen Modus etwas satter, damit die Schrift auf der hellen Füllung lesbar bleibt), Daten: Grün */
+/* Klassen: Akzent-Blau von JPad (wie der Plus-Knopf), Ablauf: Orange, Daten: Grün */
 [data-group="klasse"] { --g: var(--accent); }
-[data-group="ablauf"] { --g: #C99700; }
+[data-group="ablauf"] { --g: #D2700A; }
 [data-group="daten"]  { --g: #0B7F57; }
 :root[data-effective="dark"] [data-group="klasse"] { --g: var(--accent); }
-:root[data-effective="dark"] [data-group="ablauf"] { --g: var(--marker); }
+:root[data-effective="dark"] [data-group="ablauf"] { --g: #F59E3A; }
 :root[data-effective="dark"] [data-group="daten"]  { --g: #34C68F; }
 .jp-keybar button.jp-block, .jp-blockpanel button.jp-block { color: var(--g); }
 .jp-keybar button.jp-block:active, .jp-keybar button.jp-block.is-pressed,

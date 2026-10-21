@@ -111,7 +111,7 @@ export const BLOCKS: Block[] = [
     { group: "daten", label: "new", kind: "new", tpl: "",
         tip: "Objekt erzeugen: Steht links vom = ein Datentyp (z. B. Auto a = ), wird new Auto() eingefügt; der Cursor steht in den Klammern für Parameter" },
     { group: "daten", label: "Array", kind: "array", tpl: "",
-        tip: "Array (Feld) anlegen: Datentyp und Name auswählen; eingefügt wird z. B. Integer[] feld = new Integer[ ]; und der Cursor steht in den eckigen Klammern für die Länge" },
+        tip: "Array (Feld) anlegen: Datentyp und Name auswählen; Anzahl der Elemente festlegen; eingefügt wird z. B. Integer[] feld = new Integer[10];" },
     { group: "daten", label: "ArrayList", more: true, kind: "line", tpl: "ArrayList<${String}> ${liste} = new ArrayList<${String}>();",
         tip: "Liste mit variabler Länge: ArrayList<String> liste = new ArrayList<String>();" },
 ];
@@ -697,17 +697,18 @@ async function insertDeclaration(ctx: BlockContext, kind: "attribut" | "variable
             { label: "Klassenbibliothek", items: lib },
         ],
         nameLabel: kind == "attribut" ? "Name des Attributs" : kind == "array" ? "Name des Arrays" : "Name der Variablen",
+        countLabel: kind == "array" ? "Wie viele Elemente sollen Platz haben?" : undefined,
         confirm: "Einfügen",
         validate: validateName
     });
     if (!result) return false;
     if (kind == "array") {
-        // Integer[] feld = new Integer[|];  – Cursor in den eckigen Klammern für die Länge
-        const head = `${result.type}[] ${result.name.trim()} = new ${result.type}[`;
+        // Integer[] feld = new Integer[10];
+        const text = `${result.type}[] ${result.name.trim()} = new ${result.type}[${result.count ?? 10}];`;
         const pos = prepareOwnLine(ctx.view);
         ctx.view.dispatch({
-            changes: { from: pos, to: pos, insert: head + "];" },
-            selection: EditorSelection.cursor(pos + head.length),
+            changes: { from: pos, to: pos, insert: text },
+            selection: EditorSelection.cursor(pos + text.length),
             scrollIntoView: true, userEvent: "input"
         });
         return true;

@@ -53,7 +53,7 @@ const paths: Record<string, string> = {
     breakpoint: '<path d="M8.2 3h7.6L21 8.2v7.6L15.8 21H8.2L3 15.8V8.2z"/><path d="M9 12h6"/>',
     blocks: '<path d="M4 9h3.5a2.5 2.5 0 1 1 5 0H16v3.5a2.5 2.5 0 1 1 0 5V21H4z"/><path d="M16 9V4h-5"/>',
     lineAdd: '<path d="M4 6h16M4 18h9"/><path d="M4 12h9"/><path class="jp-ic-plus" d="M18 9v8M14 13h8"/>',
-    lineDelete: '<path d="M4 6h16M4 18h9"/><path d="M4 12h9"/><path class="jp-ic-minus" d="M14 13h8"/>',
+    lineDelete: '<path d="M4 6h16M4 18h9"/><path d="M4 12h9"/><path class="jp-ic-minus" d="M14.5 10l6 6M20.5 10l-6 6"/>',
     split: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M13 4v16"/>',
 };
 

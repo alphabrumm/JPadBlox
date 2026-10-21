@@ -84,8 +84,10 @@ export class Dialogs {
      */
     declaration(o: {
         title: string, groups: { label: string, items: string[] }[], nameLabel: string, confirm: string,
-        validate?: (name: string) => string | null
-    }): Promise<{ type: string, name: string } | null> {
+        validate?: (name: string) => string | null,
+        /** JPadBlox (Array): zusätzliches Feld für eine natürliche Zahl > 0 */
+        countLabel?: string
+    }): Promise<{ type: string, name: string, count?: number } | null> {
         const options = o.groups.filter(g => g.items.length > 0).map(g =>
             `<optgroup label="${escapeHtml(g.label)}">${g.items.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("")}</optgroup>`
         ).join("");
@@ -98,8 +100,12 @@ export class Dialogs {
                 </label>
                 <label class="jp-field">
                     <span>${escapeHtml(o.nameLabel)}</span>
-                    <input type="text" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off" enterkeyhint="done">
+                    <input type="text" data-name autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off" enterkeyhint="${o.countLabel ? "next" : "done"}">
                 </label>
+                ${o.countLabel ? `<label class="jp-field">
+                    <span>${escapeHtml(o.countLabel)}</span>
+                    <input type="text" data-count inputmode="numeric" pattern="[0-9]*" autocomplete="off" enterkeyhint="done">
+                </label>` : ""}
                 <p class="jp-field-error" aria-live="polite"></p>
                 <div class="jp-sheet-buttons">
                     <button type="button" class="jp-btn" data-cancel>Abbrechen</button>
@@ -107,7 +113,8 @@ export class Dialogs {
                 </div>
             </form>`, (sheet, close) => {
             const select = sheet.querySelector("select")!;
-            const input = sheet.querySelector("input")!;
+            const input = sheet.querySelector<HTMLInputElement>("[data-name]")!;
+            const countInput = sheet.querySelector<HTMLInputElement>("[data-count]");
             const error = sheet.querySelector<HTMLElement>(".jp-field-error")!;
             setTimeout(() => input.focus(), 60);
             input.addEventListener("input", () => error.textContent = "");
@@ -115,7 +122,17 @@ export class Dialogs {
                 e.preventDefault();
                 const msg = o.validate?.(input.value);
                 if (msg) { error.textContent = msg; input.focus(); return; }
-                close({ type: select.value, name: input.value.trim() });
+                let count: number | undefined;
+                if (countInput) {
+                    const t = countInput.value.trim();
+                    if (!/^[0-9]+$/.test(t) || parseInt(t) <= 0) {
+                        error.textContent = "Bitte eine ganze Zahl größer als 0 eingeben.";
+                        countInput.focus();
+                        return;
+                    }
+                    count = parseInt(t);
+                }
+                close({ type: select.value, name: input.value.trim(), count });
             });
         });
     }
