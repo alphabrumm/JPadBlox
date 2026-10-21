@@ -179,9 +179,12 @@ export class App {
                 <span class="jp-project-name" data-ref="projectName"></span>
                 <span class="jp-project-state" data-ref="projectState"></span>
             </button>
-            <button class="jp-iconbtn jp-bulb" data-ref="bulbBtn" aria-label="Tipp: Hilfe zu den Buttons" data-tip="Tipp: So bekommst Du Hilfe zu jedem Button">${icon("lightbulb")}</button>
             <div class="jp-topbar-spacer"></div>
-            <div class="jp-toolgroup jp-edit-tools">
+            <div class="jp-bulbgroup" data-ref="bulbGroup">
+                <button class="jp-iconbtn jp-bulb" data-ref="bulbBtn" aria-label="Tipp: Hilfe zu den Buttons" data-tip="Tipp: So bekommst Du Hilfe zu jedem Button">${icon("lightbulb")}</button>
+                <span class="jp-topbar-sep" aria-hidden="true"></span>
+            </div>
+            <div class="jp-toolgroup jp-edit-tools" data-ref="editTools">
                 <button class="jp-iconbtn" data-ref="copyAllBtn" data-tip="Code aller Dateien in die Zwischenablage kopieren" aria-label="Code aller Dateien kopieren" title="Code aller Dateien kopieren">${icon("copyAll")}</button>
                 <button class="jp-iconbtn" data-ref="copyFileBtn" data-tip="Code der geöffneten Datei in die Zwischenablage kopieren" aria-label="Code dieser Datei kopieren" title="Code dieser Datei kopieren">${icon("copyFile")}</button>
                 <button class="jp-iconbtn" data-ref="undo" data-tip="Rückgängig: letzte Änderung zurücknehmen" aria-label="Rückgängig" title="Rückgängig">${icon("undo")}</button>
@@ -387,6 +390,49 @@ export class App {
             applyLayout();
         });
         applyLayout();
+
+        // Glühbirne im Querformat bündig über dem Code-Editor ausrichten
+        const ro = new ResizeObserver(() => this.alignBulbSoon());
+        ro.observe(this.root.querySelector(".jp-pane-code")!);
+        ro.observe(this.root.querySelector(".jp-topbar")!);
+    }
+
+    private bulbFrame = 0;
+    alignBulbSoon() {
+        cancelAnimationFrame(this.bulbFrame);
+        this.bulbFrame = requestAnimationFrame(() => this.alignBulb());
+    }
+
+    /**
+     * Querformat (Code und Ausgabe nebeneinander): Die Glühbirne steht rechtsbündig über dem
+     * Code-Editor, der Trennstrich rechts daneben genau mittig in der Lücke zur rechten Ansicht.
+     * Sonst (oder wenn der Platz nicht reicht) stehen beide einfach links neben den Kopier-Knöpfen.
+     */
+    private alignBulb() {
+        const g = this.el.bulbGroup, bar = g.parentElement!;
+        const sep = g.querySelector<HTMLElement>(".jp-topbar-sep")!;
+        const reset = () => {
+            g.classList.remove("is-aligned");
+            g.style.left = "";
+            sep.style.marginLeft = sep.style.marginRight = "";
+        };
+        reset();
+        if (this.root.dataset.layout != "split" || getComputedStyle(g).display == "none") return;
+        const code = this.root.querySelector(".jp-pane-code")!.getBoundingClientRect();
+        const side = this.root.querySelector(".jp-pane-side")!.getBoundingClientRect();
+        if (code.width == 0 || side.width == 0) return;
+        const bulb = this.el.bulbBtn.getBoundingClientRect();
+        const barRect = bar.getBoundingClientRect();
+        const gapMid = (code.right + side.left) / 2;
+        sep.style.marginLeft = Math.max(0, gapMid - code.right - 0.5) + "px";
+        sep.style.marginRight = "0px";
+        g.classList.add("is-aligned");
+        g.style.left = (code.right - bulb.width - barRect.left) + "px";
+        // Überschneidet sich die Gruppe mit dem Projektnamen oder den Knöpfen: normal einreihen
+        const gr = g.getBoundingClientRect();
+        const proj = this.el.projectBtn.getBoundingClientRect();
+        const tools = this.el.editTools.getBoundingClientRect();
+        if (gr.left < proj.right + 4 || gr.right > tools.left - 4) reset();
     }
 
     /**
@@ -815,6 +861,7 @@ export class App {
             ? (this.project.exported == 0 ? "noch nie als Datei gesichert" : "Änderungen nicht als Datei gesichert")
             : "als Datei gesichert";
         this.root.classList.toggle("is-unsaved", unsaved);
+        this.alignBulbSoon();
     }
 
     markModified() {
