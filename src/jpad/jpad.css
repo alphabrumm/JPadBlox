@@ -1816,3 +1816,77 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
     border-radius: 3px;
     box-shadow: inset 0 -1.5px 0 color-mix(in srgb, var(--accent) 55%, transparent);
 }
+
+/* ---------- JPadBlox: drei Spalten im Querformat ----------
+   Bausteine | Editor | Ansicht rechts. Aufteilung je nach Vergrößern-Knopf (siehe App.applyLayout). */
+.jp-pane-blocks { display: none; }
+.jp-app[data-layout="split"] .jp-pane-blocks { display: flex; }
+.jp-app[data-layout="split"][data-cols="default"] .jp-main {
+    grid-template-columns: minmax(0, 15fr) minmax(0, 55fr) minmax(0, 30fr);
+}
+.jp-app[data-layout="split"][data-cols="blocks"] .jp-main { grid-template-columns: minmax(0, 25fr) minmax(0, 75fr); }
+.jp-app[data-layout="split"][data-cols="blocks"] .jp-pane-side { display: none; }
+.jp-app[data-layout="split"][data-cols="code"] .jp-main { grid-template-columns: minmax(0, 65fr) minmax(0, 35fr); }
+.jp-app[data-layout="split"][data-cols="info"] .jp-main { grid-template-columns: minmax(0, 35fr) minmax(0, 65fr); }
+.jp-app[data-layout="split"][data-cols="code"] .jp-pane-blocks,
+.jp-app[data-layout="split"][data-cols="info"] .jp-pane-blocks { display: none; }
+
+/* Kopfzeilen von Bausteinen und Ansicht rechts, mit Vergrößern-Knopf rechts */
+.jp-panehead {
+    display: flex;
+    align-items: center;
+    min-height: 49px;
+    padding-left: 12px;
+    border-bottom: 1px solid var(--line);
+    flex: none;
+}
+.jp-panehead-title { flex: 1; min-width: 0; font-weight: 700; color: var(--ink-2); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.jp-panehead .jp-layoutbtn, .jp-sidehead .jp-layoutbtn { margin: 0 4px 0 2px; }
+.jp-sidehead { display: flex; align-items: center; flex: none; min-width: 0; }
+.jp-sidehead .jp-side-switch { flex: 1; min-width: 0; margin-right: 0; }
+.jp-app[data-layout="tabs"] .jp-sidehead { display: none; }
+
+/* Senkrechte Bausteinleiste */
+.jp-blockpanel {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 6px 8px 12px;
+}
+.jp-blockgroup h3 {
+    margin: 10px 2px 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--g);
+}
+.jp-blockgroup:first-child h3 { margin-top: 4px; }
+.jp-blockgroup-items { display: flex; flex-wrap: wrap; gap: 6px; }
+.jp-blockpanel button.jp-block {
+    flex: 1 1 auto;
+    min-height: 40px;
+    padding: 0 10px 0 8px;
+    border-radius: var(--radius-s);
+    background: color-mix(in srgb, var(--g) 16%, var(--surface));
+    border-left: 4px solid var(--g);
+    color: var(--ink);
+    font-family: var(--font-code);
+    font-size: 15px;
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+.jp-blockpanel button.jp-block:active,
+.jp-blockpanel button.jp-block.is-pressed { background: var(--g); color: #fff; }
+
+/* Querformat: Hilfsleiste wie in JPad (nur Zeichen), die Bausteine stehen links */
+.jp-app[data-layout="split"] .jp-keybar .jp-key-mode { display: none; }
+.jp-app[data-layout="split"] .jp-keybar .jp-blocks-scroll { display: none; }
+.jp-app[data-layout="split"] .jp-keybar .jp-keybar-scroll:not(.jp-blocks-scroll) { display: flex; }

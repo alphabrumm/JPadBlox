@@ -1,7 +1,7 @@
 import { icon } from "./Icons.js";
 import { TouchEditor } from "./TouchEditor.js";
 import { LanguageBridge } from "./LanguageBridge.js";
-import { BLOCKS, GROUP_NAMES, BlockGroup, insertBlock } from "./Blocks.js";
+import { BLOCKS, insertBlock, blockRowHtml } from "./Blocks.js";
 
 type Key = { label: string, insert?: string, action?: string, aria?: string, tip?: string, help?: string, wide?: boolean };
 
@@ -43,25 +43,11 @@ function simpleKeyboardMode(): boolean {
     }
 }
 
-/** JPadBlox: Die Hilfsleiste zeigt entweder Zeichen oder Bausteine (wird gemerkt). */
+/** JPadBlox: Im Hochformat und auf dem Handy (ohne Bausteinspalte) zeigt die Hilfsleiste wahlweise
+ *  Zeichen oder Bausteine (wird gemerkt). Im Querformat stehen die Bausteine links, die Leiste zeigt Zeichen. */
 type BarMode = "chars" | "blocks";
 function loadMode(): BarMode {
-    try { return localStorage.getItem("jpadblox.barMode") == "chars" ? "chars" : "blocks"; } catch (e) { return "blocks"; }
-}
-
-function blocksHtml(): string {
-    let html = "", group: BlockGroup | null = null;
-    BLOCKS.forEach((b, i) => {
-        if (b.group != group) {
-            group = b.group;
-            html += `<span class="jp-block-group" data-group="${group}" aria-hidden="true">${GROUP_NAMES[group]}</span>`;
-        }
-        const tip = b.tpl.includes("§")
-            ? b.tip + ". Markierte Zeilen umschließt der Baustein. Tab oder Enter springt zum nächsten Platzhalter."
-            : b.tip + ". Tab oder Enter springt zum nächsten Platzhalter.";
-        html += `<button class="jp-block" data-block="${i}" data-group="${b.group}" data-tip="${tip.replace(/"/g, "&quot;")}">${b.label.replace(/</g, "&lt;")}</button>`;
-    });
-    return html;
+    try { return localStorage.getItem("jpadblox.barMode") == "blocks" ? "blocks" : "chars"; } catch (e) { return "chars"; }
 }
 
 export class KeyBar {
@@ -82,13 +68,15 @@ export class KeyBar {
                 <button data-action="mode" class="jp-key-mode" aria-label="Zwischen Bausteinen und Sonderzeichen umschalten" data-tip="Umschalten: Code-Bausteine (class, Methode, if, for …) oder Sonderzeichen ({ } ( ) ; = …)">${icon("blocks", "jp-mode-blocks")}<span class="jp-mode-chars">{ }</span></button>
                 <button data-action="left" data-help="left" aria-label="Cursor nach links" data-tip="Cursor ein Zeichen nach links">${icon("left")}</button>
                 <button data-action="right" data-help="right" aria-label="Cursor nach rechts" data-tip="Cursor ein Zeichen nach rechts">${icon("right")}</button>
+                <button data-action="lineAdd" aria-label="Neue Zeile einfügen" data-tip="Neue, leere Zeile unter der Zeile mit dem Cursor einfügen (richtig eingerückt)">${icon("lineAdd")}</button>
+                <button data-action="lineDelete" aria-label="Zeile löschen" data-tip="Zeile, in der der Cursor steht, löschen">${icon("lineDelete")}</button>
             </div>
             <div class="jp-keybar-main">
             <div class="jp-keybar-scroll">
                 ${KEYS.map((k, i) => `<button data-key="${i}" ${k.aria ? `aria-label="${k.aria}"` : ""} ${k.tip ? `data-tip="${k.tip.replace(/"/g, "&quot;")}"` : ""} ${k.help ? `data-help="${k.help}"` : ""}>${k.label}</button>`).join("")}
             </div>
             <div class="jp-keybar-scroll jp-blocks-scroll">
-                ${blocksHtml()}
+                ${blockRowHtml()}
             </div>
             <div class="jp-keybar-fixed is-right">
                 <button data-action="breakpoint" data-help="breakpoint" aria-label="Haltepunkt in dieser Zeile setzen oder entfernen" data-tip="Haltepunkt in dieser Zeile setzen oder entfernen – das Programm hält vor der Zeile an" class="jp-key-breakpoint">${icon("breakpoint")}</button>
@@ -269,6 +257,8 @@ export class KeyBar {
                 try { localStorage.setItem("jpadblox.barMode", this.mode); } catch (e) { }
                 this.applyMode();
                 break;
+            case "lineAdd": this.editor.insertLine(); break;
+            case "lineDelete": this.editor.deleteLine(); break;
             case "left": this.editor.moveCursor(-1); break;
             case "right": this.editor.moveCursor(1); break;
             case "info": this.showInfo(await this.bridge.hover(this.editor.getCursorOffset())); break;

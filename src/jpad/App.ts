@@ -7,6 +7,7 @@ import { ProjectInfo, ProjectStore, STARTER_FILES, ProjectFile } from "./Project
 import { icon } from "./Icons.js";
 import { Dialogs } from "./Dialogs.js";
 import { KeyBar } from "./KeyBar.js";
+import { blockPanelHtml, wireBlockPanel } from "./Blocks.js";
 import { DiagramView } from "./Diagram.js";
 import { TouchTips } from "./TouchTips.js";
 import { ThemeManager } from "../client/main/gui/ThemeManager.js";
@@ -30,6 +31,8 @@ function isHelperMarker(m: monaco.editor.IMarker): boolean {
 type View = "code" | "output" | "variables" | "diagram" | "problems";
 type SideView = "output" | "variables" | "diagram" | "problems";
 type ThemeChoice = "auto" | "light" | "dark";
+
+type Cols = "default" | "blocks" | "code" | "full" | "info";
 
 const SPEEDS: { label: string, value: number | "max" }[] = [
     { label: "Zeitlupe", value: 2 },
@@ -121,6 +124,7 @@ export class App {
         if (/[?&]debug\b/.test(location.search)) import("./DebugLog.js").then(m => m.startDebugLog(this.editor.view));
 
         this.keyBar = new KeyBar(this.root, this.editor, this.bridge, (html) => this.showInfo(html));
+        wireBlockPanel(this.el.blockPanel, this.editor.view);
         this.editor.onToggleBreakpoint = (line) => this.toggleBreakpoint(line);
         this.placeKeyBar();
 
@@ -203,6 +207,13 @@ export class App {
         </header>
 
         <main class="jp-main">
+            <section class="jp-pane jp-pane-blocks" aria-label="Bausteine">
+                <div class="jp-panehead">
+                    <span class="jp-panehead-title">Bausteine</span>
+                    <button class="jp-iconbtn jp-layoutbtn" data-ref="blocksLayoutBtn"></button>
+                </div>
+                <div class="jp-blockpanel" data-ref="blockPanel">${blockPanelHtml()}</div>
+            </section>
             <section class="jp-pane jp-pane-code" aria-label="Quelltext">
                 <div class="jp-filebar" data-ref="filebar">
                     <nav class="jp-filetabs" data-ref="fileTabs" aria-label="Dateien"></nav>
@@ -217,11 +228,14 @@ export class App {
                 <div class="jp-signature" data-ref="signature" hidden></div>
             </section>
             <section class="jp-pane jp-pane-side">
+                <div class="jp-sidehead">
                 <div class="jp-segmented jp-side-switch" role="tablist">
                     <button role="tab" data-side="output" data-tip="Ausgabe: Text und Grafik deines Programms">${icon("output")}<span>Ausgabe</span></button>
                     <button role="tab" data-side="variables" data-tip="Variablen und ihre Werte beim schrittweisen Ausführen">${icon("variables")}<span>Variablen</span></button>
                     <button role="tab" data-side="diagram" data-tip="Diagramm: Klassen und Objekte">${icon("diagram")}<span>Diagramm</span></button>
                     <button role="tab" data-side="problems" data-tip="Probleme: Fehler im Code">${icon("problems")}<span>Probleme</span><span class="jp-badge" data-ref="sideBadge"></span></button>
+                </div>
+                <button class="jp-iconbtn jp-layoutbtn" data-ref="sideLayoutBtn"></button>
                 </div>
                 <div class="jp-output" data-ref="outputHost"></div>
                 <div class="jp-variables joeCssFence" data-ref="variables"></div>
@@ -371,24 +385,45 @@ export class App {
 
         // Breites Layout (iPad quer, Laptop) oder Reiter-Layout (Handy, iPad hoch)
         const mq = matchMedia("(min-width: 900px) and (min-aspect-ratio: 1/1)");
-        const applyLayout = () => {
-            const focus = this.getEditorFullWidth();
-            this.root.dataset.wide = String(mq.matches);
-            this.root.dataset.layout = mq.matches && !focus ? "split" : "tabs";
-            const btn = this.el.layoutBtn;
-            btn.innerHTML = icon(focus ? "shrink" : "expand");
-            const label = focus ? "Ausgabe wieder rechts neben dem Editor anzeigen" : "Editor auf volle Breite vergrößern";
+        /*
+         * JPadBlox: drei Spalten (Bausteine | Editor | Ansicht rechts), jede mit Vergrößern-Knopf.
+         *   default  15 % | 55 % | 30 %
+         *   blocks   25 % | 75 % | –        (Vergrößern bei den Bausteinen)
+         *   code      –   | 65 % | 35 %     (1. Tipp auf Vergrößern beim Editor)
+         *   full      –   | 100 %| –        (2. Tipp; Ausgabe usw. als Reiter unten wie in JPad)
+         *   info      –   | 35 % | 65 %     (Vergrößern bei der Ansicht rechts)
+         * Verkleinern führt jeweils zurück zu „default“.
+         */
+        const setBtn = (btn: HTMLElement, expanded: boolean, expandLabel: string) => {
+            btn.innerHTML = icon(expanded ? "shrink" : "expand");
+            const label = expanded ? "Zurück zur Ansicht mit drei Spalten" : expandLabel;
             btn.setAttribute("aria-label", label);
             btn.title = label;
             btn.dataset.tip = label;
+        };
+        const applyLayout = () => {
+            const cols = this.getCols();
+            this.root.dataset.wide = String(mq.matches);
+            this.root.dataset.cols = cols;
+            this.root.dataset.layout = mq.matches && cols != "full" ? "split" : "tabs";
+            setBtn(this.el.blocksLayoutBtn, cols == "blocks", "Bausteine vergrößern (Ansicht rechts ausblenden)");
+            setBtn(this.el.layoutBtn, cols == "full",
+                cols == "code" ? "Editor auf volle Breite vergrößern" : "Editor vergrößern (Bausteine ausblenden)");
+            setBtn(this.el.sideLayoutBtn, cols == "info", "Ansicht rechts vergrößern (Bausteine ausblenden)");
             this.setView(this.view);
+            this.alignBulbSoon();
         };
         mq.addEventListener("change", applyLayout);
-        this.el.layoutBtn.addEventListener("pointerdown", e => e.preventDefault()); // Tastatur offen lassen
-        this.el.layoutBtn.addEventListener("click", () => {
-            this.setEditorFullWidth(!this.getEditorFullWidth());
-            applyLayout();
+        const layoutButton = (btn: HTMLElement, next: () => Cols) => {
+            btn.addEventListener("pointerdown", e => e.preventDefault()); // Tastatur offen lassen
+            btn.addEventListener("click", () => { this.setCols(next()); applyLayout(); });
+        };
+        layoutButton(this.el.blocksLayoutBtn, () => this.getCols() == "blocks" ? "default" : "blocks");
+        layoutButton(this.el.layoutBtn, () => {
+            const c = this.getCols();
+            return c == "code" ? "full" : c == "full" ? "default" : "code";
         });
+        layoutButton(this.el.sideLayoutBtn, () => this.getCols() == "info" ? "default" : "info");
         applyLayout();
 
         // Glühbirne im Querformat bündig über dem Code-Editor ausrichten
@@ -617,7 +652,8 @@ export class App {
         if (view != "code") this.sideView = view;
         this.root.dataset.view = view;
         this.root.dataset.side = this.sideView;
-        const diagramVisible = this.sideView == "diagram" && (this.root.dataset.layout == "split" || view == "diagram");
+        const diagramVisible = this.sideView == "diagram" &&
+            (this.root.dataset.layout == "split" ? this.root.dataset.cols != "blocks" : view == "diagram");
         this.diagram?.setVisible(diagramVisible);
         this.root.querySelectorAll<HTMLElement>(".jp-bottomnav [data-view]").forEach(b =>
             b.setAttribute("aria-current", String(b.dataset.view == view)));
@@ -1035,13 +1071,16 @@ export class App {
         this.el.drawer.setAttribute("inert", "");
     }
 
-    /** Editor auf voller Breite (Ausgabe/Variablen/Probleme als Reiter unten), nur im Querformat relevant */
-    getEditorFullWidth(): boolean {
-        try { return localStorage.getItem("jpad.editorFullWidth") == "1"; } catch (e) { return false; }
+    /** Spaltenaufteilung im Querformat (siehe applyLayout) */
+    getCols(): Cols {
+        try {
+            const c = localStorage.getItem("jpadblox.cols");
+            return c == "blocks" || c == "code" || c == "full" || c == "info" ? c : "default";
+        } catch (e) { return "default"; }
     }
 
-    setEditorFullWidth(on: boolean) {
-        try { localStorage.setItem("jpad.editorFullWidth", on ? "1" : "0"); } catch (e) { }
+    setCols(c: Cols) {
+        try { localStorage.setItem("jpadblox.cols", c); } catch (e) { }
     }
 
     getThemeChoice(): ThemeChoice {

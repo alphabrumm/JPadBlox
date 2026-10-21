@@ -208,3 +208,81 @@ export function insertBlock(view: EditorView, block: Block) {
     snippet(tpl)(view, null, pos, pos);
     view.focus();
 }
+
+/** Hinweistext beim langen Drücken auf einen Baustein */
+export function blockTip(b: Block): string {
+    return b.tpl.includes("§")
+        ? b.tip + ". Markierte Zeilen umschließt der Baustein. Tab oder Enter springt zum nächsten Platzhalter."
+        : b.tip + ". Tab oder Enter springt zum nächsten Platzhalter.";
+}
+
+function chipHtml(b: Block, i: number): string {
+    return `<button class="jp-block" data-block="${i}" data-group="${b.group}" data-tip="${blockTip(b).replace(/"/g, "&quot;")}">${b.label.replace(/</g, "&lt;")}</button>`;
+}
+
+/** Senkrechte Bausteinleiste (linke Spalte im Querformat), nach Gruppen geordnet */
+export function blockPanelHtml(): string {
+    const groups = Object.keys(GROUP_NAMES) as BlockGroup[];
+    return groups.map(g => `
+        <section class="jp-blockgroup" data-group="${g}">
+            <h3>${GROUP_NAMES[g]}</h3>
+            <div class="jp-blockgroup-items">
+                ${BLOCKS.map((b, i) => b.group == g ? chipHtml(b, i) : "").join("")}
+            </div>
+        </section>`).join("");
+}
+
+/** Waagrechte Bausteinreihe für die Hilfsleiste (Hochformat und Handy) */
+export function blockRowHtml(): string {
+    let html = "", group: BlockGroup | null = null;
+    BLOCKS.forEach((b, i) => {
+        if (b.group != group) {
+            group = b.group;
+            html += `<span class="jp-block-group" data-group="${group}" aria-hidden="true">${GROUP_NAMES[group]}</span>`;
+        }
+        html += chipHtml(b, i);
+    });
+    return html;
+}
+
+/**
+ * Antippen in der senkrechten Leiste: Wie in der Hilfsleiste darf der Editor dabei den Fokus nicht
+ * verlieren (sonst klappt die Bildschirmtastatur zu). Wischen scrollt die Leiste, ein Tipp ohne
+ * Wischen fügt den Baustein ein.
+ */
+export function wireBlockPanel(panel: HTMLElement, view: EditorView) {
+    const run = (b: HTMLElement) => insertBlock(view, BLOCKS[parseInt(b.dataset.block!)]);
+    for (const ev of ["pointerdown", "mousedown"]) panel.addEventListener(ev, e => {
+        if ((<HTMLElement>e.target).closest("button")) e.preventDefault();
+    });
+    let tap: { b: HTMLElement, x: number, y: number, moved: boolean } | null = null;
+    panel.addEventListener("touchstart", e => {
+        const b = (<HTMLElement>e.target).closest<HTMLElement>("button[data-block]");
+        if (!b || e.touches.length > 1) { tap?.b.classList.remove("is-pressed"); tap = null; return; }
+        const t = e.touches[0];
+        tap = { b, x: t.clientX, y: t.clientY, moved: false };
+        b.classList.add("is-pressed");
+    }, { passive: true });
+    panel.addEventListener("touchmove", e => {
+        if (!tap || tap.moved) return;
+        const t = e.touches[0];
+        if (Math.abs(t.clientX - tap.x) > 10 || Math.abs(t.clientY - tap.y) > 10) {
+            tap.moved = true;
+            tap.b.classList.remove("is-pressed");
+        }
+    }, { passive: true });
+    panel.addEventListener("touchend", e => {
+        const t = tap;
+        tap = null;
+        if (!t) return;
+        t.b.classList.remove("is-pressed");
+        if (t.moved) return;
+        e.preventDefault();
+        t.b.click();
+    }, { passive: false });
+    panel.addEventListener("touchcancel", () => { tap?.b.classList.remove("is-pressed"); tap = null; });
+    panel.addEventListener("click", e => {
+        const b = (<HTMLElement>e.target).closest<HTMLElement>("button[data-block]");
+        if (b) run(b);
+    });
+}

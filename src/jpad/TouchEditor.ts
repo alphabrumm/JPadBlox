@@ -5,7 +5,7 @@ import {
     highlightSpecialChars, dropCursor, gutter, GutterMarker, layer, RectangleMarker
 } from "@codemirror/view";
 import { RangeSet } from "@codemirror/state";
-import { defaultKeymap, history, historyKeymap, indentWithTab, undo, redo, undoDepth, redoDepth, toggleComment } from "@codemirror/commands";
+import { defaultKeymap, history, historyKeymap, indentWithTab, undo, redo, undoDepth, redoDepth, toggleComment, insertBlankLine, deleteLine } from "@codemirror/commands";
 import { java } from "@codemirror/lang-java";
 import { syntaxHighlighting, HighlightStyle, indentOnInput, bracketMatching, indentUnit } from "@codemirror/language";
 import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap, startCompletion, acceptCompletion, completionStatus, hasNextSnippetField, nextSnippetField, clearSnippet } from "@codemirror/autocomplete";
@@ -574,6 +574,12 @@ export class TouchEditor {
             scrollIntoView: true
         });
     }
+
+    /** JPadBlox: leere, eingerückte Zeile unter der aktuellen Zeile einfügen */
+    insertLine() { insertBlankLine(this.view); }
+
+    /** JPadBlox: Zeile(n) mit dem Cursor bzw. der Auswahl löschen */
+    deleteLine() { deleteLine(this.view); }
 
     moveCursor(delta: number) {
         const view = this.view;
