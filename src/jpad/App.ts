@@ -408,8 +408,9 @@ export class App {
          *   wird gemerkt). Dann stehen dort zwei Knöpfe: „Volle Breite“ (Editor über das ganze Fenster, Ausgabe usw.
          *   als Reiter unten) und „Verkleinern“ (zurück zur gemerkten Ansicht).
          * Ansicht rechts: „Vergrößern“ macht sie doppelt so breit (40 %), die Bausteine schmal, der Editor bekommt
-         *   den Rest. Dann zwei Knöpfe: „Volle Breite“ (Ansicht rechts über das ganze Fenster) und „Verkleinern“
-         *   (zurück zur Standardansicht).
+         *   den Rest (die Ansicht vorher wird gemerkt). Dann zwei Knöpfe: „Volle Breite“ (Ansicht rechts über das
+         *   ganze Fenster) und „Verkleinern“ (zurück zur gemerkten Ansicht).
+         *   Tippt man dabei auf „Vergrößern“ der Bausteine, wird die Ansicht rechts wieder schmal.
          */
         const setBtn = (btn: HTMLElement, iconName: string, label: string, show = true) => {
             btn.innerHTML = icon(iconName);
@@ -442,7 +443,7 @@ export class App {
 
             const infoOpen = m == "infoWide" || m == "infoFull";
             setBtn(this.el.sideLayoutBtn, infoOpen ? "shrink" : "expand",
-                infoOpen ? "Verkleinern: zurück zur Standardansicht" : "Ansicht rechts vergrößern");
+                infoOpen ? "Verkleinern: zurück zur Ansicht von vorher" : "Ansicht rechts vergrößern");
             setBtn(this.el.sideFullBtn, "fit", "Ansicht rechts auf volle Fensterbreite", m == "infoWide");
 
             this.setView(this.view);
@@ -454,14 +455,19 @@ export class App {
             btn.addEventListener("click", () => { this.setViewState(change(this.getViewState())); applyLayout(); });
         };
         const DEFAULT: ViewState = { mode: "normal", blocksWide: false };
-        layoutButton(this.el.blocksLayoutBtn, v => ({ ...v, blocksWide: !v.blocksWide }));
+        // Bei doppelt breiter Ansicht rechts: Bausteine breit, Ansicht rechts wieder schmal
+        layoutButton(this.el.blocksLayoutBtn, v => v.mode == "infoWide"
+            ? { mode: "normal", blocksWide: true }
+            : { ...v, blocksWide: !v.blocksWide });
         layoutButton(this.el.layoutBtn, v => {
             if (v.mode == "editorWide" || v.mode == "editorFull") return v.before ?? DEFAULT;
             return { mode: "editorWide", blocksWide: v.blocksWide, before: { mode: v.mode, blocksWide: v.blocksWide } };
         });
         layoutButton(this.el.editorFullBtn, v => ({ ...v, mode: "editorFull" }));
         layoutButton(this.el.sideLayoutBtn, v =>
-            v.mode == "infoWide" || v.mode == "infoFull" ? DEFAULT : { mode: "infoWide", blocksWide: false });
+            v.mode == "infoWide" || v.mode == "infoFull"
+                ? v.before ?? DEFAULT
+                : { mode: "infoWide", blocksWide: false, before: { mode: v.mode, blocksWide: v.blocksWide } });
         layoutButton(this.el.sideFullBtn, v => ({ ...v, mode: "infoFull" }));
         applyLayout();
 
