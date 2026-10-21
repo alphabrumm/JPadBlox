@@ -102,6 +102,10 @@ button {
     padding: 0;
     cursor: pointer;
     touch-action: manipulation;
+    /* Langes Drücken zeigt einen Tooltip – ohne Lupe, Textauswahl oder Kontextmenü von iOS */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 button:focus-visible, input:focus-visible, a:focus-visible {
@@ -190,6 +194,89 @@ button:focus-visible, input:focus-visible, a:focus-visible {
 }
 
 .jp-app.is-unsaved .jp-project-state { color: var(--warn); }
+
+/* Glühbirne neben dem Projektnamen: Hinweis auf die Tooltips (langes Drücken).
+   Hell: gelb gefüllt, Symbol dunkel. Dunkel: ohne Füllung, Rand und Symbol im Gelb des Start-Knopfs. */
+.jp-bulb {
+    flex: none;
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-m);
+    border: 1.5px solid var(--marker);
+    background: var(--marker);
+    color: var(--marker-ink);
+}
+.jp-bulb .jp-icon { width: 21px; height: 21px; }
+.jp-bulb:active { background: var(--marker); filter: brightness(0.94); }
+:root[data-effective="dark"] .jp-bulb { background: transparent; color: var(--marker); }
+:root[data-effective="dark"] .jp-bulb:active { background: var(--marker-soft); filter: none; }
+@media (hover: hover) {
+    .jp-bulb:hover { background: var(--marker); filter: brightness(0.96); }
+    :root[data-effective="dark"] .jp-bulb:hover { background: var(--marker-soft); filter: none; }
+}
+/* iPhone: zu wenig Platz in der Kopfzeile */
+html.phone .jp-bulb { display: none; }
+.jp-topbar .jp-bulb { width: 38px; } /* gegen die schmale Breite von .jp-iconbtn */
+
+/* Tooltip beim langen Drücken auf einen Button und Hinweis der Glühbirne */
+.jp-tip {
+    position: fixed;
+    z-index: 200;
+    max-width: min(320px, calc(100vw - 16px));
+    padding: 9px 12px;
+    border-radius: var(--radius-m);
+    background: var(--ink);
+    color: var(--bg);
+    font-family: var(--font-ui);
+    font-size: 15px;
+    line-height: 1.4;
+    box-shadow: var(--shadow-lg);
+    animation: jp-tip-in 120ms ease-out;
+    pointer-events: none;
+}
+.jp-tip::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: calc(var(--arrow-x, 50%) - 6px);
+    width: 12px;
+    height: 12px;
+    background: inherit;
+    border-radius: 2px;
+    transform: rotate(45deg);
+}
+.jp-tip.is-above::before { top: auto; bottom: -6px; }
+@keyframes jp-tip-in { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+
+.jp-tip.is-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    width: min(380px, calc(100vw - 16px));
+    max-width: none;
+    padding: 12px 8px 12px 12px;
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    pointer-events: auto;
+}
+.jp-tip.is-info::before { border-left: 1px solid var(--line); border-top: 1px solid var(--line); }
+.jp-tip.is-info.is-above::before { border: 0; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.jp-tip.is-info p { margin: 4px 0; flex: 1; }
+.jp-tip-info-icon {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1.5px solid var(--marker);
+    background: var(--marker);
+    color: var(--marker-ink);
+}
+.jp-tip-info-icon .jp-icon { width: 20px; height: 20px; }
+:root[data-effective="dark"] .jp-tip-info-icon { background: transparent; color: var(--marker); }
+.jp-tip-close { width: 36px; height: 36px; flex: none; }
 
 .jp-dot {
     position: absolute;
@@ -661,7 +748,6 @@ html.keyboard-open.editor-focused .jp-bottomnav { display: none; }
 
 .jp-keybar button:active { background: var(--accent); color: var(--accent-ink); }
 .jp-keybar .jp-icon { width: 20px; height: 20px; }
-.jp-keybar .jp-key-accent { color: var(--accent); }
 
 .jp-keybar-scroll {
     flex: 1;

@@ -8,6 +8,7 @@ import { icon } from "./Icons.js";
 import { Dialogs } from "./Dialogs.js";
 import { KeyBar } from "./KeyBar.js";
 import { DiagramView } from "./Diagram.js";
+import { TouchTips } from "./TouchTips.js";
 import { ThemeManager } from "../client/main/gui/ThemeManager.js";
 import { GUIFile } from "../client/workspace/File.js";
 import { JavaLanguage } from "../compiler/java/JavaLanguage.js";
@@ -52,6 +53,7 @@ export class App {
     bridge!: LanguageBridge;
     dialogs!: Dialogs;
     keyBar!: KeyBar;
+    tips = new TouchTips();
     diagram!: DiagramView;
 
     root: HTMLElement;
@@ -177,27 +179,28 @@ export class App {
     private buildShell() {
         this.root.insertAdjacentHTML("beforeend", `
         <header class="jp-topbar">
-            <button class="jp-iconbtn" data-ref="menuBtn" aria-label="Menü öffnen">${icon("menu")}</button>
-            <button class="jp-project" data-ref="projectBtn" aria-label="Projekt umbenennen">
+            <button class="jp-iconbtn" data-ref="menuBtn" aria-label="Menü öffnen" data-tip="Menü: Projekte, Darstellung, Ausführungstempo und Nachschlagen">${icon("menu")}</button>
+            <button class="jp-project" data-ref="projectBtn" aria-label="Projekt umbenennen" data-tip="Name des Projekts – antippen, um es umzubenennen">
                 <span class="jp-project-name" data-ref="projectName"></span>
                 <span class="jp-project-state" data-ref="projectState"></span>
             </button>
+            <button class="jp-iconbtn jp-bulb" data-ref="bulbBtn" aria-label="Tipp: Hilfe zu den Buttons" data-tip="Tipp: So bekommst Du Hilfe zu jedem Button">${icon("lightbulb")}</button>
             <div class="jp-topbar-spacer"></div>
             <div class="jp-toolgroup jp-edit-tools">
-                <button class="jp-iconbtn" data-ref="copyAllBtn" aria-label="Code aller Dateien kopieren" title="Code aller Dateien kopieren">${icon("copyAll")}</button>
-                <button class="jp-iconbtn" data-ref="copyFileBtn" aria-label="Code dieser Datei kopieren" title="Code dieser Datei kopieren">${icon("copyFile")}</button>
-                <button class="jp-iconbtn" data-ref="undo" aria-label="Rückgängig" title="Rückgängig">${icon("undo")}</button>
-                <button class="jp-iconbtn" data-ref="redo" aria-label="Wiederholen" title="Wiederholen">${icon("redo")}</button>
-                <button class="jp-iconbtn jp-wide-only" data-ref="formatBtn" aria-label="Code formatieren" title="Code formatieren">${icon("format")}</button>
-                <button class="jp-iconbtn" data-ref="saveBtn" aria-label="Projekt als Datei sichern" title="Projekt als Datei sichern">${icon("save")}<span class="jp-dot"></span></button>
+                <button class="jp-iconbtn" data-ref="copyAllBtn" data-tip="Code aller Dateien in die Zwischenablage kopieren" aria-label="Code aller Dateien kopieren" title="Code aller Dateien kopieren">${icon("copyAll")}</button>
+                <button class="jp-iconbtn" data-ref="copyFileBtn" data-tip="Code der geöffneten Datei in die Zwischenablage kopieren" aria-label="Code dieser Datei kopieren" title="Code dieser Datei kopieren">${icon("copyFile")}</button>
+                <button class="jp-iconbtn" data-ref="undo" data-tip="Rückgängig: letzte Änderung zurücknehmen" aria-label="Rückgängig" title="Rückgängig">${icon("undo")}</button>
+                <button class="jp-iconbtn" data-ref="redo" data-tip="Wiederholen: zurückgenommene Änderung wiederherstellen" aria-label="Wiederholen" title="Wiederholen">${icon("redo")}</button>
+                <button class="jp-iconbtn jp-wide-only" data-ref="formatBtn" data-tip="Code formatieren: Einrückungen und Abstände ordnen" aria-label="Code formatieren" title="Code formatieren">${icon("format")}</button>
+                <button class="jp-iconbtn" data-ref="saveBtn" data-tip="Projekt als Datei sichern. Ein Punkt zeigt Änderungen, die noch nicht gesichert sind." aria-label="Projekt als Datei sichern" title="Projekt als Datei sichern">${icon("save")}<span class="jp-dot"></span></button>
             </div>
             <div class="jp-toolgroup jp-run-tools">
-                <button class="jp-iconbtn jp-step jp-step-more" data-ref="stepOver" aria-label="Methode überspringen" title="Methode überspringen">${icon("stepOver")}</button>
-                <button class="jp-iconbtn jp-step jp-step-more jp-wide-only" data-ref="stepOut" aria-label="Methode verlassen" title="Methode verlassen">${icon("stepOut")}</button>
-                <button class="jp-stepbtn" data-ref="stepInto" aria-label="Schritt: nächste Zeile ausführen" title="Schritt: nächste Zeile ausführen">${icon("stepInto")}<span>Schritt</span></button>
-                <button class="jp-iconbtn jp-stop" data-ref="stopBtn" aria-label="Programm anhalten">${icon("stop")}</button>
-                <button class="jp-run" data-ref="pauseBtn" aria-label="Pause">${icon("pause")}</button>
-                <button class="jp-run" data-ref="runBtn" aria-label="Programm starten">${icon("play")}</button>
+                <button class="jp-iconbtn jp-step jp-step-more" data-ref="stepOver" data-tip="Methode überspringen: führt einen Methodenaufruf in einem Schritt aus" aria-label="Methode überspringen" title="Methode überspringen">${icon("stepOver")}</button>
+                <button class="jp-iconbtn jp-step jp-step-more jp-wide-only" data-ref="stepOut" data-tip="Methode verlassen: läuft bis zum Ende der aktuellen Methode" aria-label="Methode verlassen" title="Methode verlassen">${icon("stepOut")}</button>
+                <button class="jp-stepbtn" data-ref="stepInto" data-tip="Schritt: führt die nächste Zeile aus – die aktuelle Zeile ist im Code gelb markiert" aria-label="Schritt: nächste Zeile ausführen" title="Schritt: nächste Zeile ausführen">${icon("stepInto")}<span>Schritt</span></button>
+                <button class="jp-iconbtn jp-stop" data-ref="stopBtn" data-tip="Programm beenden" aria-label="Programm anhalten">${icon("stop")}</button>
+                <button class="jp-run" data-ref="pauseBtn" data-tip="Programm anhalten (Pause)" aria-label="Pause">${icon("pause")}</button>
+                <button class="jp-run" data-ref="runBtn" data-tip="Programm starten" aria-label="Programm starten">${icon("play")}</button>
             </div>
         </header>
 
@@ -206,7 +209,7 @@ export class App {
                 <div class="jp-filebar" data-ref="filebar">
                     <nav class="jp-filetabs" data-ref="fileTabs" aria-label="Dateien"></nav>
                     <div class="jp-filebar-actions">
-                        <button class="jp-filetab-add" data-ref="newFileBtn" aria-label="Neue Datei" title="Neue Datei">${icon("plus")}</button>
+                        <button class="jp-filetab-add" data-ref="newFileBtn" data-tip="Neue Datei (Klasse) anlegen" aria-label="Neue Datei" title="Neue Datei">${icon("plus")}</button>
                         <span class="jp-filetabs-sep" aria-hidden="true"></span>
                         <button class="jp-filetab-add jp-filetab-paste" data-ref="pasteFileBtn" aria-label="Text aus der Zwischenablage in neue Datei einsetzen" title="Text aus der Zwischenablage in neue Datei einsetzen">${icon("pastePlus")}</button>
                     </div>
@@ -217,10 +220,10 @@ export class App {
             </section>
             <section class="jp-pane jp-pane-side">
                 <div class="jp-segmented jp-side-switch" role="tablist">
-                    <button role="tab" data-side="output">${icon("output")}<span>Ausgabe</span></button>
-                    <button role="tab" data-side="variables">${icon("variables")}<span>Variablen</span></button>
-                    <button role="tab" data-side="diagram">${icon("diagram")}<span>Diagramm</span></button>
-                    <button role="tab" data-side="problems">${icon("problems")}<span>Probleme</span><span class="jp-badge" data-ref="sideBadge"></span></button>
+                    <button role="tab" data-side="output" data-tip="Ausgabe: Text und Grafik deines Programms">${icon("output")}<span>Ausgabe</span></button>
+                    <button role="tab" data-side="variables" data-tip="Variablen und ihre Werte beim schrittweisen Ausführen">${icon("variables")}<span>Variablen</span></button>
+                    <button role="tab" data-side="diagram" data-tip="Diagramm: Klassen und Objekte">${icon("diagram")}<span>Diagramm</span></button>
+                    <button role="tab" data-side="problems" data-tip="Probleme: Fehler im Code">${icon("problems")}<span>Probleme</span><span class="jp-badge" data-ref="sideBadge"></span></button>
                 </div>
                 <div class="jp-output" data-ref="outputHost"></div>
                 <div class="jp-variables joeCssFence" data-ref="variables"></div>
@@ -230,55 +233,55 @@ export class App {
         </main>
 
         <nav class="jp-bottomnav" aria-label="Ansicht">
-            <button data-view="code">${icon("code")}<span>Code</span></button>
-            <button data-view="output">${icon("output")}<span>Ausgabe</span></button>
-            <button data-view="variables">${icon("variables")}<span>Variablen</span></button>
-            <button data-view="diagram">${icon("diagram")}<span>Diagramm</span></button>
-            <button data-view="problems">${icon("problems")}<span>Probleme</span><span class="jp-badge" data-ref="navBadge"></span></button>
+            <button data-view="code" data-tip="Code: der Editor mit deinen Dateien">${icon("code")}<span>Code</span></button>
+            <button data-view="output" data-tip="Ausgabe: Text und Grafik deines Programms">${icon("output")}<span>Ausgabe</span></button>
+            <button data-view="variables" data-tip="Variablen und ihre Werte beim schrittweisen Ausführen">${icon("variables")}<span>Variablen</span></button>
+            <button data-view="diagram" data-tip="Diagramm: Klassen und Objekte">${icon("diagram")}<span>Diagramm</span></button>
+            <button data-view="problems" data-tip="Probleme: Fehler im Code">${icon("problems")}<span>Probleme</span><span class="jp-badge" data-ref="navBadge"></span></button>
         </nav>
 
         <div class="jp-drawer-backdrop" data-ref="drawerBackdrop"></div>
         <aside class="jp-drawer" data-ref="drawer" aria-label="Menü" inert>
             <div class="jp-drawer-head">
                 <div class="jp-brand"><span class="jp-brand-mark">J</span>JPad</div>
-                <button class="jp-iconbtn" data-ref="drawerClose" aria-label="Menü schließen">${icon("close")}</button>
+                <button class="jp-iconbtn" data-ref="drawerClose" data-tip="Menü schließen" aria-label="Menü schließen">${icon("close")}</button>
             </div>
             <div class="jp-drawer-body">
                 <h2>Projekte</h2>
                 <div class="jp-menu-actions">
-                    <button data-ref="newProjectBtn">${icon("plus")}<span>Neues Projekt</span></button>
-                    <button data-ref="openFileBtn">${icon("open")}<span>Projekt aus Datei öffnen</span></button>
-                    <button data-ref="saveFileBtn">${icon("save")}<span>Projekt als Datei sichern</span></button>
-                    <button data-ref="userSpritesBtn">${icon("imagePlus")}<span>Eigene Sprites</span></button>
+                    <button data-ref="newProjectBtn" data-tip="Neues, leeres Projekt anlegen">${icon("plus")}<span>Neues Projekt</span></button>
+                    <button data-ref="openFileBtn" data-tip="Projekt aus einer Datei öffnen (z. B. aus ByCS Drive)">${icon("open")}<span>Projekt aus Datei öffnen</span></button>
+                    <button data-ref="saveFileBtn" data-tip="Projekt als Datei sichern">${icon("save")}<span>Projekt als Datei sichern</span></button>
+                    <button data-ref="userSpritesBtn" data-tip="Eigene Bilder als Sprites zum Projekt hinzufügen">${icon("imagePlus")}<span>Eigene Sprites</span></button>
                 </div>
                 <ul class="jp-projectlist" data-ref="projectList"></ul>
 
                 <h2>Darstellung</h2>
                 <div class="jp-segmented" data-ref="themeSwitch">
-                    <button data-theme-choice="light">${icon("sun")}<span>Hell</span></button>
-                    <button data-theme-choice="dark">${icon("moon")}<span>Dunkel</span></button>
-                    <button data-theme-choice="auto">${icon("auto")}<span>System</span></button>
+                    <button data-theme-choice="light" data-tip="Helle Darstellung">${icon("sun")}<span>Hell</span></button>
+                    <button data-theme-choice="dark" data-tip="Dunkle Darstellung">${icon("moon")}<span>Dunkel</span></button>
+                    <button data-theme-choice="auto" data-tip="Darstellung wie in der Systemeinstellung des Geräts">${icon("auto")}<span>System</span></button>
                 </div>
                 <div class="jp-setting-row">
                     <span>Schriftgröße</span>
                     <div class="jp-stepper">
-                        <button data-ref="fontSmaller" aria-label="Schrift kleiner">A−</button>
+                        <button data-ref="fontSmaller" data-tip="Schrift im Editor kleiner" aria-label="Schrift kleiner">A−</button>
                         <span data-ref="fontSizeLabel"></span>
-                        <button data-ref="fontBigger" aria-label="Schrift größer">A+</button>
+                        <button data-ref="fontBigger" data-tip="Schrift im Editor größer" aria-label="Schrift größer">A+</button>
                     </div>
                 </div>
 
                 <h2>Ausführungstempo</h2>
                 <div class="jp-segmented jp-speed" data-ref="speedSwitch">
-                    ${SPEEDS.map((s, i) => `<button data-speed="${i}"><span>${s.label}</span></button>`).join("")}
+                    ${SPEEDS.map((s, i) => `<button data-speed="${i}" data-tip="Ausführungstempo: ${s.label}"><span>${s.label}</span></button>`).join("")}
                 </div>
                 <p class="jp-hint">In der Zeitlupe siehst du im Code, welche Zeile gerade ausgeführt wird.</p>
 
                 <h2>Nachschlagen</h2>
                 <div class="jp-menu-actions">
-                    <button data-ref="colorsBtn">${icon("palette")}<span>Color Handbuch</span></button>
-                    <button data-ref="handbookBtn">${icon("book")}<span>Class Handbuch</span></button>
-                    <button data-ref="spritesBtn">${icon("image")}<span>Sprite Bibliothek</span></button>
+                    <button data-ref="colorsBtn" data-tip="Alle Farben der Klasse Color nachschlagen">${icon("palette")}<span>Color Handbuch</span></button>
+                    <button data-ref="handbookBtn" data-tip="Klassen und Methoden der Online-IDE nachschlagen">${icon("book")}<span>Class Handbuch</span></button>
+                    <button data-ref="spritesBtn" data-tip="Alle eingebauten Sprites mit ihren Nummern ansehen">${icon("image")}<span>Sprite Bibliothek</span></button>
                 </div>
 
                 <h2>Über JPad</h2>
@@ -300,6 +303,7 @@ export class App {
         this.el.drawerClose.addEventListener("click", () => this.closeDrawer());
         this.el.drawerBackdrop.addEventListener("click", () => this.closeDrawer());
         this.el.projectBtn.addEventListener("click", () => this.renameProject());
+        this.el.bulbBtn.addEventListener("click", () => this.tips.toggleInfo(this.el.bulbBtn));
         this.el.newFileBtn.addEventListener("click", () => this.newFile());
         this.el.pasteFileBtn.addEventListener("click", () => this.pasteAsNewFile());
         this.el.copyAllBtn.addEventListener("click", () => this.copyCode(true));
@@ -378,6 +382,7 @@ export class App {
             const label = focus ? "Ausgabe wieder rechts neben dem Editor anzeigen" : "Editor auf volle Breite vergrößern";
             btn.setAttribute("aria-label", label);
             btn.title = label;
+            btn.dataset.tip = label;
             this.setView(this.view);
         };
         mq.addEventListener("change", applyLayout);
@@ -609,6 +614,8 @@ export class App {
         for (const file of this.main.getFiles()) {
             const errors = this.errorsOf(file).length;
             const b = document.createElement("button");
+            const fileName = file.name.replace(/\.java$/, "");
+            b.dataset.tip = file == active ? `Datei „${fileName}“ – antippen für Umbenennen, Formatieren, Löschen` : `Datei „${fileName}“ öffnen`;
             b.className = "jp-filetab" + (file == active ? " is-active" : "") + (errors > 0 ? " has-errors" : "");
             b.innerHTML = `<span class="jp-filetab-name">${escapeHtml(file.name.replace(/\.java$/, ""))}</span>`
                 + (errors > 0 ? `<span class="jp-badge">${errors}</span>` : "")
@@ -757,6 +764,7 @@ export class App {
             const b = document.createElement("button");
             const isError = marker.severity >= monaco.MarkerSeverity.Error;
             b.className = "jp-problem " + (isError ? "is-error" : "is-warning");
+            b.dataset.tip = "Antippen, um zu dieser Stelle im Code zu springen";
             b.innerHTML = `<span class="jp-problem-where">${escapeHtml(file.name.replace(/\.java$/, ""))}, Zeile ${marker.startLineNumber}</span>
                 <span class="jp-problem-msg">${escapeHtml(marker.message)}</span>`;
             b.addEventListener("click", () => {
@@ -847,7 +855,7 @@ export class App {
             const isCurrent = p.id == this.project.id;
             li.className = "jp-projectitem" + (isCurrent ? " is-current" : "");
             li.innerHTML = `
-                <button class="jp-projectitem-open">${icon(isCurrent ? "check" : "folder")}
+                <button class="jp-projectitem-open" data-tip="${isCurrent ? "Geöffnetes Projekt" : `Projekt „${escapeHtml(p.name)}“ öffnen`}">${icon(isCurrent ? "check" : "folder")}
                     <span><span class="jp-projectitem-name">${escapeHtml(p.name)}</span>
                     <span class="jp-projectitem-date">geändert ${fmt.format(new Date(p.modified))}</span></span>
                 </button>

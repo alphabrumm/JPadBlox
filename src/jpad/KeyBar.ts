@@ -2,32 +2,32 @@ import { icon } from "./Icons.js";
 import { TouchEditor } from "./TouchEditor.js";
 import { LanguageBridge } from "./LanguageBridge.js";
 
-type Key = { label: string, insert?: string, action?: string, aria?: string, wide?: boolean };
+type Key = { label: string, insert?: string, action?: string, aria?: string, tip?: string, wide?: boolean };
 
 /**
  * Hilfsleiste über der Bildschirmtastatur mit den Zeichen, die auf der
  * iPad-Tastatur nur über Umwege erreichbar sind.
  */
 const KEYS: Key[] = [
-    { label: icon("tab"), action: "tab", aria: "Einrücken" },
-    { label: "{ }", insert: "{§}" },
-    { label: "( )", insert: "(§)" },
-    { label: ";", insert: ";" },
-    { label: "=", insert: " = " },
-    { label: "\" \"", insert: "\"§\"" },
-    { label: ".", insert: "." },
-    { label: "[ ]", insert: "[§]" },
-    { label: "<", insert: "<" },
-    { label: ">", insert: ">" },
-    { label: "+", insert: "+" },
-    { label: "−", insert: "-", aria: "Minus" },
-    { label: "*", insert: "*" },
-    { label: "/", insert: "/" },
-    { label: "!", insert: "!" },
-    { label: "&&", insert: " && " },
-    { label: "||", insert: " || " },
-    { label: "==", insert: " == " },
-    { label: "++", insert: "++" },
+    { label: icon("tab"), action: "tab", aria: "Einrücken", tip: "Einrücken (Tabulator)" },
+    { label: "{ }", insert: "{§}", tip: "Geschweifte Klammern { } einfügen – für Klassen-, Methoden- und Blockrümpfe" },
+    { label: "( )", insert: "(§)", tip: "Runde Klammern ( ) einfügen – für Parameter und Bedingungen" },
+    { label: ";", insert: ";", tip: "Strichpunkt ; – beendet eine Anweisung" },
+    { label: "=", insert: " = ", tip: "Zuweisung = – speichert einen Wert in einer Variablen" },
+    { label: "\" \"", insert: "\"§\"", tip: "Anführungszeichen \" \" einfügen – für Text (String)" },
+    { label: ".", insert: ".", tip: "Punkt . – ruft eine Methode oder ein Attribut eines Objekts auf" },
+    { label: "[ ]", insert: "[§]", tip: "Eckige Klammern [ ] einfügen – für Arrays" },
+    { label: "<", insert: "<", tip: "Kleiner als <" },
+    { label: ">", insert: ">", tip: "Größer als >" },
+    { label: "+", insert: "+", tip: "Plus + – addiert Zahlen oder hängt Texte aneinander" },
+    { label: "−", insert: "-", aria: "Minus", tip: "Minus −" },
+    { label: "*", insert: "*", tip: "Mal *" },
+    { label: "/", insert: "/", tip: "Geteilt durch /" },
+    { label: "!", insert: "!", tip: "Nicht ! – kehrt eine Bedingung um" },
+    { label: "&&", insert: " && ", tip: "Und && – beide Bedingungen müssen wahr sein" },
+    { label: "||", insert: " || ", tip: "Oder || – mindestens eine Bedingung muss wahr sein" },
+    { label: "==", insert: " == ", tip: "Vergleich == – prüft, ob zwei Werte gleich sind" },
+    { label: "++", insert: "++", tip: "++ – erhöht eine Zahl um 1" },
 ];
 
 /** Testmodus für die Tastatur-Behandlung: „?kb=einfach“ schaltet ein, „?kb=normal“ aus (wird gemerkt). */
@@ -55,18 +55,17 @@ export class KeyBar {
         this.el.setAttribute("aria-label", "Sonderzeichen");
         this.el.innerHTML = `
             <div class="jp-keybar-fixed is-left">
-                <button data-action="left" aria-label="Cursor nach links">${icon("left")}</button>
-                <button data-action="right" aria-label="Cursor nach rechts">${icon("right")}</button>
+                <button data-action="left" aria-label="Cursor nach links" data-tip="Cursor ein Zeichen nach links">${icon("left")}</button>
+                <button data-action="right" aria-label="Cursor nach rechts" data-tip="Cursor ein Zeichen nach rechts">${icon("right")}</button>
             </div>
             <div class="jp-keybar-main">
             <div class="jp-keybar-scroll">
-                ${KEYS.map((k, i) => `<button data-key="${i}" ${k.aria ? `aria-label="${k.aria}"` : ""}>${k.label}</button>`).join("")}
+                ${KEYS.map((k, i) => `<button data-key="${i}" ${k.aria ? `aria-label="${k.aria}"` : ""} ${k.tip ? `data-tip="${k.tip.replace(/"/g, "&quot;")}"` : ""}>${k.label}</button>`).join("")}
             </div>
             <div class="jp-keybar-fixed is-right">
-                <button data-action="breakpoint" aria-label="Haltepunkt in dieser Zeile setzen oder entfernen" class="jp-key-breakpoint">${icon("breakpoint")}</button>
-                <button data-action="complete" aria-label="Vorschläge anzeigen" class="jp-key-accent">${icon("lightbulb")}</button>
-                <button data-action="info" aria-label="Info zur Stelle am Cursor">${icon("info")}</button>
-                <button data-action="hide" aria-label="Tastatur ausblenden">${icon("keyboardDown")}</button>
+                <button data-action="breakpoint" aria-label="Haltepunkt in dieser Zeile setzen oder entfernen" data-tip="Haltepunkt in dieser Zeile setzen oder entfernen – das Programm hält vor der Zeile an" class="jp-key-breakpoint">${icon("breakpoint")}</button>
+                <button data-action="info" aria-label="Info zur Stelle am Cursor" data-tip="Info zu dem Namen, auf dem der Cursor steht">${icon("info")}</button>
+                <button data-action="hide" aria-label="Tastatur ausblenden" data-tip="Bildschirmtastatur ausblenden">${icon("keyboardDown")}</button>
             </div>
             </div>`;
         root.appendChild(this.el);
@@ -191,7 +190,6 @@ export class KeyBar {
         switch (action) {
             case "left": this.editor.moveCursor(-1); break;
             case "right": this.editor.moveCursor(1); break;
-            case "complete": this.editor.startCompletion(); break;
             case "info": this.showInfo(await this.bridge.hover(this.editor.getCursorOffset())); break;
             case "hide": this.editor.view.contentDOM.blur(); break;
             case "breakpoint": this.editor.onToggleBreakpoint?.(this.editor.getCursorLine()); break;
