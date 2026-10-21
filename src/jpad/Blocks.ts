@@ -376,17 +376,23 @@ function prepareMemberLine(view: EditorView, where: "attributes" | "end"): Class
     const classLine = state.doc.lineAt(target.start);
     const indent = /^\s*/.exec(classLine.text)![0] + state.facet(indentUnit);
 
+    // Leerzeile vor dem neuen Mitglied, außer direkt nach „{“ oder einer Leerzeile
+    const gap = (lineEnd: number) => {
+        const t = state.doc.lineAt(lineEnd).text.trim();
+        return t == "" || t.endsWith("{") ? "" : "\n";
+    };
+
     if (where == "attributes") {
         const attrs = attributesOf(code, target);
         const after = attrs.length ? attrs[attrs.length - 1].lineEnd : state.doc.lineAt(target.open).to;
-        const insert = "\n" + indent;
+        const insert = (attrs.length ? "\n" : "") + "\n" + indent;
         view.dispatch({ changes: { from: after, insert }, selection: EditorSelection.cursor(after + insert.length), scrollIntoView: true });
         return target;
     }
     const closeLine = state.doc.lineAt(target.close);
     if (state.sliceDoc(closeLine.from, target.close).trim() == "") {
-        const insert = indent + "\n";
-        view.dispatch({ changes: { from: closeLine.from, insert }, selection: EditorSelection.cursor(closeLine.from + indent.length), scrollIntoView: true });
+        const insert = (closeLine.number > 1 ? gap(closeLine.from - 1) : "") + indent + "\n";
+        view.dispatch({ changes: { from: closeLine.from, insert }, selection: EditorSelection.cursor(closeLine.from + insert.length - 1), scrollIntoView: true });
     } else {
         const insert = "\n" + indent + "\n" + /^\s*/.exec(classLine.text)![0];
         view.dispatch({ changes: { from: target.close, insert }, selection: EditorSelection.cursor(target.close + 1 + indent.length), scrollIntoView: true });
