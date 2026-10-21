@@ -400,7 +400,7 @@ export class App {
          * JPadBlox: drei Spalten (Bausteine | Editor | Ansicht rechts), jede mit Vergrößern-Knopf.
          *   default  12,5 %| 67,5 %| 20 %    (Bausteine und Ansicht rechts schmal)
          *   blocks   25 %  | 55 %  | 20 %    (Vergrößern bei den Bausteinen)
-         *   code      –    | 65 %  | 35 %    (1. Tipp auf Vergrößern beim Editor)
+         *   code     25 %  | 75 %  | –       (1. Tipp auf Vergrößern beim Editor: Bausteine breit, Ansicht rechts weg)
          *   full      –    | 100 % | –       (2. Tipp; Ausgabe usw. als Reiter unten wie in JPad)
          *   info      –    | 35 %  | 65 %    (Vergrößern bei der Ansicht rechts)
          * Jeder Verkleinern-Knopf führt zurück zu „default“.
@@ -418,9 +418,9 @@ export class App {
             this.root.dataset.wide = String(mq.matches);
             this.root.dataset.cols = cols;
             this.root.dataset.layout = mq.matches && cols != "full" ? "split" : "tabs";
-            setBtn(this.el.blocksLayoutBtn, cols == "blocks", "Bausteine breiter anzeigen");
+            setBtn(this.el.blocksLayoutBtn, cols == "blocks" || cols == "code", "Bausteine breiter anzeigen");
             setBtn(this.el.layoutBtn, cols == "full",
-                cols == "code" ? "Editor auf volle Breite vergrößern" : "Editor vergrößern (Bausteine ausblenden)");
+                cols == "code" ? "Editor auf volle Breite vergrößern" : "Editor vergrößern (Ansicht rechts ausblenden, Bausteine breit)");
             setBtn(this.el.sideLayoutBtn, cols == "info", "Ansicht rechts vergrößern (Bausteine ausblenden)");
             this.setView(this.view);
             this.alignBulbSoon();
@@ -430,7 +430,7 @@ export class App {
             btn.addEventListener("pointerdown", e => e.preventDefault()); // Tastatur offen lassen
             btn.addEventListener("click", () => { this.setCols(next()); applyLayout(); });
         };
-        layoutButton(this.el.blocksLayoutBtn, () => this.getCols() == "blocks" ? "default" : "blocks");
+        layoutButton(this.el.blocksLayoutBtn, () => { const c = this.getCols(); return c == "blocks" || c == "code" ? "default" : "blocks"; });
         layoutButton(this.el.layoutBtn, () => {
             const c = this.getCols();
             return c == "code" ? "full" : c == "full" ? "default" : "code";
@@ -665,7 +665,7 @@ export class App {
         this.root.dataset.view = view;
         this.root.dataset.side = this.sideView;
         const diagramVisible = this.sideView == "diagram" &&
-            (this.root.dataset.layout == "split" || view == "diagram");
+            (this.root.dataset.layout == "split" ? this.root.dataset.cols != "code" : view == "diagram");
         this.diagram?.setVisible(diagramVisible);
         this.root.querySelectorAll<HTMLElement>(".jp-bottomnav [data-view]").forEach(b =>
             b.setAttribute("aria-current", String(b.dataset.view == view)));
