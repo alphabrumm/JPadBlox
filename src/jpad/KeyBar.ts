@@ -143,7 +143,7 @@ export class KeyBar {
             let lastOffset = -1, lastOpen: boolean | null = null, lastTouch = 0, timer: any;
             const simple = simpleKeyboardMode();
             document.documentElement.classList.toggle("kb-simple", simple);
-            const update = () => {
+            const update = (force = false) => {
                 clearTimeout(timer);
                 const offset = Math.max(0, Math.round(window.innerHeight - (vv.height + vv.offsetTop)));
                 const open = offset > 80;
@@ -161,9 +161,9 @@ export class KeyBar {
                     this.editor.view.requestMeasure();
                     return;
                 }
-                if (open === lastOpen && Math.abs(offset - lastOffset) < 2) return;
+                if (!force && open === lastOpen && Math.abs(offset - lastOffset) < 2) return;
                 const quiet = Date.now() - lastTouch;
-                if (open === lastOpen && quiet < 700) { timer = setTimeout(update, 700 - quiet); return; }
+                if (!force && open === lastOpen && quiet < 700) { timer = setTimeout(update, 700 - quiet); return; }
                 lastOffset = offset; lastOpen = open;
                 document.documentElement.style.setProperty("--keyboard-offset", offset + "px");
                 document.documentElement.classList.toggle("keyboard-open", open);
@@ -171,9 +171,27 @@ export class KeyBar {
             const touched = () => { lastTouch = Date.now(); };
             document.addEventListener("touchstart", touched, { capture: true, passive: true });
             document.addEventListener("touchend", touched, { capture: true, passive: true });
-            vv.addEventListener("resize", update);
-            vv.addEventListener("scroll", update);
+            vv.addEventListener("resize", () => update());
+            vv.addEventListener("scroll", () => update());
             update();
+
+            /*
+             * Tippt man bei ausgeblendeter Tastatur in die untere Hälfte des Codes, schiebt iOS während
+             * der Tastatur-Animation den sichtbaren Bereich hin und her; die dabei gemessene Höhe stimmt
+             * oft nicht. Deshalb 2 s nach dem Tipp (Animation fertig) die nutzbare Höhe noch einmal
+             * abfragen, das Layout neu setzen und den Cursor in den sichtbaren Bereich holen.
+             */
+            let lateTimer: any;
+            this.editor.view.dom.addEventListener("touchstart", e => {
+                if (e.touches.length != 1 || document.documentElement.classList.contains("keyboard-open")) return;
+                if (e.touches[0].clientY < window.innerHeight / 2) return;
+                clearTimeout(lateTimer);
+                lateTimer = setTimeout(() => {
+                    if (!this.editor.view.hasFocus) return;
+                    update(true);
+                    this.editor.revealCursor();
+                }, 2000);
+            }, { capture: true, passive: true });
         }
     }
 

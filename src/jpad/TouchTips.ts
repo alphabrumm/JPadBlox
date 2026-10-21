@@ -200,7 +200,8 @@ function inline(t: string): string {
     return esc(t).replace(/`([^`]+)`/g, (_, c) => `<code>${c}</code>`).replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
 }
 
-const KEYWORDS = /^(?:public|private|protected|class|void|int|double|boolean|char|String|new|if|else|while|for|return|true|false|null|static|this)$/;
+const KEYWORDS = /^(?:public|private|protected|class|void|new|if|else|while|for|return|true|false|null|static|this)$/;
+const TYPES = /^(?:Integer|Double|Boolean|Character|String)$/;
 
 /** Kleine Syntax-Hervorhebung für die Beispiele (Farben wie im Editor) */
 function highlight(code: string): string {
@@ -213,6 +214,7 @@ function highlight(code: string): string {
         else if (m[2] || m[3]) out += `<span class="tk-string">${esc(t)}</span>`;
         else if (m[4]) out += `<span class="tk-number">${esc(t)}</span>`;
         else if (KEYWORDS.test(t)) out += `<span class="tk-keyword">${esc(t)}</span>`;
+        else if (TYPES.test(t)) out += `<span class="tk-type">${esc(t)}</span>`;
         else if (code[re.lastIndex] == "(") out += `<span class="tk-method">${esc(t)}</span>`;
         else out += esc(t);
         last = re.lastIndex;

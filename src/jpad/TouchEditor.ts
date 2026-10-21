@@ -509,6 +509,12 @@ export class TouchEditor {
         });
     }
 
+    /** Cursor in den sichtbaren Bereich holen (nach einer Änderung der verfügbaren Höhe) */
+    revealCursor() {
+        this.view.requestMeasure();
+        this.view.dispatch({ effects: EditorView.scrollIntoView(this.view.state.selection.main.head, { y: "nearest", yMargin: 40 }) });
+    }
+
     // ----- Befehle für Symbolleisten -----
 
     focus() { this.view.focus(); }

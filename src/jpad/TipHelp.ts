@@ -31,8 +31,8 @@ export const HELP: Record<string, Help> = {
         title: "{ }", kind: "Block", code: true,
         text: "Geschweifte Klammern fassen mehrere Anweisungen zu einem Block zusammen: den Rumpf einer Klasse, einer Methode, einer Verzweigung oder einer Schleife.",
         examples: [
-            { caption: "Einfaches Beispiel", code: "public class Auto {\n    int tankinhalt;\n}" },
-            { caption: "Etwas anspruchsvoller", code: "void tanken(int liter) {\n    if (liter > 0) {\n        tankinhalt = tankinhalt + liter;\n    }\n}" }
+            { caption: "Einfaches Beispiel", code: "public class Auto {\n    Integer tankinhalt;\n}" },
+            { caption: "Etwas anspruchsvoller", code: "void tanken(Integer liter) {\n    if (liter > 0) {\n        tankinhalt = tankinhalt + liter;\n    }\n}" }
         ],
         warn: "Zu jeder `{` gehört genau eine `}`. Fehlt eine, meldet der Compiler den Fehler oft erst ganz am Ende der Datei – also dort suchen, wo der Block eigentlich enden sollte."
     },
@@ -41,21 +41,21 @@ export const HELP: Record<string, Help> = {
         text: "Runde Klammern umschließen die Parameter einer Methode und die Bedingung bei `if` und `while`. In Rechnungen legen sie fest, was zuerst gerechnet wird.",
         examples: [
             { caption: "Methodenaufruf und Bedingung", code: "auto.tanken(20);\nif (tankinhalt < 5) { ... }" },
-            { caption: "Rechenreihenfolge", code: "int mittel = (a + b) / 2;" }
+            { caption: "Rechenreihenfolge", code: "Integer mittel = (a + b) / 2;" }
         ],
         warn: "Auch eine Methode ohne Parameter braucht beim Aufruf die Klammern: `auto.hupen();` – ohne `()` erkennt Java keinen Methodenaufruf."
     },
     semicolon: {
         title: ";", kind: "Satzzeichen", code: true,
         text: "Der Strichpunkt beendet eine Anweisung – so wie der Punkt einen Satz.",
-        examples: [{ caption: "Jede Anweisung endet mit ;", code: "int zaehler = 0;\nzaehler++;\nSystem.out.println(zaehler);" }],
+        examples: [{ caption: "Jede Anweisung endet mit ;", code: "Integer zaehler = 0;\nzaehler++;\nSystem.out.println(zaehler);" }],
         warn: "Kein Strichpunkt nach `if (…)`, `while (…)`, einem Methodenkopf oder `class …`! `if (x > 0); { … }` führt den Block **immer** aus, weil das `if` schon am Strichpunkt endet."
     },
     assign: {
         title: "=", kind: "Zuweisung", code: true,
         text: "Speichert den Wert rechts in der Variablen links. Gelesen wird von rechts nach links: „alter bekommt den Wert 15“.",
         examples: [
-            { caption: "Einfaches Beispiel", code: "int alter = 15;" },
+            { caption: "Einfaches Beispiel", code: "Integer alter = 15;" },
             { caption: "Alter Wert wird überschrieben", code: "alter = alter + 1;   // jetzt 16" }
         ],
         warn: "`=` ist **kein** Vergleich! Ob zwei Werte gleich sind, prüft `==`. Also `if (alter == 18)`, nicht `if (alter = 18)`."
@@ -67,14 +67,14 @@ export const HELP: Record<string, Help> = {
             { caption: "Einfaches Beispiel", code: "String name = \"Anna\";" },
             { caption: "Text und Wert verbinden", code: "System.out.println(\"Hallo \" + name + \"!\");" }
         ],
-        warn: "`\"name\"` ist der Text name, `name` ist die Variable. Ein einzelnes Zeichen (char) steht in einfachen Hochkommas: `'a'`."
+        warn: "`\"name\"` ist der Text name, `name` ist die Variable. Ein einzelnes Zeichen (Character) steht in einfachen Hochkommas: `'a'`."
     },
     dot: {
         title: ".", kind: "Punktnotation", code: true,
         text: "Mit dem Punkt sprichst du ein Objekt an: Du rufst eine seiner Methoden auf oder greifst auf ein Attribut zu. Links steht das Objekt, rechts, was es tun soll.",
         examples: [
             { caption: "Methode aufrufen", code: "Auto meinAuto = new Auto();\nmeinAuto.fahren(10);" },
-            { caption: "Kommazahl", code: "double preis = 1.99;   // Punkt statt Komma!" }
+            { caption: "Kommazahl", code: "Double preis = 1.99;   // Punkt statt Komma!" }
         ],
         warn: "Links vom Punkt muss ein **Objekt** stehen. Ist die Variable noch `null` (kein `new`), stürzt das Programm mit einer NullPointerException ab. Kommazahlen schreibt Java mit Punkt: `1.99`, nicht `1,99`."
     },
@@ -82,8 +82,8 @@ export const HELP: Record<string, Help> = {
         title: "[ ]", kind: "Array", code: true,
         text: "Eckige Klammern gehören zu Arrays (Feldern): Sie legen ein Array an und wählen über den Index ein Element aus.",
         examples: [
-            { caption: "Array anlegen und füllen", code: "int[] noten = new int[3];\nnoten[0] = 2;\nnoten[2] = 1;" },
-            { caption: "Alle Elemente durchgehen", code: "for (int i = 0; i < noten.length; i++) {\n    System.out.println(noten[i]);\n}" }
+            { caption: "Array anlegen und füllen", code: "Integer[] noten = new Integer[3];\nnoten[0] = 2;\nnoten[1] = 3;\nnoten[2] = 1;" },
+            { caption: "Alle Elemente durchgehen", code: "for (Integer i = 0; i < noten.length; i++) {\n    System.out.println(noten[i]);\n}" }
         ],
         warn: "Der Index beginnt bei **0**. Ein Array mit 3 Elementen hat die Indizes 0, 1, 2 – `noten[3]` gibt es nicht (ArrayIndexOutOfBoundsException)."
     },
@@ -109,7 +109,7 @@ export const HELP: Record<string, Help> = {
         title: "+", kind: "Rechnen und Text", code: true,
         text: "Addiert Zahlen. Steht ein Text (String) daneben, hängt `+` die Werte stattdessen aneinander.",
         examples: [
-            { caption: "Rechnen", code: "int summe = a + b;" },
+            { caption: "Rechnen", code: "Integer summe = a + b;" },
             { caption: "Text verketten", code: "System.out.println(\"Summe: \" + summe);" }
         ],
         warn: "`\"Summe: \" + 2 + 3` ergibt **\"Summe: 23\"**, weil von links gearbeitet wird und schon Text dasteht. Richtig: `\"Summe: \" + (2 + 3)`."
@@ -119,7 +119,7 @@ export const HELP: Record<string, Help> = {
         text: "Subtrahiert Zahlen oder macht eine Zahl negativ.",
         examples: [
             { caption: "Einfaches Beispiel", code: "kontostand = kontostand - betrag;" },
-            { caption: "Negative Zahl", code: "int temperatur = -5;" }
+            { caption: "Negative Zahl", code: "Integer temperatur = -5;" }
         ],
         warn: "Es wird von links nach rechts gerechnet: `10 - 4 - 2` ist 4, nicht 8. Im Zweifel Klammern setzen."
     },
@@ -127,8 +127,8 @@ export const HELP: Record<string, Help> = {
         title: "*", kind: "Rechnen", code: true,
         text: "Multipliziert zwei Zahlen. Wie in Mathe gilt Punkt vor Strich.",
         examples: [
-            { caption: "Einfaches Beispiel", code: "double preis = anzahl * 1.99;" },
-            { caption: "Punkt vor Strich", code: "int x = 2 + 3 * 4;     // 14\nint y = (2 + 3) * 4;   // 20" }
+            { caption: "Einfaches Beispiel", code: "Double preis = anzahl * 1.99;" },
+            { caption: "Punkt vor Strich", code: "Integer x = 2 + 3 * 4;     // 14\nInteger y = (2 + 3) * 4;   // 20" }
         ],
         warn: "Den Malpunkt darf man nicht weglassen: `2x` versteht Java nicht, richtig ist `2 * x`."
     },
@@ -136,16 +136,16 @@ export const HELP: Record<string, Help> = {
         title: "/", kind: "Rechnen", code: true,
         text: "Teilt zwei Zahlen.",
         examples: [
-            { caption: "Kommazahlen", code: "double mittel = 7.0 / 2;   // 3.5" },
-            { caption: "Ganze Zahlen", code: "int teams = 25 / 4;   // 6" }
+            { caption: "Kommazahlen", code: "Double mittel = 7.0 / 2;   // 3.5" },
+            { caption: "Ganze Zahlen", code: "Integer teams = 25 / 4;   // 6" }
         ],
-        warn: "Sind beide Zahlen ganze Zahlen (int), schneidet Java den Rest ab: `7 / 2` ist **3**, nicht 3.5! Schreibe `7.0 / 2`, wenn du Kommastellen willst. Den Rest liefert `%`."
+        warn: "Sind beide Zahlen ganze Zahlen (Integer), schneidet Java den Rest ab: `7 / 2` ist **3**, nicht 3.5! Schreibe `7.0 / 2`, wenn du Kommastellen willst. Den Rest liefert `%`."
     },
     modulo: {
         title: "%", kind: "Rest der Division (Modulo)", code: true,
         text: "Liefert den Rest, der beim ganzzahligen Teilen übrig bleibt. Damit prüft man z. B., ob eine Zahl gerade ist oder durch etwas teilbar ist.",
         examples: [
-            { caption: "Einfaches Beispiel", code: "int rest = 17 % 5;   // 2, denn 17 = 3·5 + 2" },
+            { caption: "Einfaches Beispiel", code: "Integer rest = 17 % 5;   // 2, denn 17 = 3·5 + 2" },
             { caption: "Gerade oder ungerade?", code: "if (zahl % 2 == 0) {\n    System.out.println(\"gerade\");\n}" }
         ],
         warn: "`%` hat in Java nichts mit Prozent zu tun! `20 % 3` ist 2 (der Rest), nicht „20 Prozent von 3“."
@@ -191,7 +191,7 @@ export const HELP: Record<string, Help> = {
         text: "Erhöht eine Zahl-Variable um 1. `i++` ist die Kurzform von `i = i + 1`.",
         examples: [
             { caption: "Einfaches Beispiel", code: "zaehler++;" },
-            { caption: "In der for-Schleife", code: "for (int i = 0; i < 5; i++) {\n    System.out.println(i);\n}" }
+            { caption: "In der for-Schleife", code: "for (Integer i = 0; i < 5; i++) {\n    System.out.println(i);\n}" }
         ],
         warn: "Nicht `i = i++;` schreiben – dann bleibt `i` unverändert! Entweder `i++;` oder `i = i + 1;`."
     },
@@ -216,7 +216,7 @@ export const HELP: Record<string, Help> = {
             "Sieh dir in der Ansicht „Variablen“ die Werte an. Mit „Schritt“ geht es Zeile für Zeile weiter, mit ▶ bis zum nächsten Haltepunkt.",
             "Nochmals auf den Haltepunkt-Button tippen entfernt ihn wieder."
         ],
-        examples: [{ caption: "Haltepunkt in einer Schleife: hält in jeder Runde", code: "for (int i = 0; i < 10; i++) {\n    summe = summe + i;   // ← Haltepunkt hier\n}" }]
+        examples: [{ caption: "Haltepunkt in einer Schleife: hält in jeder Runde", code: "for (Integer i = 0; i < 10; i++) {\n    summe = summe + i;   // ← Haltepunkt hier\n}" }]
     },
 
     // ------------------------------------------------------------ Kopfzeile: Ausführen

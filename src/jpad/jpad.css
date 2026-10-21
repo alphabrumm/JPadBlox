@@ -196,7 +196,7 @@ button:focus-visible, input:focus-visible, a:focus-visible {
 .jp-app.is-unsaved .jp-project-state { color: var(--warn); }
 
 /* Glühbirne neben dem Projektnamen: Hinweis auf die Tooltips (langes Drücken).
-   Hell: gelb gefüllt, Symbol dunkel. Dunkel: ohne Füllung, Rand und Symbol im Gelb des Start-Knopfs. */
+   Hell: gelb gefüllt, Symbol dunkel. Dunkel: ohne Füllung und ohne Rand, Symbol im Gelb des Start-Knopfs. */
 .jp-bulb {
     flex: none;
     width: 38px;
@@ -208,7 +208,7 @@ button:focus-visible, input:focus-visible, a:focus-visible {
 }
 .jp-bulb .jp-icon { width: 21px; height: 21px; }
 .jp-bulb:active { background: var(--marker); filter: brightness(0.94); }
-:root[data-effective="dark"] .jp-bulb { background: transparent; color: var(--marker); }
+:root[data-effective="dark"] .jp-bulb { background: transparent; border-color: transparent; color: var(--marker); }
 :root[data-effective="dark"] .jp-bulb:active { background: var(--marker-soft); filter: none; }
 @media (hover: hover) {
     .jp-bulb:hover { background: var(--marker); filter: brightness(0.96); }
@@ -279,6 +279,7 @@ html.phone .jp-bulb { display: none; }
 .jp-tip-code .tk-number { color: var(--syn-number); }
 .jp-tip-code .tk-comment { color: var(--syn-comment); font-style: italic; }
 .jp-tip-code .tk-method { color: var(--syn-method); }
+.jp-tip-code .tk-type { color: var(--syn-type); }
 .jp-tip-warn {
     margin: 10px 6px 0 0;
     padding: 7px 10px;
@@ -312,7 +313,7 @@ html.phone .jp-bulb { display: none; }
     color: var(--marker-ink);
 }
 .jp-tip-info-icon .jp-icon { width: 20px; height: 20px; }
-:root[data-effective="dark"] .jp-tip-info-icon { background: transparent; color: var(--marker); }
+:root[data-effective="dark"] .jp-tip-info-icon { background: transparent; border-color: transparent; color: var(--marker); }
 
 .jp-dot {
     position: absolute;
