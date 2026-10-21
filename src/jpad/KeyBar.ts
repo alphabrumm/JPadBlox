@@ -176,7 +176,7 @@ export class KeyBar {
             update();
 
             /*
-             * Tippt man bei ausgeblendeter Tastatur in die untere Hälfte des Codes, schiebt iOS während
+             * Tippt man bei ausgeblendeter Tastatur in die unteren 60 % des Fensters, schiebt iOS während
              * der Tastatur-Animation den sichtbaren Bereich hin und her; die dabei gemessene Höhe stimmt
              * oft nicht, und die ganze Seite bleibt nach oben verschoben (Kopfzeile weg, Hilfsleiste unter
              * der Tastatur). Deshalb 0,5 s nach dem Tipp (Animation fertig) die Seite nach oben zurückscrollen,
@@ -199,7 +199,7 @@ export class KeyBar {
             };
             this.editor.view.dom.addEventListener("touchstart", e => {
                 if (e.touches.length != 1 || document.documentElement.classList.contains("keyboard-open")) return;
-                if (e.touches[0].clientY < window.innerHeight / 2) return;
+                if (e.touches[0].clientY < window.innerHeight * 0.4) return; // untere 60 % des Fensters
                 clearTimeout(lateTimer);
                 lateTimer = setTimeout(() => {
                     // 1. Den von iOS nach oben geschobenen Ausschnitt zurück an den Seitenanfang
