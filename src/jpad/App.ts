@@ -833,7 +833,10 @@ export class App {
             const r = await this.bridge.formatChanges();
             const view = this.editor.view;
             if (!r || view.state.doc.toString() != r.text) return;   // inzwischen weitergetippt
-            view.dispatch({ changes: r.changes, userEvent: "input.format" });
+            // Der Formatierer hängt manchmal Leerzeichen ans Zeilenende (z. B. hinter „;“ am Dateiende) – weglassen
+            const changes = r.changes.filter(c => !(c.from == c.to && /^[ \t]+$/.test(c.insert) &&
+                (c.to == r.text.length || r.text[c.to] == "\n")));
+            if (changes.length) view.dispatch({ changes, userEvent: "input.format" });
         } catch (e) {
             console.warn("JPadBlox: Formatieren nach Baustein fehlgeschlagen", e);
         }
