@@ -1993,11 +1993,12 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 /* ---------- JPadBlox: moderne Formvorschläge für die Bausteine ----------
    Nur aktiv mit data-block-style="modern" (BLOCK_STYLE in Blocks.ts); "classic" ist der bisherige Stil.
    Gemeinsam: Schrift der Oberfläche statt Code-Schrift, größere Rundung, kein Rand links,
-   beim Antippen kurzes Zusammenziehen; Form „Tonal“ in allen drei Kategorien. */
+   beim Antippen kurzes Zusammenziehen; Form „Tonal“ in allen drei Kategorien, spitze Ecken,
+   dünne Linie oben und unten in der Schriftfarbe. */
 :root[data-block-style="modern"] :is(.jp-blockpanel, .jp-keybar) button.jp-block {
     --g-deep: color-mix(in srgb, var(--g) 72%, #000);
     border-left: 0;
-    border-radius: 14px;
+    border-radius: 0;
     font-family: var(--font-ui);
     font-size: 15px;
     font-weight: 700;
@@ -2017,7 +2018,8 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 :root[data-block-style="modern"] :is(.jp-blockpanel, .jp-keybar) button.jp-block {
     background: color-mix(in srgb, var(--g) 22%, var(--surface));
     color: var(--g-deep);
-    box-shadow: none;
+    /* Akzent: dünne Linie oben und unten in der Schriftfarbe */
+    box-shadow: inset 0 1.5px 0 var(--g-deep), inset 0 -1.5px 0 var(--g-deep);
 }
 :root[data-block-style="modern"] :is(.jp-blockpanel, .jp-keybar) button.jp-block:is(:active, .is-pressed) {
     background: color-mix(in srgb, var(--g) 36%, var(--surface));

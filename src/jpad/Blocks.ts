@@ -44,7 +44,7 @@ export type Block = {
     tpl: string;
     kind: BlockKind;
     tip: string;
-    /** steht in der eingeklappten Kategorie „Mehr Blöcke…“ (Farbe bleibt die der eigenen Gruppe) */
+    /** steht in der eingeklappten Kategorie „Mehr Bausteine…“ (Farbe bleibt die der eigenen Gruppe) */
     more?: boolean;
 };
 
@@ -810,7 +810,7 @@ function chipHtml(b: Block, i: number): string {
     return `<button class="jp-block" data-block="${i}" data-group="${b.group}" data-tip="${blockTip(b).replace(/"/g, "&quot;")}">${b.label.replace(/</g, "&lt;")}</button>`;
 }
 
-/** Senkrechte Bausteinleiste (linke Spalte im Querformat), nach Gruppen geordnet; ganz unten „Mehr Blöcke…“ (eingeklappt) */
+/** Senkrechte Bausteinleiste (linke Spalte im Querformat), nach Gruppen geordnet; ganz unten „Mehr Bausteine…“ (eingeklappt) */
 export function blockPanelHtml(): string {
     const groups = Object.keys(GROUP_NAMES) as BlockGroup[];
     const items = (pred: (b: Block) => boolean) => BLOCKS.map((b, i) => pred(b) ? chipHtml(b, i) : "").join("");
@@ -821,7 +821,7 @@ export function blockPanelHtml(): string {
         </section>`).join("") + `
         <section class="jp-blockgroup jp-blockgroup-more" data-open="${moreOpen()}">
             <button class="jp-more-toggle" type="button" aria-expanded="${moreOpen()}" data-tip="Weitere Bausteine ein- oder ausklappen">
-                <span class="jp-more-chevron" aria-hidden="true">›</span>Mehr Blöcke…
+                <span class="jp-more-chevron" aria-hidden="true">›</span>Mehr Bausteine…
             </button>
             <div class="jp-blockgroup-items">${items(b => !!b.more)}</div>
         </section>`;
