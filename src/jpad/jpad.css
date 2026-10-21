@@ -1993,7 +1993,7 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 /* ---------- JPadBlox: moderne Formvorschläge für die Bausteine ----------
    Nur aktiv mit data-block-style="modern" (BLOCK_STYLE in Blocks.ts); "classic" ist der bisherige Stil.
    Gemeinsam: Schrift der Oberfläche statt Code-Schrift, größere Rundung, kein Rand links,
-   beim Antippen kurzes Zusammenziehen. Klassen: „Verlauf“, Ablauf: „Glas“, Daten: „Tonal“. */
+   beim Antippen kurzes Zusammenziehen; Form „Tonal“ in allen drei Kategorien. */
 :root[data-block-style="modern"] :is(.jp-blockpanel, .jp-keybar) button.jp-block {
     --g-deep: color-mix(in srgb, var(--g) 72%, #000);
     border-left: 0;
@@ -2012,44 +2012,14 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
     transform: scale(.95);
 }
 
-/* A – Verlauf: kräftiger Farbverlauf mit weißer Schrift und farbigem Schimmer darunter */
-:root[data-block-style="modern"] :is(.jp-blockpanel, .jp-keybar) button.jp-block[data-group="klasse"] {
-    background: linear-gradient(135deg, color-mix(in srgb, var(--g) 85%, #fff) 0%, var(--g) 55%, color-mix(in srgb, var(--g) 80%, #7c3aed) 100%);
-    color: #fff;
-    box-shadow: 0 6px 14px -8px color-mix(in srgb, var(--g) 90%, transparent), inset 0 1px 0 color-mix(in srgb, #fff 35%, transparent);
-}
-:root[data-block-style="modern"] :is(.jp-blockpanel, .jp-keybar) button.jp-block[data-group="klasse"]:is(:active, .is-pressed) {
-    background: linear-gradient(135deg, var(--g), color-mix(in srgb, var(--g) 80%, #7c3aed));
-    color: #fff;
-    box-shadow: 0 2px 6px -4px color-mix(in srgb, var(--g) 90%, transparent);
-}
-
-/* B – Glas: durchscheinende Fläche mit Unschärfe, feine helle Oberkante, farbige Schrift */
-:root[data-block-style="modern"] :is(.jp-blockpanel, .jp-keybar) button.jp-block[data-group="ablauf"] {
-    background: linear-gradient(180deg, color-mix(in srgb, var(--g) 10%, transparent), color-mix(in srgb, var(--g) 20%, transparent));
-    -webkit-backdrop-filter: blur(10px) saturate(1.4);
-    backdrop-filter: blur(10px) saturate(1.4);
-    color: var(--g-deep);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--g) 30%, transparent),
-        inset 0 1px 0 color-mix(in srgb, #fff 70%, transparent),
-        0 4px 12px -8px color-mix(in srgb, var(--g) 70%, transparent);
-}
-:root[data-effective="dark"][data-block-style="modern"] :is(.jp-blockpanel, .jp-keybar) button.jp-block[data-group="ablauf"] {
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--g) 35%, transparent),
-        inset 0 1px 0 color-mix(in srgb, #fff 12%, transparent);
-}
-:root[data-block-style="modern"] :is(.jp-blockpanel, .jp-keybar) button.jp-block[data-group="ablauf"]:is(:active, .is-pressed) {
-    background: color-mix(in srgb, var(--g) 32%, transparent);
-    color: var(--g-deep);
-}
-
-/* C – Tonal: einfarbige, satte Pastellfläche ohne Rand und Schatten, Schrift im dunklen Ton derselben Farbe */
-:root[data-block-style="modern"] :is(.jp-blockpanel, .jp-keybar) button.jp-block[data-group="daten"] {
+/* Tonal (für alle Kategorien): einfarbige, satte Pastellfläche ohne Rand und Schatten,
+   Schrift im dunklen Ton derselben Farbe */
+:root[data-block-style="modern"] :is(.jp-blockpanel, .jp-keybar) button.jp-block {
     background: color-mix(in srgb, var(--g) 22%, var(--surface));
     color: var(--g-deep);
     box-shadow: none;
 }
-:root[data-block-style="modern"] :is(.jp-blockpanel, .jp-keybar) button.jp-block[data-group="daten"]:is(:active, .is-pressed) {
+:root[data-block-style="modern"] :is(.jp-blockpanel, .jp-keybar) button.jp-block:is(:active, .is-pressed) {
     background: color-mix(in srgb, var(--g) 36%, var(--surface));
     color: var(--g-deep);
 }
