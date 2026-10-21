@@ -1842,7 +1842,7 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 .jp-pane-blocks { display: none; }
 .jp-app[data-layout="split"] .jp-pane-blocks { display: flex; }
 .jp-app[data-layout="split"][data-cols="default"] .jp-main {
-    grid-template-columns: minmax(0, 15fr) minmax(0, 55fr) minmax(0, 30fr);
+    grid-template-columns: minmax(0, 25fr) minmax(0, 45fr) minmax(0, 30fr);
 }
 .jp-app[data-layout="split"][data-cols="blocks"] .jp-main { grid-template-columns: minmax(0, 25fr) minmax(0, 75fr); }
 .jp-app[data-layout="split"][data-cols="blocks"] .jp-pane-side { display: none; }
@@ -1966,3 +1966,22 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 .jp-keybar .jp-key-line .jp-ic-minus { stroke: var(--danger); }
 .jp-keybar .jp-key-nav:active, .jp-keybar .jp-key-nav.is-pressed,
 .jp-keybar .jp-key-line:active .jp-icon path, .jp-keybar .jp-key-line.is-pressed .jp-icon path { stroke: var(--accent-ink); }
+
+/* ---------- JPadBlox: Farbgebung der Bausteine ----------
+   „solid“ (Standard): Füllung in der Gruppenfarbe, Schrift und linker Rand in der hellen Tönung.
+   „tint“ (bis 21.10.2026): helle Tönung als Füllung, Schrift und linker Rand in der Gruppenfarbe.
+   Umschalten: BLOCK_COLORS in Blocks.ts. Die Regeln für „tint“ stehen weiter oben und gelten ohne Zusatz. */
+:root[data-block-colors="solid"] .jp-keybar button.jp-block,
+:root[data-block-colors="solid"] .jp-blockpanel button.jp-block {
+    background: var(--g);
+    color: color-mix(in srgb, var(--g) 14%, var(--surface));
+    border-left-color: color-mix(in srgb, var(--g) 14%, var(--surface));
+}
+:root[data-block-colors="solid"] .jp-keybar button.jp-block:active,
+:root[data-block-colors="solid"] .jp-keybar button.jp-block.is-pressed,
+:root[data-block-colors="solid"] .jp-blockpanel button.jp-block:active,
+:root[data-block-colors="solid"] .jp-blockpanel button.jp-block.is-pressed {
+    background: color-mix(in srgb, var(--g) 14%, var(--surface));
+    color: var(--g);
+    border-left-color: var(--g);
+}

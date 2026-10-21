@@ -62,14 +62,12 @@ export const BLOCKS: Block[] = [
         tip: "Attribut anlegen: Datentyp und Name auswählen. Es landet an der Cursorstelle, wenn sie direkt im Klassenrumpf liegt, sonst unter den Attributen der obersten Klasse" },
     { group: "klasse", label: "Konstruktor", kind: "constructor", tpl: "@KLASSE(${}) {\n\t§\n}",
         tip: "Konstruktor passend zu den Attributen der Klasse: Für jedes Attribut gibt es einen Parameter, der im Rumpf mit this.… = … übernommen wird" },
+    { group: "klasse", label: "Methode", kind: "method", tpl: "",
+        tip: "Neue Methode: Name, Rückgabetyp (oder void) und Parameter im Dialog festlegen" },
     { group: "klasse", label: "Getter", kind: "getter", tpl: "",
         tip: "Getter-Methoden: Du wählst die Attribute aus, für die eine Methode get…() ergänzt wird, die den Wert zurückgibt" },
     { group: "klasse", label: "Setter", kind: "setter", tpl: "",
         tip: "Setter-Methoden: Du wählst die Attribute aus, für die eine Methode set…(…) ergänzt wird, die den Wert setzt" },
-    { group: "klasse", label: "Methode", kind: "method", tpl: "",
-        tip: "Neue Methode: Name, Rückgabetyp (oder void) und Parameter im Dialog festlegen" },
-    { group: "klasse", label: "new", kind: "new", tpl: "",
-        tip: "Objekt erzeugen: Steht links vom = ein Datentyp (z. B. Auto a = ), wird new Auto() eingefügt; der Cursor steht in den Klammern für Parameter" },
     { group: "klasse", label: "extends", more: true, kind: "line", tpl: "class ${Name} extends ${Oberklasse} {\n\t§\n}",
         tip: "Unterklasse: class Name extends Oberklasse { … }" },
     { group: "klasse", label: "super", more: true, kind: "line", tpl: "super(${});",
@@ -78,7 +76,7 @@ export const BLOCKS: Block[] = [
         tip: "Fügt an der Cursorstelle public ein (von überall aus sichtbar); steht in der Zeile schon private, wird es durch public ersetzt" },
     { group: "klasse", label: "private", kind: "visibility", tpl: "private",
         tip: "Fügt an der Cursorstelle private ein (nur innerhalb der eigenen Klasse sichtbar); steht in der Zeile schon public, wird es durch private ersetzt" },
-    { group: "klasse", label: "// Kommentar", kind: "comment", tpl: "// ${Kommentar}",
+    { group: "klasse", label: "//", kind: "comment", tpl: "// ${Kommentar}",
         tip: "Kommentar: In einer leeren Zeile wird ein Kommentar begonnen. Steht Code in der Zeile (oder sind Zeilen markiert), wird er mit // auskommentiert; ist schon eine davon auskommentiert, werden alle wieder einkommentiert" },
 
     // ---------- Ablauf ----------
@@ -110,6 +108,8 @@ export const BLOCKS: Block[] = [
         tip: "Ausgabe mit Zeilenumbruch: println(…);" },
     { group: "daten", label: "print", kind: "line", tpl: "print(${});",
         tip: "Ausgabe ohne Zeilenumbruch: print(…);" },
+    { group: "daten", label: "new", kind: "new", tpl: "",
+        tip: "Objekt erzeugen: Steht links vom = ein Datentyp (z. B. Auto a = ), wird new Auto() eingefügt; der Cursor steht in den Klammern für Parameter" },
     { group: "daten", label: "Array", kind: "line", tpl: "${Integer}[] ${feld} = new ${Integer}[${10}];",
         tip: "Array (Feld) mit fester Länge: Integer[] feld = new Integer[10];" },
     { group: "daten", label: "ArrayList", more: true, kind: "line", tpl: "ArrayList<${String}> ${liste} = new ArrayList<${String}>();",
@@ -771,6 +771,13 @@ function insertAttribute(view: EditorView, text: string) {
         scrollIntoView: true, userEvent: "input"
     });
 }
+
+/**
+ * Farbgebung der Bausteine: "solid" = Füllung in der Gruppenfarbe, Schrift/Rand hell getönt;
+ * "tint" = die frühere Variante (helle Füllung, Schrift/Rand in der Gruppenfarbe).
+ */
+export const BLOCK_COLORS: "solid" | "tint" = "solid";
+document.documentElement.dataset.blockColors = BLOCK_COLORS;
 
 /** Hinweistext beim langen Drücken auf einen Baustein */
 export function blockTip(b: Block): string {
