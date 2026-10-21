@@ -232,8 +232,6 @@ export class App {
                     <nav class="jp-filetabs" data-ref="fileTabs" aria-label="Dateien"></nav>
                     <div class="jp-filebar-actions">
                         <button class="jp-filetab-add" data-ref="newFileBtn" data-tip="Neue Datei (Klasse) anlegen" aria-label="Neue Datei" title="Neue Datei">${icon("plus")}</button>
-                        <span class="jp-filetabs-sep" aria-hidden="true"></span>
-                        <button class="jp-filetab-add jp-filetab-paste" data-ref="pasteFileBtn" aria-label="Text aus der Zwischenablage in neue Datei einsetzen" title="Text aus der Zwischenablage in neue Datei einsetzen">${icon("pastePlus")}</button>
                     </div>
                     <button class="jp-iconbtn jp-layoutbtn" data-ref="editorFullBtn"></button>
                     <button class="jp-iconbtn jp-layoutbtn" data-ref="layoutBtn"></button>
@@ -332,7 +330,7 @@ export class App {
         this.el.projectBtn.addEventListener("click", () => this.renameProject());
         this.el.bulbBtn.addEventListener("click", () => this.tips.toggleInfo(this.el.bulbBtn));
         this.el.newFileBtn.addEventListener("click", () => this.newFile());
-        this.el.pasteFileBtn.addEventListener("click", () => this.pasteAsNewFile());
+        // JPadBlox: Knopf „Zwischenablage in neue Datei“ entfällt
         this.el.copyAllBtn.addEventListener("click", () => this.copyCode(true));
         this.el.copyFileBtn.addEventListener("click", () => this.copyCode(false));
         this.el.undo.addEventListener("click", () => this.editor.undo());
@@ -804,7 +802,7 @@ export class App {
     async newFile() {
         const name = await this.dialogs.prompt({
             title: "Neue Datei",
-            label: "Name der Datei",
+            label: "Wie soll Deine Datei heißen?",
             placeholder: "z. B. Auto",
             confirm: "Anlegen",
             validate: (v) => this.validateClassName(v.trim()),
