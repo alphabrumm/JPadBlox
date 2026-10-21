@@ -522,11 +522,22 @@ export class TouchEditor {
         const r = sc.getBoundingClientRect();
         const vv = window.visualViewport;
         const visTop = Math.max(r.top, vv ? vv.offsetTop : 0);
-        const visBottom = Math.min(r.bottom, vv ? vv.offsetTop + vv.height : window.innerHeight);
+        let visBottom = Math.min(r.bottom, vv ? vv.offsetTop + vv.height : window.innerHeight);
+        // Die Hilfsleiste über der Tastatur kann den unteren Rand des Editors verdecken
+        const bar = document.querySelector<HTMLElement>(".jp-keybar");
+        if (bar && bar.offsetParent) {
+            const b = bar.getBoundingClientRect();
+            if (b.height > 0 && b.top < visBottom && b.bottom > visTop) visBottom = Math.min(visBottom, b.top);
+        }
         const lineTop = view.documentTop + block.top;       // Bildschirmkoordinaten
         const lineBottom = view.documentTop + block.bottom;
-        if (visBottom - visTop < 2 * margin) margin = Math.max(0, (visBottom - visTop - block.height) / 2);
-        if (lineBottom > visBottom - margin) sc.scrollTop += lineBottom - (visBottom - margin);
+        const visible = visBottom - visTop;
+        // Unten großzügig Abstand lassen (mind. 20 % der sichtbaren Höhe), oben den normalen Rand
+        let bottomMargin = Math.max(margin, visible * 0.2);
+        if (visible < margin + bottomMargin + block.height) {
+            margin = bottomMargin = Math.max(0, (visible - block.height) / 2);
+        }
+        if (lineBottom > visBottom - bottomMargin) sc.scrollTop += lineBottom - (visBottom - bottomMargin);
         else if (lineTop < visTop + margin) sc.scrollTop -= (visTop + margin) - lineTop;
     }
 
