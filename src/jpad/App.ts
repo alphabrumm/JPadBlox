@@ -32,7 +32,9 @@ type View = "code" | "output" | "variables" | "diagram" | "problems";
 type SideView = "output" | "variables" | "diagram" | "problems";
 type ThemeChoice = "auto" | "light" | "dark";
 
-type Cols = "default" | "blocks" | "code" | "full" | "info";
+/** JPadBlox: Aufteilung der drei Spalten (siehe applyLayout) */
+type ViewMode = "normal" | "editorWide" | "editorFull" | "infoWide" | "infoFull";
+type ViewState = { mode: ViewMode, blocksWide: boolean, before?: { mode: ViewMode, blocksWide: boolean } };
 
 const SPEEDS: { label: string, value: number | "max" }[] = [
     { label: "Zeitlupe", value: 2 },
@@ -233,6 +235,7 @@ export class App {
                         <span class="jp-filetabs-sep" aria-hidden="true"></span>
                         <button class="jp-filetab-add jp-filetab-paste" data-ref="pasteFileBtn" aria-label="Text aus der Zwischenablage in neue Datei einsetzen" title="Text aus der Zwischenablage in neue Datei einsetzen">${icon("pastePlus")}</button>
                     </div>
+                    <button class="jp-iconbtn jp-layoutbtn" data-ref="editorFullBtn"></button>
                     <button class="jp-iconbtn jp-layoutbtn" data-ref="layoutBtn"></button>
                 </div>
                 <div class="jp-editor" data-ref="editorHost"></div>
@@ -246,6 +249,7 @@ export class App {
                     <button role="tab" data-side="diagram" data-tip="Diagramm: Klassen und Objekte">${icon("diagram")}<span>Diagramm</span></button>
                     <button role="tab" data-side="problems" data-tip="Probleme: Fehler im Code">${icon("problems")}<span>Probleme</span><span class="jp-badge" data-ref="sideBadge"></span></button>
                 </div>
+                <button class="jp-iconbtn jp-layoutbtn" data-ref="sideFullBtn"></button>
                 <button class="jp-iconbtn jp-layoutbtn" data-ref="sideLayoutBtn"></button>
                 </div>
                 <div class="jp-output" data-ref="outputHost"></div>
@@ -397,45 +401,68 @@ export class App {
         // Breites Layout (iPad quer, Laptop) oder Reiter-Layout (Handy, iPad hoch)
         const mq = matchMedia("(min-width: 900px) and (min-aspect-ratio: 1/1)");
         /*
-         * JPadBlox: drei Spalten (Bausteine | Editor | Ansicht rechts), jede mit Vergrößern-Knopf.
-         *   default  12,5 %| 67,5 %| 20 %    (Bausteine und Ansicht rechts schmal)
-         *   blocks   25 %  | 55 %  | 20 %    (Vergrößern bei den Bausteinen)
-         *   code     25 %  | 75 %  | –       (1. Tipp auf Vergrößern beim Editor: Bausteine breit, Ansicht rechts weg)
-         *   full      –    | 100 % | –       (2. Tipp; Ausgabe usw. als Reiter unten wie in JPad)
-         *   info      –    | 35 %  | 65 %    (Vergrößern bei der Ansicht rechts)
-         * Jeder Verkleinern-Knopf führt zurück zu „default“.
+         * JPadBlox: drei Spalten (Bausteine | Editor | Ansicht rechts).
+         *
+         * Bausteinleiste: Knopf wechselt nur zwischen schmal (12,5 %) und breit (25 %).
+         * Editor: „Vergrößern“ blendet die Ansicht rechts aus, der Editor nimmt ihren Platz ein (die Ansicht vorher
+         *   wird gemerkt). Dann stehen dort zwei Knöpfe: „Volle Breite“ (Editor über das ganze Fenster, Ausgabe usw.
+         *   als Reiter unten) und „Verkleinern“ (zurück zur gemerkten Ansicht).
+         * Ansicht rechts: „Vergrößern“ macht sie doppelt so breit (40 %), die Bausteine schmal, der Editor bekommt
+         *   den Rest. Dann zwei Knöpfe: „Volle Breite“ (Ansicht rechts über das ganze Fenster) und „Verkleinern“
+         *   (zurück zur Standardansicht).
          */
-        const setBtn = (btn: HTMLElement, expanded: boolean, expandLabel: string,
-            shrinkLabel = "Zurück zur Standardansicht mit drei Spalten") => {
-            btn.innerHTML = icon(expanded ? "shrink" : "expand");
-            const label = expanded ? shrinkLabel : expandLabel;
+        const setBtn = (btn: HTMLElement, iconName: string, label: string, show = true) => {
+            btn.innerHTML = icon(iconName);
             btn.setAttribute("aria-label", label);
             btn.title = label;
             btn.dataset.tip = label;
+            btn.hidden = !show;
         };
         const applyLayout = () => {
-            const cols = this.getCols();
+            const v = this.getViewState();
+            const m = v.mode;
+            const cols =
+                m == "editorFull" ? "full" :
+                m == "editorWide" ? (v.blocksWide ? "edit-w" : "edit-n") :
+                m == "infoWide" ? "info" :
+                m == "infoFull" ? "infofull" :
+                v.blocksWide ? "blocks" : "default";
             this.root.dataset.wide = String(mq.matches);
             this.root.dataset.cols = cols;
-            this.root.dataset.layout = mq.matches && cols != "full" ? "split" : "tabs";
-            setBtn(this.el.blocksLayoutBtn, cols == "blocks" || cols == "code", "Bausteine breiter anzeigen");
-            setBtn(this.el.layoutBtn, cols == "full",
-                cols == "code" ? "Editor auf volle Breite vergrößern" : "Editor vergrößern (Ansicht rechts ausblenden, Bausteine breit)");
-            setBtn(this.el.sideLayoutBtn, cols == "info", "Ansicht rechts vergrößern (Bausteine ausblenden)");
+            this.root.dataset.bwide = String(v.blocksWide && m != "infoWide");
+            this.root.dataset.layout = mq.matches && m != "editorFull" ? "split" : "tabs";
+
+            setBtn(this.el.blocksLayoutBtn, v.blocksWide ? "shrink" : "expand",
+                v.blocksWide ? "Bausteinleiste schmal anzeigen" : "Bausteinleiste breit anzeigen");
+
+            const editorOpen = m == "editorWide" || m == "editorFull";
+            setBtn(this.el.layoutBtn, editorOpen ? "shrink" : "expand",
+                editorOpen ? "Verkleinern: zurück zur Ansicht von vorher" : "Editor vergrößern (Ansicht rechts ausblenden)");
+            setBtn(this.el.editorFullBtn, "fit", "Editor auf volle Fensterbreite", m == "editorWide");
+
+            const infoOpen = m == "infoWide" || m == "infoFull";
+            setBtn(this.el.sideLayoutBtn, infoOpen ? "shrink" : "expand",
+                infoOpen ? "Verkleinern: zurück zur Standardansicht" : "Ansicht rechts vergrößern");
+            setBtn(this.el.sideFullBtn, "fit", "Ansicht rechts auf volle Fensterbreite", m == "infoWide");
+
             this.setView(this.view);
             this.alignBulbSoon();
         };
         mq.addEventListener("change", applyLayout);
-        const layoutButton = (btn: HTMLElement, next: () => Cols) => {
+        const layoutButton = (btn: HTMLElement, change: (v: ViewState) => ViewState) => {
             btn.addEventListener("pointerdown", e => e.preventDefault()); // Tastatur offen lassen
-            btn.addEventListener("click", () => { this.setCols(next()); applyLayout(); });
+            btn.addEventListener("click", () => { this.setViewState(change(this.getViewState())); applyLayout(); });
         };
-        layoutButton(this.el.blocksLayoutBtn, () => { const c = this.getCols(); return c == "blocks" || c == "code" ? "default" : "blocks"; });
-        layoutButton(this.el.layoutBtn, () => {
-            const c = this.getCols();
-            return c == "code" ? "full" : c == "full" ? "default" : "code";
+        const DEFAULT: ViewState = { mode: "normal", blocksWide: false };
+        layoutButton(this.el.blocksLayoutBtn, v => ({ ...v, blocksWide: !v.blocksWide }));
+        layoutButton(this.el.layoutBtn, v => {
+            if (v.mode == "editorWide" || v.mode == "editorFull") return v.before ?? DEFAULT;
+            return { mode: "editorWide", blocksWide: v.blocksWide, before: { mode: v.mode, blocksWide: v.blocksWide } };
         });
-        layoutButton(this.el.sideLayoutBtn, () => this.getCols() == "info" ? "default" : "info");
+        layoutButton(this.el.editorFullBtn, v => ({ ...v, mode: "editorFull" }));
+        layoutButton(this.el.sideLayoutBtn, v =>
+            v.mode == "infoWide" || v.mode == "infoFull" ? DEFAULT : { mode: "infoWide", blocksWide: false });
+        layoutButton(this.el.sideFullBtn, v => ({ ...v, mode: "infoFull" }));
         applyLayout();
 
         // Glühbirne im Querformat bündig über dem Code-Editor ausrichten
@@ -665,7 +692,7 @@ export class App {
         this.root.dataset.view = view;
         this.root.dataset.side = this.sideView;
         const diagramVisible = this.sideView == "diagram" &&
-            (this.root.dataset.layout == "split" ? this.root.dataset.cols != "code" : view == "diagram");
+            (this.root.dataset.layout == "split" ? !/^edit-/.test(this.root.dataset.cols ?? "") : view == "diagram");
         this.diagram?.setVisible(diagramVisible);
         this.root.querySelectorAll<HTMLElement>(".jp-bottomnav [data-view]").forEach(b =>
             b.setAttribute("aria-current", String(b.dataset.view == view)));
@@ -1113,16 +1140,18 @@ export class App {
         this.el.drawer.setAttribute("inert", "");
     }
 
-    /** Spaltenaufteilung im Querformat (siehe applyLayout) */
-    getCols(): Cols {
+    /** Spaltenaufteilung im Querformat (siehe applyLayout), im Browser gemerkt */
+    getViewState(): ViewState {
         try {
-            const c = localStorage.getItem("jpadblox.layout");
-            return c == "blocks" || c == "code" || c == "full" || c == "info" ? c : "default";
-        } catch (e) { return "default"; }
+            const v = JSON.parse(localStorage.getItem("jpadblox.view") || "null");
+            const modes = ["normal", "editorWide", "editorFull", "infoWide", "infoFull"];
+            if (v && modes.includes(v.mode)) return { mode: v.mode, blocksWide: !!v.blocksWide, before: v.before };
+        } catch (e) { }
+        return { mode: "normal", blocksWide: false };
     }
 
-    setCols(c: Cols) {
-        try { localStorage.setItem("jpadblox.layout", c); } catch (e) { }
+    setViewState(v: ViewState) {
+        try { localStorage.setItem("jpadblox.view", JSON.stringify(v)); } catch (e) { }
     }
 
     getThemeChoice(): ThemeChoice {
