@@ -261,7 +261,7 @@ export class Dialogs {
      * JPadBlox: Dialog des Bausteins class – Name der Klasse, rechts (ausblendbar) die Skizze
      * „Aus der Klasse werden Objekte“. Liefert den Namen oder null.
      */
-    className(o: { validate: (name: string) => string | null }): Promise<string | null> {
+    className(o: { validate: (name: string, where: "file" | "here") => string | null }): Promise<{ name: string, where: "file" | "here" } | null> {
         return this.open(`
             <div class="jp-method-split">
             <div class="jp-method-input">
@@ -269,16 +269,24 @@ export class Dialogs {
                 <h2 class="jp-sheet-title">Neue Klasse</h2>
                 <button type="button" class="jp-btn jp-btn-small jp-method-toggle" data-togglesketch></button>
             </div>
+            <p class="jp-sheet-text">Eine Klasse ist ein Bauplan für viele gleichartige Objekte!</p>
             <form class="jp-form">
                 <label class="jp-field">
                     <span>Wie soll deine Klasse heißen?</span>
                     <input type="text" data-ident autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="words" enterkeyhint="done">
                 </label>
                 <p class="jp-field-error" aria-live="polite"></p>
-                <div class="jp-sheet-buttons">
-                    <button type="button" class="jp-btn" data-cancel>Abbrechen</button>
-                    <button type="submit" class="jp-btn jp-btn-primary">Einfügen</button>
+                <div class="jp-choice-list">
+                    <button type="button" class="jp-choice" data-where="file">
+                        <b>Klasse als Datei anlegen</b>
+                        <span>Ein neuer Reiter mit dem Namen der Klasse, darin das Klassengerüst. So hat jede Klasse ihre eigene Datei.</span>
+                    </button>
+                    <button type="button" class="jp-choice" data-where="here">
+                        <b>Klasse hier einfügen</b>
+                        <span>Das Klassengerüst kommt in die geöffnete Datei – an die Cursorstelle oder unter den vorhandenen Code.</span>
+                    </button>
                 </div>
+                <div class="jp-sheet-buttons"><button type="button" class="jp-btn" data-cancel>Abbrechen</button></div>
             </form>
             </div>
             <div class="jp-method-anim"></div>
@@ -289,12 +297,15 @@ export class Dialogs {
             const error = sheet.querySelector<HTMLElement>(".jp-field-error")!;
             setTimeout(() => input.focus(), 60);
             input.addEventListener("input", () => error.textContent = "");
-            sheet.querySelector("form")!.addEventListener("submit", (e) => {
-                e.preventDefault();
-                const msg = o.validate(input.value);
+            const choose = (where: "file" | "here") => {
+                const msg = o.validate(input.value, where);
                 if (msg) { error.textContent = msg; input.focus(); return; }
-                close(input.value.trim());
-            });
+                close({ name: input.value.trim(), where });
+            };
+            sheet.querySelectorAll<HTMLElement>("[data-where]").forEach(b =>
+                b.addEventListener("click", () => choose(b.dataset.where as "file" | "here")));
+            // Enter in das Namensfeld: als Datei anlegen
+            sheet.querySelector("form")!.addEventListener("submit", (e) => { e.preventDefault(); choose("file"); });
         });
     }
 

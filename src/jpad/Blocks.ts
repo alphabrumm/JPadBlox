@@ -58,7 +58,7 @@ export const GROUP_NAMES: Record<BlockGroup, string> = {
 
 export const BLOCKS: Block[] = [
     // ---------- Klassen ----------
-    { group: "klasse", label: "class", help: "b-class", kind: "class", tpl: "class ${Name} {\n\t§\n}",
+    { group: "klasse", label: "Klasse", help: "b-class", kind: "class", tpl: "class ${Name} {\n\t§\n}",
         tip: "Neue Klasse: class Name { … }" },
     { group: "klasse", label: "Attribut", help: "b-attribut", kind: "attribut", tpl: "",
         tip: "Attribut anlegen: Datentyp und Name auswählen. Es landet an der Cursorstelle, wenn sie direkt im Klassenrumpf liegt, sonst unter den Attributen der obersten Klasse" },
@@ -149,6 +149,10 @@ export type BlockContext = {
     projectTypes: () => string[];
     /** Code der geöffneten Datei formatieren */
     format: () => Promise<void>;
+    /** Neue Datei (Reiter) mit Inhalt anlegen und öffnen; Cursor an die Stelle cursor */
+    createFile: (name: string, text: string, cursor: number) => void;
+    /** Gibt es schon eine Datei mit diesem Namen (ohne .java)? */
+    fileExists: (name: string) => boolean;
     /** Text des Konstruktors, den die Online-IDE an dieser Stelle vorschlägt („insert constructor“), sonst null */
     constructorSuggestion: (offset: number) => Promise<string | null>;
 };
@@ -332,15 +336,24 @@ function setVisibility(view: EditorView, keyword: string) {
  * letzten Zeile mit Code (zwei Leerzeilen Abstand), in einer leeren Datei ganz oben.
  */
 async function insertClass(ctx: BlockContext, hadFocus: boolean): Promise<boolean> {
-    const name = await ctx.dialogs.className({
-        validate: (n) => {
+    const result = await ctx.dialogs.className({
+        validate: (n, where) => {
             const msg = validateName(n);
             if (msg) return msg;
             if (!/^[A-ZÄÖÜ]/.test(n.trim())) return "Klassennamen beginnen mit einem Großbuchstaben, z. B. Schaf.";
+            if (where == "file" && ctx.fileExists(n.trim())) return `Es gibt schon eine Datei „${n.trim()}“.`;
             return null;
         }
     });
-    if (!name) return false;
+    if (!result) return false;
+    const name = result.name;
+    if (result.where == "file") {
+        // Neue Datei (Reiter) mit dem Klassengerüst, Cursor im Klassenrumpf
+        const indent = ctx.view.state.facet(indentUnit);
+        const head = `class ${name} {\n${indent}`;
+        ctx.createFile(name, head + "\n}\n", head.length);
+        return true;
+    }
     const view = ctx.view;
     const tpl = `class ${name} {\n\t\${}\n}`;
     let pos: number;

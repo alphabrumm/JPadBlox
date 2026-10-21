@@ -29,7 +29,7 @@ export const BLOCK_HELP: Record<string, Help> = {
     // ------------------------------------------------------------ Klassen
 
     "b-class": {
-        title: "class", kind: "Baustein", code: true,
+        title: "Klasse", kind: "Baustein",
         text: "Eine **Klasse** ist ein **Bauplan**. Sie legt fest, was jedes Objekt **hat** (Attribute) und was es **kann** (Methoden). Ein echtes Schaf ist das noch nicht – erst `new Schaf()` baut nach dem Plan ein Objekt.",
         examples: [{ caption: "Der Bauplan Schaf (Datei Schaf.java)", code: SCHAF }],
         lab: "factory",

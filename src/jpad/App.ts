@@ -132,6 +132,17 @@ export class App {
             projectTypes: () => this.projectTypes(),
             format: () => this.formatAfterBlock(),
             constructorSuggestion: (offset) => this.bridge.constructorSuggestion(offset),
+            createFile: (name, text, cursor) => {
+                const file = this.main.createFile(name + ".java", text);
+                this.main.setFileActive(file);
+                this.setView("code");
+                setTimeout(() => {
+                    const v = this.editor.view;
+                    v.dispatch({ selection: { anchor: Math.min(cursor, v.state.doc.length) }, scrollIntoView: true });
+                    v.focus();
+                }, 50);
+            },
+            fileExists: (name) => this.main.getFiles().some(f => f.name.toLowerCase() == (name + ".java").toLowerCase()),
         };
         wireBlockPanel(this.el.blockPanel, blockContext);
         this.keyBar.blockContext = blockContext;
