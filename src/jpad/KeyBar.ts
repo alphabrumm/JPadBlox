@@ -187,6 +187,15 @@ export class KeyBar {
                 window.scrollTo(0, 0);
                 document.documentElement.scrollTop = 0;
                 document.body.scrollTop = 0;
+                /*
+                 * iOS schiebt auch Container ohne Scrollbalken (overflow: hidden) in sich nach oben, damit
+                 * der Cursor sichtbar wird – z. B. den Code-Bereich, dessen Dateireiter dann oben
+                 * verschwinden. Deshalb alle Vorfahren des Editors (außer seinem eigenen Scrollbereich)
+                 * auf den Anfang zurücksetzen.
+                 */
+                for (let el = this.editor.view.scrollDOM.parentElement; el; el = el.parentElement) {
+                    if (el.scrollTop) el.scrollTop = 0;
+                }
             };
             this.editor.view.dom.addEventListener("touchstart", e => {
                 if (e.touches.length != 1 || document.documentElement.classList.contains("keyboard-open")) return;
