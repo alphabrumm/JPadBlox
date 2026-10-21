@@ -525,7 +525,8 @@ export class App {
             else this.setSideView("output");
         });
 
-        // Einzelschritt: Code sichtbar machen, damit man die gelb markierte Zeile sieht
+        // Einzelschritt: bewusst KEIN Wechsel zur Code-Ansicht – in der Reiter-Ansicht (iPad hoch, iPhone)
+        // soll man Schritt für Schritt Variablen, Diagramm oder Ausgabe verfolgen können
         this.el.stepInto.addEventListener("pointerdown", () => {
             if (!this.el.stepInto.classList.contains("jo_active")) {
                 if (this.errorCount > 0) {
@@ -535,8 +536,7 @@ export class App {
                 return;
             }
             this.main.flush();
-            if (this.root.dataset.layout == "tabs") this.setView("code");
-            else if (this.sideView == "problems") this.setSideView("variables");
+            if (this.root.dataset.layout != "tabs" && this.sideView == "problems") this.setSideView("variables");
         });
 
         const am = this.main.getActionManager();
@@ -556,11 +556,8 @@ export class App {
 
         this.main.getInterpreter().eventManager.on("stateChanged", (old: SchedulerState, state: SchedulerState) => {
             this.root.dataset.runstate = SchedulerState[state];
-            // An einem Haltepunkt angehalten: Code mit der markierten Zeile zeigen
-            if (old == SchedulerState.running && state == SchedulerState.paused
-                && this.root.dataset.layout == "tabs" && this.view == "output") {
-                this.setView("code");
-            }
+            // An einem Haltepunkt angehalten: bewusst kein Wechsel zur Code-Ansicht (s. o.)
+            void old;
         });
         this.root.dataset.runstate = "stopped";
     }
