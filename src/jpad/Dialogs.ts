@@ -88,24 +88,33 @@ export class Dialogs {
         title: string, groups: { label: string, items: string[] }[], nameLabel: string, confirm: string,
         validate?: (name: string) => string | null,
         /** JPadBlox (Array): zusätzliches Feld für eine natürliche Zahl > 0 */
-        countLabel?: string
-    }): Promise<{ type: string, name: string, count?: number } | null> {
+        countLabel?: string,
+        /** JPadBlox: Häkchen „Array anlegen“ neben dem Datentyp; ist es gesetzt, erscheint das Feld für die Anzahl */
+        arrayOption?: boolean
+    }): Promise<{ type: string, name: string, count?: number, array?: boolean } | null> {
+        const countLabel = o.countLabel ?? (o.arrayOption ? "Wie viele Elemente sollen maximal Platz haben?" : undefined);
         const options = o.groups.filter(g => g.items.length > 0).map(g =>
             `<optgroup label="${escapeHtml(g.label)}">${g.items.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("")}</optgroup>`
         ).join("");
         return this.open(`
             <h2 class="jp-sheet-title">${escapeHtml(o.title)}</h2>
             <form class="jp-form">
-                <label class="jp-field">
-                    <span>Datentyp</span>
-                    <select class="jp-select" data-ref="type">${options}</select>
-                </label>
+                <div class="jp-type-row">
+                    <label class="jp-field">
+                        <span>Datentyp</span>
+                        <select class="jp-select" data-ref="type">${options}</select>
+                    </label>
+                    ${o.arrayOption ? `<label class="jp-array-check">
+                        <input type="checkbox" data-isarray>
+                        <span>Array anlegen</span>
+                    </label>` : ""}
+                </div>
                 <label class="jp-field">
                     <span>${escapeHtml(o.nameLabel)}</span>
                     <input type="text" data-ident autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off" enterkeyhint="${o.countLabel ? "next" : "done"}">
                 </label>
-                ${o.countLabel ? `<label class="jp-field">
-                    <span>${escapeHtml(o.countLabel)}</span>
+                ${countLabel ? `<label class="jp-field jp-count-field" ${o.arrayOption ? "hidden" : ""}>
+                    <span>${escapeHtml(countLabel)}</span>
                     <input type="text" data-count inputmode="numeric" pattern="[0-9]*" autocomplete="off" enterkeyhint="done">
                 </label>` : ""}
                 <p class="jp-field-error" aria-live="polite"></p>
@@ -117,7 +126,15 @@ export class Dialogs {
             const select = sheet.querySelector("select")!;
             const input = sheet.querySelector<HTMLInputElement>("[data-ident]")!;
             const countInput = sheet.querySelector<HTMLInputElement>("[data-count]");
+            const isArray = sheet.querySelector<HTMLInputElement>("[data-isarray]");
             const error = sheet.querySelector<HTMLElement>(".jp-field-error")!;
+            // Häkchen „Array anlegen“: Feld für die Anzahl ein-/ausblenden
+            isArray?.addEventListener("change", () => {
+                const field = sheet.querySelector<HTMLElement>(".jp-count-field")!;
+                field.hidden = !isArray.checked;
+                error.textContent = "";
+                if (isArray.checked) setTimeout(() => countInput?.focus(), 30);
+            });
             setTimeout(() => input.focus(), 60);
             input.addEventListener("input", () => error.textContent = "");
             sheet.querySelector("form")!.addEventListener("submit", (e) => {
@@ -125,7 +142,8 @@ export class Dialogs {
                 const msg = o.validate?.(input.value);
                 if (msg) { error.textContent = msg; input.focus(); return; }
                 let count: number | undefined;
-                if (countInput) {
+                const wantCount = countInput && (!isArray || isArray.checked);
+                if (wantCount && countInput) {
                     const t = countInput.value.trim();
                     if (!/^[0-9]+$/.test(t) || parseInt(t) <= 0) {
                         error.textContent = "Bitte eine ganze Zahl größer als 0 eingeben.";
@@ -134,7 +152,7 @@ export class Dialogs {
                     }
                     count = parseInt(t);
                 }
-                close({ type: select.value, name: input.value.trim(), count });
+                close({ type: select.value, name: input.value.trim(), count, array: isArray ? isArray.checked : undefined });
             });
         });
     }

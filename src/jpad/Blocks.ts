@@ -776,13 +776,15 @@ async function insertDeclaration(ctx: BlockContext, kind: "attribut" | "variable
         // Safari am iPad schlägt bei Feldern mit „Name“ im Text eigene Kontaktdaten vor (zerschießt das Layout)
         nameLabel: "So soll Deine Variable heißen:",
         countLabel: kind == "array" ? "Wie viele Elemente sollen Platz haben?" : undefined,
+        arrayOption: kind != "array",
         confirm: "Einfügen",
         validate: validateName
     });
     if (!result) return false;
-    if (kind == "array") {
+    if (kind == "array" || result.array) {
         // Integer[] feld = new Integer[10];
         const text = `${result.type}[] ${result.name.trim()} = new ${result.type}[${result.count ?? 10}];`;
+        if (kind == "attribut") { insertAttribute(ctx.view, text); return true; }
         const pos = prepareOwnLine(ctx.view);
         ctx.view.dispatch({
             changes: { from: pos, to: pos, insert: text },

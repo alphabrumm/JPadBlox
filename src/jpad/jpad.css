@@ -2194,3 +2194,17 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 .jp-app[data-bwide="false"] .jp-panehead-title { font-size: 13px; }
 .jp-app[data-bwide="false"] .jp-more-toggle { white-space: normal; line-height: 1.2; }
 .jp-app[data-bwide="false"] .jp-blockgroup h3 { margin-left: 0; }
+
+/* JPadBlox: Datentyp schmaler, daneben das Häkchen „Array anlegen“ */
+.jp-type-row { display: flex; align-items: flex-end; gap: 14px; }
+.jp-type-row .jp-field { flex: 0 1 260px; min-width: 0; }
+.jp-array-check {
+    flex: none; display: inline-flex; align-items: center; gap: 8px;
+    min-height: 50px; padding: 0 14px; border-radius: var(--radius-m);
+    border: 1.5px solid var(--line); background: var(--surface-2); color: var(--ink); font-size: 16px; font-weight: 600;
+    cursor: pointer; -webkit-user-select: none; user-select: none;
+}
+.jp-array-check input { width: 22px; height: 22px; accent-color: var(--accent); margin: 0; }
+.jp-array-check:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+.jp-count-field[hidden] { display: none; }
+.jp-form .jp-type-row + .jp-field { margin-top: 14px; }
