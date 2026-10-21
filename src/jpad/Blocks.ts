@@ -34,7 +34,7 @@ export type BlockGroup = "klasse" | "ablauf" | "daten";
  *  new      passender Konstruktor zum Datentyp links vom =
  *  comment  Kommentar einfügen bzw. Zeilen aus- und einkommentieren
  */
-export type BlockKind = "line" | "inline" | "else" | "text" | "visibility" | "attribut" | "variable" | "new" | "comment"
+export type BlockKind = "line" | "inline" | "else" | "text" | "visibility" | "attribut" | "variable" | "array" | "new" | "comment"
     | "constructor" | "getter" | "setter" | "method";
 
 export type Block = {
@@ -110,8 +110,8 @@ export const BLOCKS: Block[] = [
         tip: "Ausgabe ohne Zeilenumbruch: print(…);" },
     { group: "daten", label: "new", kind: "new", tpl: "",
         tip: "Objekt erzeugen: Steht links vom = ein Datentyp (z. B. Auto a = ), wird new Auto() eingefügt; der Cursor steht in den Klammern für Parameter" },
-    { group: "daten", label: "Array", kind: "line", tpl: "${Integer}[] ${feld} = new ${Integer}[${10}];",
-        tip: "Array (Feld) mit fester Länge: Integer[] feld = new Integer[10];" },
+    { group: "daten", label: "Array", kind: "array", tpl: "",
+        tip: "Array (Feld) anlegen: Datentyp und Name auswählen; eingefügt wird z. B. Integer[] feld = new Integer[ ]; und der Cursor steht in den eckigen Klammern für die Länge" },
     { group: "daten", label: "ArrayList", more: true, kind: "line", tpl: "ArrayList<${String}> ${liste} = new ArrayList<${String}>();",
         tip: "Liste mit variabler Länge: ArrayList<String> liste = new ArrayList<String>();" },
 ];
@@ -158,6 +158,7 @@ export async function insertBlock(ctx: BlockContext, block: Block) {
     switch (block.kind) {
         case "attribut":
         case "variable":
+        case "array":
             done = await insertDeclaration(ctx, block.kind);
             break;
         case "new":
@@ -685,21 +686,32 @@ const JAVA_KEYWORDS = new Set(("abstract assert boolean break byte case catch ch
     "final finally float for goto if implements import instanceof int interface long native new package private protected public " +
     "return short static super switch synchronized this throw throws transient try void volatile while true false null var").split(" "));
 
-async function insertDeclaration(ctx: BlockContext, kind: "attribut" | "variable"): Promise<boolean> {
+async function insertDeclaration(ctx: BlockContext, kind: "attribut" | "variable" | "array"): Promise<boolean> {
     const own = ctx.projectTypes().filter(t => !BASIC_TYPES.includes(t));
     const lib = libraryTypes().filter(t => !own.includes(t));
     const result = await ctx.dialogs.declaration({
-        title: kind == "attribut" ? "Attribut anlegen" : "Variable anlegen",
+        title: kind == "attribut" ? "Attribut anlegen" : kind == "array" ? "Array anlegen" : "Variable anlegen",
         groups: [
             { label: "Grundtypen", items: BASIC_TYPES },
             { label: "Eigene Klassen", items: own },
             { label: "Klassenbibliothek", items: lib },
         ],
-        nameLabel: kind == "attribut" ? "Name des Attributs" : "Name der Variablen",
+        nameLabel: kind == "attribut" ? "Name des Attributs" : kind == "array" ? "Name des Arrays" : "Name der Variablen",
         confirm: "Einfügen",
         validate: validateName
     });
     if (!result) return false;
+    if (kind == "array") {
+        // Integer[] feld = new Integer[|];  – Cursor in den eckigen Klammern für die Länge
+        const head = `${result.type}[] ${result.name.trim()} = new ${result.type}[`;
+        const pos = prepareOwnLine(ctx.view);
+        ctx.view.dispatch({
+            changes: { from: pos, to: pos, insert: head + "];" },
+            selection: EditorSelection.cursor(pos + head.length),
+            scrollIntoView: true, userEvent: "input"
+        });
+        return true;
+    }
     const text = `${result.type} ${result.name.trim()};`;
     if (kind == "variable") {
         const pos = prepareOwnLine(ctx.view);
@@ -776,7 +788,7 @@ function insertAttribute(view: EditorView, text: string) {
  * Farbgebung der Bausteine: "solid" = Füllung in der Gruppenfarbe, Schrift/Rand hell getönt;
  * "tint" = die frühere Variante (helle Füllung, Schrift/Rand in der Gruppenfarbe).
  */
-export const BLOCK_COLORS: "solid" | "tint" = "solid";
+export const BLOCK_COLORS: "solid" | "tint" = "tint";
 document.documentElement.dataset.blockColors = BLOCK_COLORS;
 
 /** Hinweistext beim langen Drücken auf einen Baustein */

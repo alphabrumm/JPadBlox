@@ -1818,13 +1818,15 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 }
 .jp-keybar button.jp-block:active,
 .jp-keybar button.jp-block.is-pressed { background: var(--g); color: #fff; }
-/* Klassen lila, Ablauf orange, Daten grün. Die Randfarbe ist zugleich die Schriftfarbe der Bausteine
+/* Die Randfarbe ist zugleich die Schriftfarbe der Bausteine
    (im hellen Modus etwas dunkler, damit die Schrift gut lesbar bleibt). */
-[data-group="klasse"] { --g: #7443DB; }
-[data-group="ablauf"] { --g: #B86400; }
+/* Klassen: Akzent-Blau von JPad (wie der Plus-Knopf), Ablauf: Gelb der Glühbirne
+   (im hellen Modus etwas satter, damit die Schrift auf der hellen Füllung lesbar bleibt), Daten: Grün */
+[data-group="klasse"] { --g: var(--accent); }
+[data-group="ablauf"] { --g: #C99700; }
 [data-group="daten"]  { --g: #0B7F57; }
-:root[data-effective="dark"] [data-group="klasse"] { --g: #A784FF; }
-:root[data-effective="dark"] [data-group="ablauf"] { --g: #F5A33A; }
+:root[data-effective="dark"] [data-group="klasse"] { --g: var(--accent); }
+:root[data-effective="dark"] [data-group="ablauf"] { --g: var(--marker); }
 :root[data-effective="dark"] [data-group="daten"]  { --g: #34C68F; }
 .jp-keybar button.jp-block, .jp-blockpanel button.jp-block { color: var(--g); }
 .jp-keybar button.jp-block:active, .jp-keybar button.jp-block.is-pressed,
@@ -1844,8 +1846,7 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 .jp-app[data-layout="split"][data-cols="default"] .jp-main {
     grid-template-columns: minmax(0, 25fr) minmax(0, 45fr) minmax(0, 30fr);
 }
-.jp-app[data-layout="split"][data-cols="blocks"] .jp-main { grid-template-columns: minmax(0, 25fr) minmax(0, 75fr); }
-.jp-app[data-layout="split"][data-cols="blocks"] .jp-pane-side { display: none; }
+.jp-app[data-layout="split"][data-cols="narrow"] .jp-main { grid-template-columns: minmax(0, 12.5fr) minmax(0, 57.5fr) minmax(0, 30fr); }
 .jp-app[data-layout="split"][data-cols="code"] .jp-main { grid-template-columns: minmax(0, 65fr) minmax(0, 35fr); }
 .jp-app[data-layout="split"][data-cols="info"] .jp-main { grid-template-columns: minmax(0, 35fr) minmax(0, 65fr); }
 .jp-app[data-layout="split"][data-cols="code"] .jp-pane-blocks,
@@ -1985,3 +1986,7 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
     color: var(--g);
     border-left-color: var(--g);
 }
+
+/* JPadBlox: Zeile einfügen/löschen – Plus und Minus kräftig, die angedeuteten Zeilen in dunklem Grau */
+.jp-keybar .jp-key-line .jp-ic-plus, .jp-keybar .jp-key-line .jp-ic-minus { stroke-width: 3.2; }
+.jp-keybar .jp-key-line .jp-icon path:not(.jp-ic-plus):not(.jp-ic-minus) { stroke: color-mix(in srgb, var(--ink) 60%, var(--surface)); }
