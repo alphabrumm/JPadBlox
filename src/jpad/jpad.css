@@ -2036,3 +2036,14 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 :root[data-effective="dark"] .jp-keybar button.jp-key-mode { background: transparent; box-shadow: none; color: var(--marker); }
 :root[data-effective="dark"] .jp-keybar button.jp-key-mode:active,
 :root[data-effective="dark"] .jp-keybar button.jp-key-mode.is-pressed { background: var(--marker-soft); color: var(--marker); filter: none; }
+
+/* JPadBlox: Dialog „Baue Deine neue Methode“ – links die Eingabe, rechts die animierte Skizze */
+.jp-sheet.is-method { max-width: 980px; }
+.jp-method-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 0; align-items: center; }
+.jp-method-input { padding-right: 24px; }
+.jp-method-anim { padding-left: 24px; border-left: 1px solid var(--line); align-self: stretch; display: flex; flex-direction: column; justify-content: center; }
+@media (max-width: 760px) {
+    .jp-method-split { grid-template-columns: minmax(0, 1fr); }
+    .jp-method-input { padding-right: 0; }
+    .jp-method-anim { padding-left: 0; padding-top: 16px; margin-top: 8px; border-left: 0; border-top: 1px solid var(--line); }
+}
