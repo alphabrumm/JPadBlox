@@ -1,7 +1,7 @@
 import { icon } from "./Icons.js";
 import { TouchEditor } from "./TouchEditor.js";
 import { LanguageBridge } from "./LanguageBridge.js";
-import { BLOCKS, insertBlock, blockRowHtml } from "./Blocks.js";
+import { BLOCKS, insertBlock, blockRowHtml, BlockContext } from "./Blocks.js";
 
 type Key = { label: string, insert?: string, action?: string, aria?: string, tip?: string, help?: string, wide?: boolean };
 
@@ -55,6 +55,8 @@ export class KeyBar {
     el: HTMLElement;
     private editorFocused = false;
     private mode: BarMode = loadMode();
+    /** von App gesetzt, sobald alles bereit ist */
+    blockContext: BlockContext | null = null;
 
     constructor(root: HTMLElement, private editor: TouchEditor, private bridge: LanguageBridge,
         private showInfo: (html: string | null) => void) {
@@ -240,7 +242,7 @@ export class KeyBar {
 
     private activate(b: HTMLElement) {
         if (b.dataset.block != null) {
-            insertBlock(this.editor.view, BLOCKS[parseInt(b.dataset.block)]);
+            if (this.blockContext) insertBlock(this.blockContext, BLOCKS[parseInt(b.dataset.block)]);
         } else if (b.dataset.key != null) {
             const k = KEYS[parseInt(b.dataset.key)];
             if (k.action == "tab") this.editor.indentMore();

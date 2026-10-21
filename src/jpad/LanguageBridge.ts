@@ -269,6 +269,25 @@ export class LanguageBridge {
         }
     }
 
+    /**
+     * JPadBlox: Formatier-Änderungen als Zeichenpositionen (für CodeMirror), damit Cursor und
+     * Platzhalter eines gerade eingefügten Bausteins an ihrer Stelle bleiben.
+     * Liefert auch den Text, auf den sich die Positionen beziehen.
+     */
+    async formatChanges(): Promise<{ text: string, changes: { from: number, to: number, insert: string }[] } | null> {
+        const model = this.getModel();
+        if (!model) return null;
+        const text = model.getValue();
+        const edits = await this.formatter.provideDocumentFormattingEdits(model, { tabSize: 3, insertSpaces: true }, noCancel);
+        if (!edits || edits.length == 0) return null;
+        const changes = edits.map(e => ({
+            from: model.getOffsetAt({ lineNumber: e.range.startLineNumber, column: e.range.startColumn }),
+            to: model.getOffsetAt({ lineNumber: e.range.endLineNumber, column: e.range.endColumn }),
+            insert: e.text
+        })).sort((a, b) => a.from - b.from || a.to - b.to);
+        return { text, changes };
+    }
+
     /** Formatiert den Code im Modell; die Änderungen erreichen den Editor über die Modell-Synchronisation. */
     async format(): Promise<boolean> {
         const model = this.getModel();

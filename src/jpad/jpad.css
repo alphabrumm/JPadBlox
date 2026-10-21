@@ -1016,6 +1016,24 @@ html.keyboard-open.editor-focused .jp-bottomnav { display: none; }
 }
 
 .jp-field input:focus { border-color: var(--accent); outline: none; }
+/* JPadBlox: Auswahl des Datentyps (Attribut/Variable) */
+.jp-field select {
+    font: inherit;
+    font-size: 17px;
+    color: var(--ink);
+    background: var(--bg);
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius-m);
+    padding: 12px 14px;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--ink-2) 50%), linear-gradient(135deg, var(--ink-2) 50%, transparent 50%);
+    background-position: calc(100% - 20px) 50%, calc(100% - 14px) 50%;
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+}
+.jp-field select:focus { border-color: var(--accent); outline: none; }
+.jp-form .jp-field + .jp-field { margin-top: 14px; }
 .jp-field-error { color: var(--danger); font-size: 14px; min-height: 1.2em; margin: 6px 0 0; }
 
 .jp-action-list { display: flex; flex-direction: column; gap: 2px; }
@@ -1791,9 +1809,8 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 }
 .jp-block-group:first-child { margin-left: 0; padding-left: 0; border-left: 0; }
 .jp-keybar button.jp-block {
-    --g-bg: color-mix(in srgb, var(--g) 16%, var(--surface));
+    --g-bg: color-mix(in srgb, var(--g) 14%, var(--surface));
     background: var(--g-bg);
-    color: var(--ink);
     border-left: 4px solid var(--g);
     padding: 0 12px 0 10px;
     font-size: 16px;
@@ -1801,14 +1818,17 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 }
 .jp-keybar button.jp-block:active,
 .jp-keybar button.jp-block.is-pressed { background: var(--g); color: #fff; }
-[data-group="klasse"] { --g: #3B6FF5; }
-[data-group="ablauf"] { --g: #E8890C; }
-[data-group="daten"]  { --g: #14A372; }
-[data-group="mehr"]   { --g: #8A5CF0; }
-:root[data-effective="dark"] [data-group="klasse"] { --g: #6E95FF; }
+/* Klassen lila, Ablauf orange, Daten grün. Die Randfarbe ist zugleich die Schriftfarbe der Bausteine
+   (im hellen Modus etwas dunkler, damit die Schrift gut lesbar bleibt). */
+[data-group="klasse"] { --g: #7443DB; }
+[data-group="ablauf"] { --g: #B86400; }
+[data-group="daten"]  { --g: #0B7F57; }
+:root[data-effective="dark"] [data-group="klasse"] { --g: #A784FF; }
 :root[data-effective="dark"] [data-group="ablauf"] { --g: #F5A33A; }
 :root[data-effective="dark"] [data-group="daten"]  { --g: #34C68F; }
-:root[data-effective="dark"] [data-group="mehr"]   { --g: #A784FF; }
+.jp-keybar button.jp-block, .jp-blockpanel button.jp-block { color: var(--g); }
+.jp-keybar button.jp-block:active, .jp-keybar button.jp-block.is-pressed,
+.jp-blockpanel button.jp-block:active, .jp-blockpanel button.jp-block.is-pressed { color: var(--surface); }
 
 /* Platzhalter eines eingefügten Bausteins */
 .jp-editor .cm-snippetField {
@@ -1870,9 +1890,8 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
     min-height: 40px;
     padding: 0 10px 0 8px;
     border-radius: var(--radius-s);
-    background: color-mix(in srgb, var(--g) 16%, var(--surface));
+    background: color-mix(in srgb, var(--g) 14%, var(--surface));
     border-left: 4px solid var(--g);
-    color: var(--ink);
     font-family: var(--font-code);
     font-size: 15px;
     font-weight: 600;
@@ -1890,3 +1909,17 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 .jp-app[data-layout="split"] .jp-keybar .jp-key-mode { display: none; }
 .jp-app[data-layout="split"] .jp-keybar .jp-blocks-scroll { display: none; }
 .jp-app[data-layout="split"] .jp-keybar .jp-keybar-scroll:not(.jp-blocks-scroll) { display: flex; }
+
+/* JPadBlox: Umschalter der Ansicht rechts – Symbol über dem Namen (wie die Navigation unten auf dem Handy) */
+.jp-side-switch button {
+    flex-direction: column;
+    gap: 2px;
+    min-height: 52px;
+    padding: 4px 2px;
+    font-size: 12px;
+    line-height: 1.1;
+    min-width: 0;
+    position: relative;
+}
+.jp-side-switch button span:not(.jp-badge) { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.jp-side-switch .jp-badge { position: absolute; top: 3px; left: calc(50% + 6px); }

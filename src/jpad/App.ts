@@ -7,7 +7,7 @@ import { ProjectInfo, ProjectStore, STARTER_FILES, ProjectFile } from "./Project
 import { icon } from "./Icons.js";
 import { Dialogs } from "./Dialogs.js";
 import { KeyBar } from "./KeyBar.js";
-import { blockPanelHtml, wireBlockPanel } from "./Blocks.js";
+import { blockPanelHtml, wireBlockPanel, BlockContext } from "./Blocks.js";
 import { DiagramView } from "./Diagram.js";
 import { TouchTips } from "./TouchTips.js";
 import { ThemeManager } from "../client/main/gui/ThemeManager.js";
@@ -124,7 +124,14 @@ export class App {
         if (/[?&]debug\b/.test(location.search)) import("./DebugLog.js").then(m => m.startDebugLog(this.editor.view));
 
         this.keyBar = new KeyBar(this.root, this.editor, this.bridge, (html) => this.showInfo(html));
-        wireBlockPanel(this.el.blockPanel, this.editor.view);
+        const blockContext: BlockContext = {
+            view: this.editor.view,
+            dialogs: this.dialogs,
+            projectTypes: () => this.projectTypes(),
+            format: () => this.formatAfterBlock(),
+        };
+        wireBlockPanel(this.el.blockPanel, blockContext);
+        this.keyBar.blockContext = blockContext;
         this.editor.onToggleBreakpoint = (line) => this.toggleBreakpoint(line);
         this.placeKeyBar();
 
@@ -802,6 +809,33 @@ export class App {
                 this.main.deleteFile(file);
                 this.markModified();
             }
+        }
+    }
+
+    /** JPadBlox: Namen aller Klassen, Interfaces und Enums des geöffneten Projekts */
+    projectTypes(): string[] {
+        const names = new Set<string>();
+        for (const file of this.main.getFiles()) {
+            const text = file.getMonacoModel()?.getValue() ?? "";
+            const re = /\b(?:class|interface|enum)\s+([A-Za-z_\u00C0-\u024F][\w\u00C0-\u024F]*)/g;
+            let m: RegExpExecArray | null;
+            while ((m = re.exec(text))) names.add(m[1]);
+        }
+        return [...names].sort((a, b) => a.localeCompare(b, "de"));
+    }
+
+    /**
+     * JPadBlox: Nach jedem Baustein formatieren. Die Änderungen gehen direkt in den Editor (statt
+     * über das Modell), damit Cursor und Platzhalter an ihrer Stelle bleiben.
+     */
+    async formatAfterBlock() {
+        try {
+            const r = await this.bridge.formatChanges();
+            const view = this.editor.view;
+            if (!r || view.state.doc.toString() != r.text) return;   // inzwischen weitergetippt
+            view.dispatch({ changes: r.changes, userEvent: "input.format" });
+        } catch (e) {
+            console.warn("JPadBlox: Formatieren nach Baustein fehlgeschlagen", e);
         }
     }
 

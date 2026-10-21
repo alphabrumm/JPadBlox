@@ -78,6 +78,48 @@ export class Dialogs {
         });
     }
 
+    /**
+     * JPadBlox: Attribut bzw. Variable anlegen – Datentyp aus einer Liste wählen, Namen eingeben.
+     * Liefert { type, name } oder null bei Abbruch.
+     */
+    declaration(o: {
+        title: string, groups: { label: string, items: string[] }[], nameLabel: string, confirm: string,
+        validate?: (name: string) => string | null
+    }): Promise<{ type: string, name: string } | null> {
+        const options = o.groups.filter(g => g.items.length > 0).map(g =>
+            `<optgroup label="${escapeHtml(g.label)}">${g.items.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("")}</optgroup>`
+        ).join("");
+        return this.open(`
+            <h2 class="jp-sheet-title">${escapeHtml(o.title)}</h2>
+            <form class="jp-form">
+                <label class="jp-field">
+                    <span>Datentyp</span>
+                    <select class="jp-select" data-ref="type">${options}</select>
+                </label>
+                <label class="jp-field">
+                    <span>${escapeHtml(o.nameLabel)}</span>
+                    <input type="text" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off" enterkeyhint="done">
+                </label>
+                <p class="jp-field-error" aria-live="polite"></p>
+                <div class="jp-sheet-buttons">
+                    <button type="button" class="jp-btn" data-cancel>Abbrechen</button>
+                    <button type="submit" class="jp-btn jp-btn-primary">${escapeHtml(o.confirm)}</button>
+                </div>
+            </form>`, (sheet, close) => {
+            const select = sheet.querySelector("select")!;
+            const input = sheet.querySelector("input")!;
+            const error = sheet.querySelector<HTMLElement>(".jp-field-error")!;
+            setTimeout(() => input.focus(), 60);
+            input.addEventListener("input", () => error.textContent = "");
+            sheet.querySelector("form")!.addEventListener("submit", (e) => {
+                e.preventDefault();
+                const msg = o.validate?.(input.value);
+                if (msg) { error.textContent = msg; input.focus(); return; }
+                close({ type: select.value, name: input.value.trim() });
+            });
+        });
+    }
+
     confirm(o: ConfirmOptions): Promise<boolean> {
         return this.open(`
             <h2 class="jp-sheet-title">${escapeHtml(o.title)}</h2>
