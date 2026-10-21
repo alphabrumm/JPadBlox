@@ -174,7 +174,10 @@ export class App {
             // Touch-Gerät. maxTouchPoints zusätzlich, weil Safari bei angeschlossenem
             // Trackpad (Magic Keyboard) keinen groben Zeiger mehr meldet.
             const touch = coarse.matches || navigator.maxTouchPoints > 1;
-            document.documentElement.classList.toggle("tablet", touch);
+            document.documentElement.classList.toggle("touch", touch);
+            // JPadBlox: Die Hilfsleiste steht auf allen Geräten dauerhaft unten – auch an PC und Mac
+            // (die Klasse „tablet“ steuert genau das: Leiste immer sichtbar, Platz dafür reserviert)
+            document.documentElement.classList.toggle("tablet", true);
             const bar = this.keyBar.el;
             if (bar.parentElement != this.root) this.root.appendChild(bar);
         };
