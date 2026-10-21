@@ -35,7 +35,7 @@ export type BlockGroup = "klasse" | "ablauf" | "daten";
  *  comment  Kommentar einfügen bzw. Zeilen aus- und einkommentieren
  */
 export type BlockKind = "line" | "inline" | "else" | "text" | "visibility" | "attribut" | "variable" | "array" | "new" | "comment"
-    | "constructor" | "getter" | "setter" | "method";
+    | "constructor" | "getter" | "setter" | "method" | "class";
 
 export type Block = {
     label: string;
@@ -58,7 +58,7 @@ export const GROUP_NAMES: Record<BlockGroup, string> = {
 
 export const BLOCKS: Block[] = [
     // ---------- Klassen ----------
-    { group: "klasse", label: "class", help: "b-class", kind: "line", tpl: "class ${Name} {\n\t§\n}",
+    { group: "klasse", label: "class", help: "b-class", kind: "class", tpl: "class ${Name} {\n\t§\n}",
         tip: "Neue Klasse: class Name { … }" },
     { group: "klasse", label: "Attribut", help: "b-attribut", kind: "attribut", tpl: "",
         tip: "Attribut anlegen: Datentyp und Name auswählen. Es landet an der Cursorstelle, wenn sie direkt im Klassenrumpf liegt, sonst unter den Attributen der obersten Klasse" },
@@ -156,6 +156,8 @@ export type BlockContext = {
 /** Fügt den Baustein ein (bzw. umschließt die markierten Zeilen) und formatiert danach den Code. */
 export async function insertBlock(ctx: BlockContext, block: Block) {
     const view = ctx.view;
+    // Hatte der Editor beim Antippen den Fokus (Cursor gesetzt)? Wichtig für den Ort einer neuen Klasse
+    const hadFocus = view.hasFocus;
     let done = true;
     switch (block.kind) {
         case "attribut":
@@ -184,6 +186,9 @@ export async function insertBlock(ctx: BlockContext, block: Block) {
             break;
         case "method":
             done = await insertMethod(ctx);
+            break;
+        case "class":
+            done = await insertClass(ctx, hadFocus);
             break;
         default:
             insertTemplate(view, block);
@@ -304,7 +309,55 @@ function setVisibility(view: EditorView, keyword: string) {
         }
         return;
     }
+    // Steht in der Zeile schon Code, kommt der Modifikator vor die Anweisung, sonst an die Cursorstelle
+    if (line.text.trim() != "") {
+        const from = line.from + /^\s*/.exec(line.text)![0].length;
+        view.dispatch({
+            changes: { from, insert: keyword + " " },
+            selection: EditorSelection.cursor(from + keyword.length + 1),
+            userEvent: "input"
+        });
+        return;
+    }
     insertText(view, keyword + " ");
+}
+
+// ---------------------------------------------------------------- class
+
+/**
+ * Neue Klasse: Name im Dialog. Mit Cursor im Editor an der Cursorstelle (eigene Zeile), sonst unter der
+ * letzten Zeile mit Code (zwei Leerzeilen Abstand), in einer leeren Datei ganz oben.
+ */
+async function insertClass(ctx: BlockContext, hadFocus: boolean): Promise<boolean> {
+    const name = await ctx.dialogs.className({
+        validate: (n) => {
+            const msg = validateName(n);
+            if (msg) return msg;
+            if (!/^[A-ZÄÖÜ]/.test(n.trim())) return "Klassennamen beginnen mit einem Großbuchstaben, z. B. Schaf.";
+            return null;
+        }
+    });
+    if (!name) return false;
+    const view = ctx.view;
+    const tpl = `class ${name} {\n\t\${}\n}`;
+    let pos: number;
+    if (hadFocus) {
+        pos = prepareOwnLine(view);
+    } else {
+        const doc = view.state.doc;
+        const text = doc.toString();
+        if (text.trim() == "") {
+            view.dispatch({ changes: { from: 0, to: doc.length, insert: "" } });
+            pos = 0;
+        } else {
+            const end = text.replace(/\s+$/, "").length;
+            const lineEnd = doc.lineAt(end).to;
+            view.dispatch({ changes: { from: lineEnd, to: doc.length, insert: "\n\n\n" }, scrollIntoView: true });
+            pos = lineEnd + 3;
+        }
+    }
+    snippet(tpl)(view, null, pos, pos);
+    return true;
 }
 
 // ---------------------------------------------------------------- Klassen im Text

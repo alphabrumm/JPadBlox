@@ -1,6 +1,7 @@
 import { icon } from "./Icons.js";
 import { escapeHtml } from "./LanguageBridge.js";
 import { createMethodAnimation } from "./MethodAnimation.js";
+import { createClassAnimation } from "./ClassAnimation.js";
 
 type PromptOptions = {
     title: string;
@@ -253,6 +254,67 @@ export class Dialogs {
                 }
                 close({ name: nameInput.value.trim(), returnType: sheet.querySelector<HTMLSelectElement>("[data-return]")!.value, params });
             });
+        });
+    }
+
+    /**
+     * JPadBlox: Dialog des Bausteins class – Name der Klasse, rechts (ausblendbar) die Skizze
+     * „Aus der Klasse werden Objekte“. Liefert den Namen oder null.
+     */
+    className(o: { validate: (name: string) => string | null }): Promise<string | null> {
+        return this.open(`
+            <div class="jp-method-split">
+            <div class="jp-method-input">
+            <div class="jp-method-head">
+                <h2 class="jp-sheet-title">Neue Klasse</h2>
+                <button type="button" class="jp-btn jp-btn-small jp-method-toggle" data-togglesketch></button>
+            </div>
+            <form class="jp-form">
+                <label class="jp-field">
+                    <span>Wie soll deine Klasse heißen?</span>
+                    <input type="text" data-ident autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="words" enterkeyhint="done">
+                </label>
+                <p class="jp-field-error" aria-live="polite"></p>
+                <div class="jp-sheet-buttons">
+                    <button type="button" class="jp-btn" data-cancel>Abbrechen</button>
+                    <button type="submit" class="jp-btn jp-btn-primary">Einfügen</button>
+                </div>
+            </form>
+            </div>
+            <div class="jp-method-anim"></div>
+            </div>`, (sheet, close) => {
+            sheet.classList.add("is-method");
+            this.sketchToggle(sheet, "jpadblox.classSketch", createClassAnimation);
+            const input = sheet.querySelector<HTMLInputElement>("[data-ident]")!;
+            const error = sheet.querySelector<HTMLElement>(".jp-field-error")!;
+            setTimeout(() => input.focus(), 60);
+            input.addEventListener("input", () => error.textContent = "");
+            sheet.querySelector("form")!.addEventListener("submit", (e) => {
+                e.preventDefault();
+                const msg = o.validate(input.value);
+                if (msg) { error.textContent = msg; input.focus(); return; }
+                close(input.value.trim());
+            });
+        });
+    }
+
+    /** Skizze im Dialog ein-/ausblenden; die Wahl wird im Browser unter key gemerkt */
+    private sketchToggle(sheet: HTMLElement, key: string, create: () => HTMLElement) {
+        const host = sheet.querySelector<HTMLElement>(".jp-method-anim")!;
+        const toggle = sheet.querySelector<HTMLElement>("[data-togglesketch]")!;
+        const readShow = () => { try { return localStorage.getItem(key) != "0"; } catch (e) { return true; } };
+        const apply = (show: boolean) => {
+            sheet.classList.toggle("sketch-hidden", !show);
+            toggle.textContent = show ? "Skizze ausblenden" : "Skizze einblenden";
+            toggle.setAttribute("aria-expanded", String(show));
+            toggle.dataset.tip = show ? "Die erklärende Skizze ausblenden – die Einstellung wird gemerkt" : "Die erklärende Skizze wieder einblenden";
+            host.replaceChildren(...(show ? [create()] : []));
+        };
+        apply(readShow());
+        toggle.addEventListener("click", () => {
+            const show = sheet.classList.contains("sketch-hidden");
+            try { localStorage.setItem(key, show ? "1" : "0"); } catch (e) { }
+            apply(show);
         });
     }
 
