@@ -279,7 +279,7 @@ export class App {
         <div class="jp-drawer-backdrop" data-ref="drawerBackdrop"></div>
         <aside class="jp-drawer" data-ref="drawer" aria-label="Menü" inert>
             <div class="jp-drawer-head">
-                <div class="jp-brand"><span class="jp-brand-mark">J</span>JPadBlox</div>
+                <div class="jp-brand"><span class="jp-brand-mark">J</span>JPad</div>
                 <button class="jp-iconbtn" data-ref="drawerClose" data-tip="Menü schließen" aria-label="Menü schließen">${icon("close")}</button>
             </div>
             <div class="jp-drawer-body">
@@ -320,8 +320,8 @@ export class App {
                     <button data-ref="spritesBtn" data-tip="Alle eingebauten Sprites mit ihren Nummern ansehen">${icon("image")}<span>Sprite Bibliothek</span></button>
                 </div>
 
-                <h2>Über JPadBlox</h2>
-                <p class="jp-about">JPadBlox ist JPad mit Code-Bausteinen zum Antippen: eine Oberfläche für Tablets und Handys auf Basis der
+                <h2>Über JPad</h2>
+                <p class="jp-about">JPad ist eine Oberfläche mit Code-Bausteinen zum Antippen für Tablets und Handys auf Basis der
                 <a href="https://www.online-ide.de" target="_blank" rel="noopener">Online-IDE</a> von Martin Pabst.
                 Compiler und Programmiersprache stammen unverändert aus der Online-IDE.
                 Deine Projekte bleiben auf diesem Gerät, bis du sie als Datei sicherst.
@@ -771,7 +771,7 @@ export class App {
     async pasteAsNewFile() {
         const ok = await this.dialogs.confirm({
             title: "Kopierten Text der Zwischenablage in neue Datei einsetzen?",
-            text: "JPadBlox legt eine neue Datei an und setzt dort den Text ein, der gerade in der Zwischenablage liegt.",
+            text: "JPad legt eine neue Datei an und setzt dort den Text ein, der gerade in der Zwischenablage liegt.",
             confirm: "Einsetzen"
         });
         if (!ok) return;
@@ -782,7 +782,7 @@ export class App {
             // Browser erlaubt kein direktes Lesen: Text von Hand in ein Feld einsetzen lassen
             text = await this.dialogs.pasteArea({
                 title: "Text hier einsetzen",
-                text: "JPadBlox darf die Zwischenablage nicht direkt lesen. Halte den Finger in das Feld und wähle „Einsetzen“.",
+                text: "JPad darf die Zwischenablage nicht direkt lesen. Halte den Finger in das Feld und wähle „Einsetzen“.",
                 confirm: "Einsetzen"
             });
         }

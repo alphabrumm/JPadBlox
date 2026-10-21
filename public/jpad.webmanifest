@@ -1,6 +1,6 @@
 {
-  "name": "JPadBlox – Java mit Bausteinen am iPad",
-  "short_name": "JPadBlox",
+  "name": "JPad – Java mit Bausteinen am iPad",
+  "short_name": "JPad",
   "lang": "de",
   "start_url": "./jpad.html",
   "scope": "./",

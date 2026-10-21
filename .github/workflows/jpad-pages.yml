@@ -1,4 +1,4 @@
-name: JPadBlox bauen und veröffentlichen
+name: JPad (Bausteine) bauen und veröffentlichen
 on:
   workflow_dispatch:
   push:
