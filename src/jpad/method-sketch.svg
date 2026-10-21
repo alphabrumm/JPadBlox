@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 350" role="img" aria-label="Skizze: Die Methode istUngerade als Blackbox. Rechts wird ein Becher mit Integer x durch eine Klappe hineingekippt (Parameter), links fällt aus einem Rohr mit der Aufschrift Boolean ein false heraus (Rückgabe)." style="color:#2B3140">
+  <defs>
+    <!-- leichtes Zittern, damit die Linien wie mit der Hand gezeichnet wirken -->
+    <filter id="ms-wobble" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <marker id="ms-arrow" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M1.5 1.5 L10 6 L1.5 10.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      .ms-ink { fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+      .ms-thin { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+      .ms-hand { font-family: "Chalkboard SE", "Bradley Hand", "Segoe Print", "Comic Sans MS", cursive; fill: currentColor; }
+      .ms-param { color: #3157F5; }
+      .ms-ret { color: #E8590C; }
+    </style>
+  </defs>
+
+  <g filter="url(#ms-wobble)">
+    <!-- ===== Blackbox ===== -->
+    <path d="M190 92 L384 86 L388 246 L186 250 Z" fill="#2B3140" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
+    <!-- Schraffur-Andeutung für die „schwarze Kiste“ -->
+    <path class="ms-thin" d="M200 238 l24 -24 M222 242 l30 -30 M352 104 l26 -14 M366 112 l16 -10" stroke="#5A6278"/>
+    <text class="ms-hand" x="287" y="176" text-anchor="middle" font-size="27" font-weight="700" style="fill:#FFFFFF">istUngerade</text>
+    <text class="ms-hand" x="287" y="202" text-anchor="middle" font-size="14" style="fill:#AEB6C8">Was drin passiert, ist egal</text>
+
+    <!-- ===== Klappe rechts (Eingang für Parameter) ===== -->
+    <path d="M381 119 L389 118 L390 160 L382 161 Z" fill="#C9CFDC" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+    <!-- offene Klappe, oben angeschlagen, nach außen gekippt -->
+    <path d="M386 116 L432 98 L436 104 L389 124 Z" fill="#E9ECF3" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+    <circle cx="387" cy="117" r="3.2" fill="currentColor"/>
+
+    <!-- ===== Becher mit Parameter ===== -->
+    <g class="ms-param" transform="rotate(-38 486 128)">
+      <path d="M458 104 L514 104 L506 168 L466 168 Z" fill="#E7EDFF" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/>
+      <path class="ms-thin" d="M456 104 Q486 96 516 104"/>
+      <text class="ms-hand" x="486" y="134" text-anchor="middle" font-size="15" font-weight="700">Integer</text>
+      <text class="ms-hand" x="486" y="156" text-anchor="middle" font-size="19" font-weight="700">x</text>
+    </g>
+    <!-- gebogener Pfeil vom Becher in die Klappe -->
+    <path class="ms-ink ms-param" d="M446 84 C 436 104, 420 122, 400 136" marker-end="url(#ms-arrow)" style="stroke:#3157F5;color:#3157F5"/>
+    <text class="ms-hand ms-param" x="470" y="214" text-anchor="middle" font-size="17" font-weight="700">Parameter</text>
+    <text class="ms-hand ms-param" x="470" y="234" text-anchor="middle" font-size="13">(das gibst du hinein)</text>
+
+    <!-- ===== Abflussrohr links (Ausgang für die Rückgabe) ===== -->
+    <path d="M188 196 L120 197 Q92 198 92 226 L92 252 L120 252 L120 230 Q120 224 128 224 L187 223 Z"
+          fill="#EEF1F6" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/>
+    <path class="ms-thin" d="M150 199 L150 222 M168 198 L168 222"/>
+    <text class="ms-hand" x="140" y="188" text-anchor="middle" font-size="16" font-weight="700">Boolean</text>
+
+    <!-- herausfallendes false -->
+    <g class="ms-ret">
+      <path class="ms-thin" d="M98 262 l-2 10 M114 262 l2 10" style="stroke:#E8590C"/>
+      <rect x="74" y="280" width="66" height="30" rx="7" transform="rotate(-8 107 295)" fill="#FFF1E6" stroke="#E8590C" stroke-width="2.4"/>
+      <text class="ms-hand" x="107" y="301" text-anchor="middle" font-size="18" font-weight="700" transform="rotate(-8 107 295)" style="fill:#E8590C">false</text>
+    </g>
+    <text class="ms-hand ms-ret" x="40" y="128" font-size="17" font-weight="700" style="fill:#E8590C">Rückgabe</text>
+    <text class="ms-hand ms-ret" x="40" y="148" font-size="13" style="fill:#E8590C">(das kommt heraus)</text>
+    <path class="ms-thin" d="M82 156 Q 88 176 100 190" marker-end="url(#ms-arrow)" style="stroke:#E8590C;color:#E8590C"/>
+  </g>
+
+  <!-- Methodenkopf als Bildunterschrift -->
+  <text x="287" y="340" text-anchor="middle" font-family="ui-monospace, Menlo, monospace" font-size="15" fill="currentColor">
+    <tspan style="fill:#E8590C" font-weight="700">Boolean</tspan> istUngerade(<tspan style="fill:#3157F5" font-weight="700">Integer x</tspan>)
+  </text>
+</svg>
