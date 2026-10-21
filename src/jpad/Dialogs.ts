@@ -1,5 +1,6 @@
 import { icon } from "./Icons.js";
 import { escapeHtml } from "./LanguageBridge.js";
+import { createMethodAnimation } from "./MethodAnimation.js";
 
 type PromptOptions = {
     title: string;
@@ -180,6 +181,8 @@ export class Dialogs {
                 <input type="text" placeholder="So heißt der Parameter" aria-label="So heißt der Parameter" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off">
             </div>`;
         return this.open(`
+            <div class="jp-method-split">
+            <div class="jp-method-input">
             <h2 class="jp-sheet-title">Baue Deine neue Methode</h2>
             <form class="jp-form">
                 <label class="jp-field">
@@ -200,7 +203,13 @@ export class Dialogs {
                     <button type="button" class="jp-btn" data-cancel>Abbrechen</button>
                     <button type="submit" class="jp-btn jp-btn-primary">Einfügen</button>
                 </div>
-            </form>`, (sheet, close) => {
+            </form>
+            </div>
+            <div class="jp-method-anim"></div>
+            </div>`, (sheet, close) => {
+            // JPadBlox: rechts (bzw. auf schmalen Bildschirmen darunter) die animierte Skizze
+            sheet.classList.add("is-method");
+            sheet.querySelector(".jp-method-anim")!.appendChild(createMethodAnimation());
             const nameInput = sheet.querySelector<HTMLInputElement>("[data-ident]")!;
             const error = sheet.querySelector<HTMLElement>(".jp-field-error")!;
             const rows = sheet.querySelector<HTMLElement>(".jp-param-rows")!;

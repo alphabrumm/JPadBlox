@@ -67,7 +67,9 @@ export class TouchTips {
         }
 
         this.cancel();
-        if (e.pointerType != "touch" || !e.isPrimary) return;
+        // Finger, Stift und (JPadBlox) Maus: langes Drücken mit der linken Maustaste zeigt den Hinweis ebenso
+        if (!e.isPrimary) return;
+        if (e.pointerType != "touch" && !((e.pointerType == "mouse" || e.pointerType == "pen") && e.button == 0)) return;
         const btn = target?.closest?.<HTMLElement>("button");
         if (!btn || (<HTMLButtonElement>btn).disabled || this.tipEl?.contains(btn)) return;
 
@@ -154,7 +156,7 @@ export class TouchTips {
         pop.setAttribute("role", "dialog");
         pop.innerHTML = `
             <span class="jp-tip-info-icon">${icon("lightbulb")}</span>
-            <p>Weißt Du nicht, was ein Button bewirkt? Lege einfach eine halbe Sekunde lang Deinen Finger auf den Button, um Hilfe zu bekommen.</p>
+            <p>Weißt Du nicht, was ein Button bewirkt? Lege einfach eine halbe Sekunde lang Deinen Finger auf den Button (oder halte die Maustaste so lange gedrückt), um Hilfe zu bekommen.</p>
             <button class="jp-iconbtn jp-tip-close" aria-label="Hinweis schließen">${icon("close")}</button>`;
         this.place(pop, anchor);
     }
