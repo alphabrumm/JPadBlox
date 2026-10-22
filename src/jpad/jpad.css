@@ -2535,3 +2535,20 @@ html.phone .jp-topbar .jp-skinbtn { display: none; }
 :root[data-skin="flat"][data-effective="dark"] .jp-drawer { border-right-color: #FFFFFF; }
 :root[data-skin="flat"][data-effective="dark"] ::selection { background: rgba(255, 255, 255, 0.3); }
 :root[data-skin="flat"][data-effective="dark"] .jp-topbar .jp-bulb { color: var(--marker) !important; }
+
+/* Dialoge verschieben (ab 700 px Breite): Griffleiste oben, Überschrift als Ziehgriff */
+.jp-sheet-grip { width: 44px; height: 5px; border-radius: 3px; background: var(--line); margin: -8px auto 10px; cursor: grab; touch-action: none; }
+.jp-sheet-grip::before { content: ""; display: block; height: 28px; margin: -12px -40px 0; }
+.jp-drag-handle { cursor: grab; touch-action: none; -webkit-user-select: none; user-select: none; }
+.jp-sheet.is-dragging, .jp-sheet.is-dragging .jp-drag-handle { cursor: grabbing; }
+.jp-sheet.is-dragging { transition: none; }
+@media (max-width: 699px) { .jp-sheet-grip { display: none; } }
+
+/* Lernpfad geladen: Dialoge links andocken, Hintergrund nur leicht abdunkeln, damit der Lernpfad lesbar bleibt */
+@media (min-width: 700px) {
+    .jp-sheet-layer.is-left { justify-content: flex-start; padding-left: 12px; }
+    .jp-sheet-layer.is-left.is-open { background: rgba(10, 14, 24, 0.14); }
+    .jp-sheet.is-narrow.is-method .jp-method-split { grid-template-columns: minmax(0, 1fr); }
+    .jp-sheet.is-narrow.is-method .jp-method-input { padding-right: 0; }
+    .jp-sheet.is-narrow.is-method .jp-method-anim { padding-left: 0; padding-top: 16px; margin-top: 8px; border-left: 0; border-top: 1px solid var(--line); }
+}

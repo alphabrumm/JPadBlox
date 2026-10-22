@@ -55,6 +55,19 @@ export class Dialogs {
             layer.innerHTML = `<div class="jp-sheet" role="dialog" aria-modal="true">${inner}</div>`;
             this.root.appendChild(layer);
             const sheet = <HTMLElement>layer.firstElementChild;
+            const wide = matchMedia("(min-width: 700px)").matches;
+            // JPadBlox: Ist ein Lernpfad geladen, erscheint der Dialog links am Fensterrand und
+            // höchstens so breit, dass er den Lernpfad rechts nicht verdeckt.
+            if (wide && this.root.dataset.lernpfad) {
+                layer.classList.add("is-left");
+                const side = this.root.querySelector<HTMLElement>(".jp-pane-side")?.getBoundingClientRect();
+                if (side && side.width > 0 && side.left > 380) {
+                    const max = side.left - 24;
+                    sheet.style.maxWidth = max + "px";
+                    if (max < 760) sheet.classList.add("is-narrow");
+                }
+            }
+            if (wide) this.makeDraggable(sheet);
             requestAnimationFrame(() => layer.classList.add("is-open"));
 
             let closed = false;
@@ -72,6 +85,51 @@ export class Dialogs {
             sheet.querySelectorAll<HTMLElement>("[data-cancel]").forEach(b => b.addEventListener("click", () => close(null)));
             onReady(sheet, close);
         });
+    }
+
+    /**
+     * JPadBlox: Dialog verschieben – an der Griffleiste oben, an der Überschrift oder am Kopf ziehen.
+     * Der Dialog bleibt dabei immer ein Stück im Fenster sichtbar.
+     */
+    private makeDraggable(sheet: HTMLElement) {
+        const grip = document.createElement("div");
+        grip.className = "jp-sheet-grip";
+        grip.title = "Zum Verschieben ziehen";
+        sheet.prepend(grip);
+        let dx = 0, dy = 0;
+        let drag: { x: number, y: number, dx: number, dy: number, base: DOMRect } | null = null;
+        const onDown = (e: PointerEvent) => {
+            if ((<HTMLElement>e.target).closest("button, input, select, textarea, a")) return;
+            const r = sheet.getBoundingClientRect();
+            drag = { x: e.clientX, y: e.clientY, dx, dy, base: new DOMRect(r.left - dx, r.top - dy, r.width, r.height) };
+            (<HTMLElement>e.currentTarget).setPointerCapture(e.pointerId);
+            sheet.classList.add("is-dragging");
+            e.preventDefault();
+        };
+        const onMove = (e: PointerEvent) => {
+            if (!drag) return;
+            const W = document.documentElement.clientWidth, H = window.innerHeight;
+            const b = drag.base;
+            dx = Math.min(W - 80 - b.left, Math.max(80 - b.right, drag.dx + e.clientX - drag.x));
+            dy = Math.min(H - 60 - b.top, Math.max(-b.top, drag.dy + e.clientY - drag.y));
+            sheet.style.translate = `${dx}px ${dy}px`;
+        };
+        const onUp = () => { drag = null; sheet.classList.remove("is-dragging"); };
+        const attach = () => {
+            const handles = [grip, ...Array.from(sheet.querySelectorAll<HTMLElement>(".jp-sheet-title, .jp-method-head, .jp-welcome-head"))];
+            for (const h of handles) {
+                if (h.dataset.drag) continue;
+                h.dataset.drag = "1";
+                h.classList.add("jp-drag-handle");
+                h.addEventListener("pointerdown", onDown);
+                h.addEventListener("pointermove", onMove);
+                h.addEventListener("pointerup", onUp);
+                h.addEventListener("pointercancel", onUp);
+            }
+        };
+        attach();
+        // Inhalte, die erst später erscheinen (z. B. Überschriften), ebenfalls zum Ziehen nutzen
+        requestAnimationFrame(attach);
     }
 
     prompt(o: PromptOptions): Promise<string | null> {

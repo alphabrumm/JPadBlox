@@ -52,6 +52,8 @@ Bedienung und Gestaltung.
   Unter dem Datentyp die Häkchen „Array anlegen“ und „nur Deklaration“ (beide zusammen: `Typ[] name;`).
 - **Baustein „new“** auf einer Zeile wie `Hund bello;` entfernt das Semikolon und ergänzt `= new Hund();`.
 - **Umbenennen** wählt das Symbol am Cursor bzw. in der Markierung gleich vor.
+- **Dialoge** (ab 700 px Breite) lassen sich an der Griffleiste oder Überschrift verschieben. Ist ein Lernpfad geladen,
+  erscheinen sie links am Fensterrand und höchstens so breit, dass der Lernpfad frei bleibt.
 - **Haltepunkte**: Knopf in der Hilfsleiste (oder Tippen auf die Zeilennummer). Das Programm hält vor der Zeile an
   und kann dann Schritt für Schritt weiterlaufen.
 - **Kein Mouse-over nötig**: alle Funktionen sind per Tippen erreichbar.
