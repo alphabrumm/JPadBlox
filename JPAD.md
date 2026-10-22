@@ -53,7 +53,7 @@ Bedienung und Gestaltung.
 - **Baustein „new“** auf einer Zeile wie `Hund bello;` entfernt das Semikolon und ergänzt `= new Hund();`.
 - **Umbenennen** wählt das Symbol am Cursor bzw. in der Markierung gleich vor.
 - **Dialoge** (ab 700 px Breite) lassen sich an der Griffleiste oder Überschrift verschieben. Sie erscheinen
-  immer waagrecht mittig über dem Editorbereich (nicht über dem ganzen Fenster), ganz oben mit 12 px Abstand,
+  immer waagrecht mittig über dem Editorbereich (nicht über dem ganzen Fenster), im oberen Drittel (Abstand oben etwa 10 % der Fensterhöhe, bei sehr hohen Dialogen weniger),
   und höchstens so breit wie der Editor.
 - **Taste „+“** setzt genau ein Leerzeichen davor und eines danach (`a|` → `a + |`).
 - **Taste „=“** der Hilfsleiste setzt am Zeilenende gleich den Strichpunkt dahinter (` = |;`).

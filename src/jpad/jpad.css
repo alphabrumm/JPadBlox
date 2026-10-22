@@ -2544,9 +2544,13 @@ html.phone .jp-topbar .jp-skinbtn { display: none; }
 .jp-sheet.is-dragging { transition: none; }
 @media (max-width: 699px) { .jp-sheet-grip { display: none; } }
 
-/* Dialoge mittig über dem Editorbereich, oben am Fensterrand; Hintergrund nur leicht abdunkeln */
+/* Dialoge mittig über dem Editorbereich, im oberen Drittel; Hintergrund nur leicht abdunkeln.
+   Der Abstand oben (::before) schrumpft, wenn ein Dialog sehr hoch ist, damit er ganz sichtbar bleibt. */
 @media (min-width: 700px) {
-    .jp-sheet-layer.is-editor { align-items: flex-start; justify-content: safe center; padding-top: 12px; }
+    .jp-sheet-layer.is-editor { flex-direction: column; align-items: flex-start; justify-content: flex-start; padding: 12px 0 0; }
+    .jp-sheet-layer.is-editor .jp-sheet { width: calc(100vw - 24px); }
+    .jp-sheet-layer.is-editor::before { content: ""; flex: 0 1 10vh; flex: 0 1 10dvh; }
+    .jp-sheet-layer.is-editor .jp-sheet { flex-shrink: 0; }
     .jp-sheet-layer.is-editor.is-open { background: rgba(10, 14, 24, 0.14); }
     .jp-sheet-layer.is-editor .jp-sheet { max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); }
 }

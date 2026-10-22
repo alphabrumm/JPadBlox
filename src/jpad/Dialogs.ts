@@ -62,10 +62,16 @@ export class Dialogs {
                 layer.classList.add("is-editor");
                 const code = this.root.querySelector<HTMLElement>(".jp-pane-code")?.getBoundingClientRect();
                 if (code && code.width > 0) {
-                    layer.style.paddingLeft = Math.max(0, code.left) + "px";
-                    layer.style.paddingRight = Math.max(0, window.innerWidth - code.right) + "px";
                     // höchstens so breit wie der Editor (mit eingeblendeter Skizze darf er breiter werden, siehe CSS .is-method)
                     if (code.width > 380) sheet.style.setProperty("--sheet-cap", (code.width - 24) + "px");
+                    // Mitte des Dialogs = Mitte des Editors; ein breiterer Dialog wird so verschoben, dass er im Fenster bleibt
+                    const mid = code.left + code.width / 2;
+                    const place = () => {
+                        const w = sheet.offsetWidth;
+                        sheet.style.marginLeft = Math.round(Math.max(12, Math.min(mid - w / 2, window.innerWidth - w - 12))) + "px";
+                    };
+                    place();
+                    new ResizeObserver(place).observe(sheet);
                 }
             }
             if (wide) this.makeDraggable(sheet);
