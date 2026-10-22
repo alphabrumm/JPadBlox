@@ -55,8 +55,15 @@ self.MonacoEnvironment = {
 };
 
 async function boot() {
-    loadSpritesheet();
     const root = document.getElementById("jpad-app")!;
+    // Notbremse: JPad wurde in einem abgeschotteten Lernpfad-Rahmen geladen (z. B. über einen Link im Lernpfad)
+    if (window.self !== window.top && location.origin == "null") {
+        root.removeAttribute("aria-busy");
+        root.innerHTML = `<div class="jp-fatal"><h1>Dieser Link führt nicht weiter</h1>
+            <p>Der Link im Lernpfad hat versucht, eine andere Seite zu öffnen. Tippe oben noch einmal auf einen anderen Reiter und dann wieder auf den Lernpfad.</p></div>`;
+        return;
+    }
+    loadSpritesheet();
     try {
         await new App(root).start();
     } catch (e: any) {

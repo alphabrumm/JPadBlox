@@ -1275,7 +1275,15 @@ export class App {
             + `setItem:function(k,v){d[String(k)]=String(v);save();},removeItem:function(k){delete d[String(k)];save();},`
             + `clear:function(){d={};save();},key:function(i){return Object.keys(d)[i]||null;}};`
             + `Object.defineProperty(s,"length",{get:function(){return Object.keys(d).length;}});`
-            + `try{Object.defineProperty(window,"localStorage",{value:s,configurable:true});}catch(e){}})();<\/script>`;
+            + `try{Object.defineProperty(window,"localStorage",{value:s,configurable:true});}catch(e){}})();<\/script>`
+            // Links im Lernpfad: Ein srcdoc-Rahmen hat die Adresse von JPad als Basis. Safari lädt deshalb bei
+            // Sprunglinks („#s3“) JPad im Rahmen neu (→ „IDBFactory.open() … invalid security context“).
+            // Sprunglinks scrollen wir selbst, relative Links bleiben wirkungslos, externe öffnen in einem neuen Tab.
+            + `<script>document.addEventListener("click",function(e){var a=e.target&&e.target.closest&&e.target.closest("a[href]");if(!a)return;`
+            + `var h=a.getAttribute("href")||"";if(h.charAt(0)=="#"){e.preventDefault();var id=decodeURIComponent(h.slice(1));`
+            + `var t=id?(document.getElementById(id)||document.getElementsByName(id)[0]):document.body;if(t)t.scrollIntoView({behavior:"smooth",block:"start"});return;}`
+            + `if(/^(https?:|mailto:)/i.test(h)){if(!a.target){e.preventDefault();window.open(a.href,"_blank","noopener");}return;}`
+            + `if(!/^(data:|blob:|javascript:)/i.test(h))e.preventDefault();},true);<\/script>`;
         // möglichst früh einfügen, damit die Skripte des Lernpfads den Ersatz schon vorfinden
         const m = html.match(/<head[^>]*>/i) || html.match(/<html[^>]*>/i);
         return m ? html.replace(m[0], m[0] + shim) : shim + html;
