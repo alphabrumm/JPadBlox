@@ -2564,3 +2564,7 @@ html.phone .jp-topbar .jp-skinbtn { display: none; }
 .jp-sheet .jp-sheet-buttons .jp-btn { min-height: 38px; padding: 0 14px; font-size: 15px; }
 .jp-sheet .jp-sheet-title { font-size: 18px; margin-bottom: 10px; }
 .jp-sheet .jp-choice { padding: 10px 12px; }
+
+/* Objektkarten behalten auch in den Themes mit spitzen Ecken ihre runden Ecken (Unterschied zur Klassenkarte) */
+:root[data-skin="hacker"] .jp-uml-card.is-object,
+:root[data-skin="flat"] .jp-uml-card.is-object { border-radius: 14px !important; }

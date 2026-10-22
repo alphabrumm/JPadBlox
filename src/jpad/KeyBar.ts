@@ -247,10 +247,32 @@ export class KeyBar {
             const k = KEYS[parseInt(b.dataset.key)];
             if (k.action == "tab") this.editor.indentMore();
             else if (k.label == "=" && this.restOfLineEmpty()) this.editor.insert(" = §;");   // meist folgt ein Semikolon
+            else if (k.label == "+") this.insertSpaced("+");
             else if (k.insert) this.editor.insert(k.insert);
         } else if (b.dataset.action) {
             this.runAction(b.dataset.action);
         }
+    }
+
+    /**
+     * Operator mit genau einem Leerzeichen davor und einem danach einfügen: a| → a + |
+     * (vorhandene Leerzeichen links vom Cursor werden auf eines gekürzt; am Zeilenanfang kein Leerzeichen davor)
+     */
+    private insertSpaced(op: string) {
+        const view = this.editor.view, st = view.state, sel = st.selection.main;
+        const line = st.doc.lineAt(sel.from);
+        const before = st.sliceDoc(line.from, sel.from);
+        const trimmed = before.replace(/[ \t]+$/, "");
+        const from = line.from + trimmed.length;
+        const lead = trimmed.trim() == "" ? "" : " ";
+        const nextIsSpace = st.sliceDoc(sel.to, sel.to + 1) == " ";
+        const insert = (trimmed.trim() == "" ? before : lead) + op + (nextIsSpace ? "" : " ");
+        const start = trimmed.trim() == "" ? line.from : from;
+        view.dispatch({
+            changes: { from: start, to: sel.to, insert },
+            selection: { anchor: start + insert.length + (nextIsSpace ? 1 : 0) },
+            userEvent: "input.type", scrollIntoView: true
+        });
     }
 
     /** Steht rechts vom Cursor in dieser Zeile nichts mehr? */
