@@ -215,9 +215,24 @@ figcaption { font-size: 15px; color: var(--ink-2); margin-top: 8px; }
 .pin { width: 26px; height: 26px; font-size: 13px; border-width: 2px; }
 @media (min-width: 760px) { .pin { width: 32px; height: 32px; font-size: 16px; border-width: 3px; } }
 
+/* Schriftgröße (A− / A+): immer oben rechts, dezent und transparent */
+.fontsize { position: fixed; z-index: 40; top: calc(env(safe-area-inset-top, 0px) + 8px); right: max(8px, env(safe-area-inset-right, 0px)); display: flex; gap: 4px; }
+.fs-btn { width: 34px; height: 30px; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--ink-2) 35%, transparent); background: color-mix(in srgb, var(--surface) 55%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); color: var(--ink-2); font-family: var(--font-body); font-size: 13px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 1px; padding: 0; opacity: .75; }
+.fs-btn.fs-big { font-size: 16px; }
+.fs-btn span { font-size: 0.85em; }
+.fs-btn:hover, .fs-btn:active { opacity: 1; }
+.fs-btn:disabled { opacity: .3; cursor: default; }
+/* Platz für die Knöpfe rechts in der Stationsleiste */
+.trail-inner { padding-right: 84px; }
+body { overflow-anchor: none; }
+
 </style>
 </head>
 <body>
+<div class="fontsize" role="group" aria-label="Schriftgröße">
+  <button type="button" class="fs-btn" data-fs="-1" aria-label="Schrift kleiner" title="Schrift kleiner">A<span>−</span></button>
+  <button type="button" class="fs-btn fs-big" data-fs="1" aria-label="Schrift größer" title="Schrift größer">A<span>+</span></button>
+</div>
 <div class="sky">
 <header class="hero wrap">
   <div class="hero-grid">
@@ -619,6 +634,33 @@ figcaption { font-size: 15px; color: var(--ink-2); margin-top: 8px; }
       box.appendChild(q);
     });
   });
+
+  // ---------- Schriftgröße ----------
+  // Vergrößert den ganzen Inhalt (Kopf und Stationen), die Stationsleiste bleibt gleich groß.
+  const FS_KEY = "jpad-demo-zoom", STEPS = [0.8, 0.9, 1, 1.1, 1.25, 1.4, 1.6];
+  let zi = 2;
+  try { const z = parseFloat(localStorage.getItem(FS_KEY)); if (STEPS.includes(z)) zi = STEPS.indexOf(z); } catch (e) { }
+  const fsBtns = document.querySelectorAll(".fs-btn");
+  function applyZoom() {
+    const z = STEPS[zi];
+    document.querySelectorAll(".sky, main, .footer").forEach(el => el.style.zoom = z);
+    fsBtns.forEach(b => b.disabled = (b.dataset.fs == "-1" && zi == 0) || (b.dataset.fs == "1" && zi == STEPS.length - 1));
+  }
+  fsBtns.forEach(b => b.addEventListener("click", () => {
+    // Leseposition merken: aktuelle Station und wie weit man in ihr ist
+    const bar = document.querySelector(".trail").getBoundingClientRect().bottom;
+    const cur = stations.filter(st => st.getBoundingClientRect().top <= bar + 1).pop();
+    const r0 = cur ? cur.getBoundingClientRect() : null;
+    const frac = r0 && r0.height > 0 ? (bar - r0.top) / r0.height : 0;
+    zi = Math.max(0, Math.min(STEPS.length - 1, zi + Number(b.dataset.fs)));
+    try { localStorage.setItem(FS_KEY, String(STEPS[zi])); } catch (e) { }
+    applyZoom();
+    if (cur) requestAnimationFrame(() => {
+      const r1 = cur.getBoundingClientRect();
+      window.scrollBy({ top: r1.top + frac * r1.height - bar, behavior: "instant" });
+    });
+  }));
+  applyZoom();
 
   // ---------- Pixel-Hund ----------
   const DOG = [
