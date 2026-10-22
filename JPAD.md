@@ -31,6 +31,12 @@ Bedienung und Gestaltung.
   Beim ersten Aufruf entsteht ein neues Projekt; derselbe Link öffnet später dieses Projekt mit dem Stand des Schülers.
   Fremde Server müssen das Laden erlauben (CORS, z. B. GitHub Pages); sonst wird eine HTML-Seite direkt von ihrer
   Adresse angezeigt (nur online). Projekte mit Lernpfad starten mit schmaler Bausteinleiste und breiter Ansicht rechts.
+- **Umbenennen** (Stift links neben Rückgängig): Variable, Methode oder Klasse aus einer Liste wählen (sortiert nach
+  Variablen, Methoden, Klassen, jeweils alphabetisch) und überall im Projekt umbenennen. Nutzt die Verwendungsstellen
+  des Compilers (`src/jpad/Refactor.ts`); heißt eine Datei wie die umbenannte Klasse, wird sie mit umbenannt.
+- **Demo-Projekt** im Menü: öffnet den Lernpfad `public/demo/index.html` („Bello lernt Java“: Oberfläche, Glühbirne,
+  Datentypen, Klasse Hund mit Bausteinen, Methode mit if–else, Objekt, Schritt, Haltepunkt, Objektdiagramm) wie einen
+  Lernpfad-Link. Die Bilder in `public/demo/img` sind Screenshots von JPadBlox und werden beim Laden eingebettet.
 - **Haltepunkte**: Knopf in der Hilfsleiste (oder Tippen auf die Zeilennummer). Das Programm hält vor der Zeile an
   und kann dann Schritt für Schritt weiterlaufen.
 - **Kein Mouse-over nötig**: alle Funktionen sind per Tippen erreichbar.

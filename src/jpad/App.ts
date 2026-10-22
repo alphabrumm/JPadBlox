@@ -317,6 +317,7 @@ export class App {
                     <button data-ref="newProjectBtn" data-tip="Neues, leeres Projekt anlegen">${icon("plus")}<span>Neues Projekt</span></button>
                     <button data-ref="openFileBtn" data-tip="Projekt aus einer Datei öffnen (z. B. aus ByCS Drive)">${icon("open")}<span>Projekt aus Datei öffnen</span></button>
                     <button data-ref="saveFileBtn" data-tip="Projekt als Datei sichern">${icon("save")}<span>Projekt als Datei sichern</span></button>
+                    <button data-ref="demoBtn" data-tip="Demo-Projekt mit Lernpfad: JPad kennenlernen und die Klasse Hund bauen">${icon("lernpfad")}<span>Demo-Projekt laden</span></button>
                     <button data-ref="userSpritesBtn" data-tip="Eigene Bilder als Sprites zum Projekt hinzufügen">${icon("imagePlus")}<span>Eigene Sprites</span></button>
                     <button data-ref="lernpfadAddBtn" data-tip="Eine HTML-Seite oder ein ZIP (index.html mit Bildern) als Lernpfad in dieses Projekt einbetten">${icon("lernpfad")}<span>Lernpfad einbetten</span></button>
                     <button data-ref="lernpfadRemoveBtn" data-tip="Den eingebetteten Lernpfad aus diesem Projekt entfernen">${icon("trash")}<span>Lernpfad entfernen</span></button>
@@ -382,6 +383,7 @@ export class App {
         this.el.saveBtn.addEventListener("click", () => this.exportProject());
         this.el.skinBtn.addEventListener("click", () => this.nextSkin());
         this.el.refactorBtn.addEventListener("click", () => this.renameDialog());
+        this.el.demoBtn.addEventListener("click", () => this.openDemo());
         this.renderSkinButton();
 
         // Kopfzeilen-Knöpfe sollen dem Editor den Fokus nicht wegnehmen (sonst klappt die Tastatur zu)
@@ -933,6 +935,18 @@ export class App {
         } catch (e) {
             console.warn("JPadBlox: Formatieren nach Baustein fehlgeschlagen", e);
         }
+    }
+
+    /**
+     * Menü „Demo-Projekt laden“: öffnet den Demo-Lernpfad (public/demo) wie einen Lernpfad-Link.
+     * Gibt es das Demo-Projekt schon, öffnet sich dieses mit dem bisherigen Stand.
+     */
+    openDemo() {
+        this.main.flush();
+        this.closeDrawer();
+        const url = new URL(location.href);
+        url.search = "?lernpfad=" + encodeURIComponent("demo/index.html");
+        setTimeout(() => location.href = url.href, 150);
     }
 
     /** Refactor-Knopf: Variable, Methode oder Klasse im ganzen Projekt umbenennen. */

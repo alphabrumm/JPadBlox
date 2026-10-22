@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>JPad-Demo: Bello lernt Java</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&family=Pixelify+Sans:wght@500;700&display=swap">
+<style>
+/* Demo-Lernpfad „Bello lernt Java“: Aufbau wie die Lernpfade zu JPad,
+   Farbwelt „Abendspaziergang“: Wiesengrün, Abendhimmel, Stationsschilder in Grün. */
+:root {
+  --bg: #f4faf5;
+  --surface: #ffffff;
+  --surface-2: #e5f3ea;
+  --ink: #17302a;
+  --ink-2: #4f6b62;
+  --line: #cfe5d7;
+  --sun: #1f8a6a;
+  --sun-soft: #d4efe3;
+  --gold: #f0a12e;
+  --rose: #c2477a;
+  --rose-soft: #f8dce7;
+  --dawn: #5457c4;
+  --dawn-soft: #e4e4fa;
+  --next: #ffe7a0;
+  --next-edge: #e3ab1f;
+  --good: #2f8a4a;
+  --good-soft: #dcf1e1;
+  --bad: #c23b3b;
+  --bad-soft: #fbe0e0;
+  --kw: #8a3bc9;
+  --ty: #b2437a;
+  --str: #c2551c;
+  --fn: #4b4fd0;
+  --num: #2b7d4a;
+  --com: #9a8692;
+  --ghost: #f3ece8;
+  --wool-weiss: #f9f5ec;
+  --wool-schwarz: #34303a;
+  --wool-braun: #8d4f2c;
+  --face: #3b3434;
+  --font-display: "Pixelify Sans", "Courier New", monospace;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --font-code: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --radius: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1a17; --surface: #152420; --surface-2: #1c302a; --ink: #e8f5ef; --ink-2: #a9c4ba; --line: #2a4a3f;
+    --sun: #4fd1a5; --sun-soft: #173a30; --gold: #ffc35c; --rose: #ff7fae; --rose-soft: #45233f; --dawn: #a8abff; --dawn-soft: #2b2a5a;
+    --next: #4a3c17; --next-edge: #e3ab1f; --good: #6fd08b; --good-soft: #1f3a2a; --bad: #ff8a8a; --bad-soft: #452326;
+    --kw: #d6a3ff; --ty: #ff8fbf; --str: #ffab78; --fn: #a9adff; --num: #7fd69a; --com: #9b8aa3;
+    --ghost: #33294f; --wool-weiss: #efe9df; --wool-schwarz: #121014; --wool-braun: #a5603a; --face: #2a2424;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1a17; --surface: #152420; --surface-2: #1c302a; --ink: #e8f5ef; --ink-2: #a9c4ba; --line: #2a4a3f;
+  --sun: #4fd1a5; --sun-soft: #173a30; --gold: #ffc35c; --rose: #ff7fae; --rose-soft: #45233f; --dawn: #a8abff; --dawn-soft: #2b2a5a;
+  --next: #4a3c17; --next-edge: #e3ab1f; --good: #6fd08b; --good-soft: #1f3a2a; --bad: #ff8a8a; --bad-soft: #452326;
+  --kw: #d6a3ff; --ty: #ff8fbf; --str: #ffab78; --fn: #a9adff; --num: #7fd69a; --com: #9b8aa3;
+  --ghost: #33294f; --wool-weiss: #efe9df; --wool-schwarz: #121014; --wool-braun: #a5603a; --face: #2a2424;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 18px; line-height: 1.6; -webkit-text-size-adjust: 100%; }
+.wrap { max-width: 820px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { text-wrap: balance; line-height: 1.2; }
+h2 { font-family: var(--font-display); font-weight: 700; font-size: clamp(28px, 5vw, 36px); margin: 0; }
+h3 { font-size: 21px; margin: 28px 0 8px; }
+p { margin: 0 0 14px; }
+a { color: var(--dawn); text-underline-offset: 3px; }
+code { font-family: var(--font-code); font-size: 0.86em; background: var(--surface-2); padding: 1px 6px; border-radius: 5px; overflow-wrap: anywhere; }
+img { max-width: 100%; height: auto; display: block; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--dawn); outline-offset: 2px; border-radius: 6px; }
+
+/* ---------- Hero: Morgenhimmel ---------- */
+.sky { background: linear-gradient(180deg, color-mix(in srgb, var(--dawn) 22%, var(--bg)) 0%, color-mix(in srgb, var(--rose) 16%, var(--bg)) 45%, color-mix(in srgb, var(--gold) 18%, var(--bg)) 85%, var(--bg) 100%); }
+.hero { padding-block: 34px 18px; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 28px; align-items: center; }
+.hero-art { border-radius: 4px; box-shadow: 0 0 0 4px var(--surface), 0 0 0 6px var(--line); }
+.eyebrow { display: inline-flex; gap: 8px; align-items: center; font-family: var(--font-display); color: var(--sun); font-size: 17px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+.eyebrow b { background: var(--sun); color: var(--surface); padding: 0 8px; border-radius: 4px; letter-spacing: 0.04em; }
+.hero h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(38px, 7vw, 60px); margin: 0 0 14px; }
+.hero .lead { font-size: 20px; color: var(--ink-2); }
+.goals { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 8px; }
+.goals li { position: relative; padding-left: 34px; }
+.goals li::before { content: ""; position: absolute; left: 2px; top: 6px; width: 16px; height: 16px; border-radius: 50%; background: radial-gradient(circle, var(--gold) 0 45%, var(--sun) 46% 100%); box-shadow: 0 0 0 3px var(--sun-soft); }
+@media (max-width: 680px) { .hero-grid { grid-template-columns: minmax(0, 1fr); } .hero-art { max-width: 320px; } }
+
+/* ---------- Stationsleiste ---------- */
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); }
+.trail { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.trail-inner { display: flex; align-items: center; gap: 12px; padding-block: 10px; }
+.trail-stops { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; flex: 1; min-width: 0; padding: 2px; }
+.trail-stops::-webkit-scrollbar { display: none; }
+.trail-stops a { flex: none; width: 38px; height: 38px; display: grid; place-items: center; font-family: var(--font-display); font-size: 17px; text-decoration: none; color: var(--ink-2); background: var(--surface); border: 2px solid var(--line); border-radius: 50%; }
+.trail-stops a.is-done { background: var(--sun); border-color: var(--sun); color: var(--surface); }
+.trail-count { flex: none; font-family: var(--font-display); font-size: 16px; color: var(--ink-2); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* ---------- Stationen ---------- */
+.station { padding-block: 44px 20px; border-bottom: 2px dashed var(--line); }
+.station-head { display: flex; gap: 16px; align-items: center; margin-bottom: 18px; }
+.badge { flex: none; width: 58px; height: 58px; display: grid; place-items: center; font-family: var(--font-display); font-size: 27px; font-weight: 700; color: #fff; border-radius: 50%; background: radial-gradient(circle at 50% 35%, var(--gold), var(--sun) 70%); box-shadow: 0 0 0 5px var(--sun-soft); }
+.station-head small { display: block; font-family: var(--font-display); color: var(--ink-2); font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; }
+.done-row { display: flex; justify-content: flex-end; margin-top: 22px; }
+.done { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; padding: 10px 16px; border-radius: 999px; border: 2px solid var(--line); background: var(--surface); font-weight: 700; }
+.done input { width: 22px; height: 22px; accent-color: var(--sun); margin: 0; }
+.done:has(input:checked) { border-color: var(--sun); background: var(--sun-soft); }
+
+ol.steps { list-style: none; counter-reset: s; padding: 0; margin: 10px 0 18px; display: grid; gap: 12px; }
+ol.steps > li { counter-increment: s; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; align-items: start; }
+ol.steps > li::before { content: counter(s); width: 30px; height: 30px; display: grid; place-items: center; font-family: var(--font-display); font-size: 16px; color: var(--sun); border: 2px solid var(--sun); border-radius: 50%; margin-top: 1px; }
+.ui { font-weight: 700; white-space: nowrap; }
+.key { display: inline-flex; align-items: center; gap: 4px; padding: 0 8px; min-height: 28px; vertical-align: middle; border: 1px solid var(--line); border-bottom-width: 3px; border-radius: 7px; background: var(--surface); font-weight: 700; font-size: 0.9em; white-space: nowrap; line-height: 1.4; }
+.key svg { width: 18px; height: 18px; }
+
+.note { padding: 14px 16px; border-radius: var(--radius); background: var(--dawn-soft); margin: 18px 0; }
+.note.warn { background: var(--sun-soft); }
+.note.rule { background: var(--rose-soft); }
+.note p:last-child, .note ul:last-child { margin-bottom: 0; }
+.note-title { font-weight: 700; display: block; margin-bottom: 4px; }
+.note ul { margin: 6px 0 0; padding-left: 22px; }
+.note li { margin: 4px 0; }
+.task { margin: 22px 0; border: 2px solid var(--sun); border-radius: var(--radius); background: var(--surface); }
+.task-head { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: var(--sun-soft); border-radius: 10px 10px 0 0; font-family: var(--font-display); font-size: 18px; color: var(--sun); }
+.task-body { padding: 14px 16px 6px; }
+details.reveal { margin: 4px 0 14px; border-top: 1px dashed var(--line); padding-top: 10px; }
+details.reveal summary { cursor: pointer; font-weight: 700; color: var(--dawn); list-style: none; display: inline-flex; align-items: center; gap: 8px; min-height: 36px; }
+details.reveal summary::-webkit-details-marker { display: none; }
+details.reveal summary::before { content: "▸"; transition: transform .15s; }
+details.reveal[open] summary::before { transform: rotate(90deg); }
+details.reveal .answer { padding: 8px 0 4px; }
+figure { margin: 18px 0 22px; }
+.shot { border-radius: 10px; border: 1px solid var(--line); background: var(--surface); }
+figcaption { font-size: 15px; color: var(--ink-2); margin-top: 8px; }
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.pair figure { margin: 0; }
+@media (max-width: 620px) { .pair { grid-template-columns: minmax(0, 1fr); } }
+.callout { font-weight: 700; font-size: 22px; line-height: 1.4; margin: 18px 0 0; text-wrap: balance; }
+
+/* ---------- Code ---------- */
+.code { margin: 14px 0 20px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface); overflow: hidden; }
+.code-head { display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 14px; background: var(--surface-2); border-bottom: 1px solid var(--line); min-height: 46px; }
+.code-head .fname { font-family: var(--font-code); font-size: 15px; font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.copy { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border-radius: 9px; cursor: pointer; border: 0; background: var(--sun); color: #fff; font-weight: 700; font-size: 16px; }
+.copy svg { width: 18px; height: 18px; }
+.copy.is-copied { background: var(--dawn); }
+.code pre { margin: 0; padding: 14px 0; overflow-x: auto; font-family: var(--font-code); font-size: 15.5px; line-height: 1.65; tab-size: 3; }
+.code pre .ln { display: block; padding: 0 16px 0 0; white-space: pre; }
+.code pre .ln::before { content: attr(data-n); display: inline-block; width: 2.6em; padding-right: 1em; text-align: right; color: var(--com); user-select: none; -webkit-user-select: none; }
+.code pre .ln.is-mark { background: var(--next); }
+.t-kw { color: var(--kw); font-weight: 600; }
+.t-ty { color: var(--ty); }
+.t-str { color: var(--str); }
+.t-fn { color: var(--fn); }
+.t-num { color: var(--num); }
+.t-com { color: var(--com); font-style: italic; }
+.vs { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+.vs .code { margin: 0; }
+@media (max-width: 720px) { .vs { grid-template-columns: minmax(0, 1fr); } }
+.tag { display: inline-block; font-size: 13px; font-weight: 700; padding: 1px 8px; border-radius: 999px; margin-left: 6px; }
+.tag.bad { background: var(--bad-soft); color: var(--bad); }
+.tag.good { background: var(--good-soft); color: var(--good); }
+
+/* ---------- Methodenkopf zerlegen ---------- */
+.anatomy { margin: 16px 0; padding: 18px 14px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); }
+.anatomy-line { font-family: var(--font-code); font-size: clamp(15px, 3.3vw, 20px); display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: baseline; justify-content: center; }
+.part { border: 2px dashed transparent; border-radius: 8px; padding: 2px 6px; cursor: pointer; background: transparent; font-family: inherit; font-size: inherit; color: inherit; }
+.part:hover, .part.is-on { border-color: var(--sun); background: var(--sun-soft); }
+.part[data-p="ret"] { color: var(--ty); }
+.part[data-p="name"] { color: var(--fn); }
+.part[data-p="params"] { color: var(--ink); }
+.anatomy-say { margin: 14px 4px 0; min-height: 3.2em; text-align: center; color: var(--ink-2); }
+.anatomy-say b { color: var(--ink); }
+
+/* ---------- Mini-Quiz ---------- */
+.quiz { display: grid; gap: 18px; margin: 14px 0; }
+.q { padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.q-text { font-weight: 700; margin-bottom: 10px; }
+.q-opts { display: grid; gap: 8px; }
+.q-opt { text-align: left; padding: 10px 14px; min-height: 46px; border-radius: 10px; border: 2px solid var(--line); background: var(--surface); cursor: pointer; display: flex; gap: 10px; align-items: center; }
+.q-opt code { background: transparent; padding: 0; font-size: 0.95em; }
+.q-opt.is-right { border-color: var(--good); background: var(--good-soft); }
+.q-opt.is-wrong { border-color: var(--bad); background: var(--bad-soft); }
+.q-fb { margin-top: 10px; font-size: 16px; min-height: 0; }
+.q-fb.good { color: var(--good); }
+.q-fb.bad { color: var(--bad); }
+
+
+/* ---------- Demo: Ergänzungen ---------- */
+.hero-art { display: block; width: 100%; aspect-ratio: 1; background: var(--surface); }
+.hero-art svg { display: block; width: 100%; height: 100%; }
+.types { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 14px 0 20px; }
+.type { display: grid; gap: 4px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.type > code:first-child { font-size: 1.05em; font-weight: 600; background: transparent; padding: 0; }
+.type span { color: var(--ink-2); font-size: 15px; line-height: 1.35; }
+.tour { position: relative; margin: 16px 0 8px; }
+.tour img { display: block; width: 100%; height: auto; }
+.pin { position: absolute; transform: translate(-50%, -50%); width: 34px; height: 34px; border-radius: 50%; border: 3px solid #fff; background: var(--sun); color: #fff; font-family: var(--font-display); font-size: 17px; font-weight: 700; cursor: pointer; display: grid; place-items: center; box-shadow: 0 2px 8px rgba(0,0,0,.35); padding: 0; }
+.pin.is-on { background: var(--rose); transform: translate(-50%, -50%) scale(1.15); }
+.tour-say { min-height: 4.8em; padding: 12px 16px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--line); }
+.tour-say b { display: block; margin-bottom: 2px; }
+.bulb-key { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; background: #ffd43b; color: #1b1b12; vertical-align: middle; margin-right: 6px; }
+.bulb-key svg { width: 19px; height: 19px; }
+.bulb-note .callout { margin: 6px 0 12px; }
+.key-run { background: #ffd43b; color: #1b1b12; border-color: #d9a92a; }
+.badge { background: radial-gradient(circle at 50% 35%, #7fdcb5, var(--sun) 72%); }
+.goals li::before { background: radial-gradient(circle, #ffd166 0 45%, var(--sun) 46% 100%); }
+.pin { width: 26px; height: 26px; font-size: 13px; border-width: 2px; }
+@media (min-width: 760px) { .pin { width: 32px; height: 32px; font-size: 16px; border-width: 3px; } }
+
+</style>
+</head>
+<body>
+<div class="sky">
+<header class="hero wrap">
+  <div class="hero-grid">
+    <div>
+      <div class="eyebrow"><b>Demo</b> JPad kennenlernen</div>
+      <h1>Bello lernt Java</h1>
+      <p class="lead">Willkommen in JPad! In diesem Rundgang lernst du die Oberfläche kennen und baust Schritt für Schritt deine erste eigene Klasse: einen Hund, der selbst entscheiden kann, ob er allein daheim bleiben darf.</p>
+      <ul class="goals">
+        <li>Die Oberfläche von JPad und die Glühbirne kennenlernen</li>
+        <li>Die Grunddatentypen <code>String</code>, <code>Integer</code>, <code>Double</code> und <code>Boolean</code> auffrischen</li>
+        <li>Mit Bausteinen eine Klasse, ein Attribut und eine Methode bauen</li>
+        <li>Ein Objekt erzeugen, das Programm starten und Schritt für Schritt zusehen</li>
+        <li>Haltepunkte setzen und das Objektdiagramm lesen</li>
+      </ul>
+    </div>
+    <div class="hero-art" role="img" aria-label="Pixelbild: Ein brauner Hund mit roter Halskette sitzt auf einer Wiese unter einem Abendhimmel."><svg id="dogArt" viewBox="0 0 24 24" shape-rendering="crispEdges"></svg></div>
+  </div>
+</header>
+</div>
+
+<nav class="trail" aria-label="Stationen">
+  <div class="wrap trail-inner">
+    <div class="trail-stops" id="trailStops"></div>
+    <div class="trail-count" id="trailCount">0 / 10</div>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ================= 1 ================= -->
+<section class="station" id="s1" data-station="1">
+  <div class="station-head"><div class="badge">1</div><div><small>Rundgang</small><h2>Das ist JPad</h2></div></div>
+  <p>JPad ist eine Werkstatt für Java, gebaut für das iPad. Du schreibst Code, ohne viel tippen zu müssen, und siehst sofort, was dein Programm tut. Tippe auf die Nummern im Bild:</p>
+  <div class="tour" id="tour">
+    <img class="shot" src="img/oberflaeche.jpg" width="1180" height="820" alt="Die Oberfläche von JPad im Querformat: links die Bausteine, in der Mitte der Code-Editor, rechts dieser Lernpfad, oben die Kopfzeile mit Knöpfen, unten die Hilfsleiste.">
+  </div>
+  <p class="tour-say" id="tourSay" aria-live="polite">Tippe auf eine Nummer.</p>
+  <div class="note rule bulb-note">
+    <span class="note-title"><span class="bulb-key" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg></span> Das Wichtigste zuerst: die Glühbirne</span>
+    <p>Oben in der Kopfzeile leuchtet eine gelbe <strong>Glühbirne</strong>. Sie erinnert dich an den wichtigsten Trick in JPad:</p>
+    <p class="callout">Weißt du nicht, was ein Knopf tut? Lege einfach eine halbe Sekunde lang den Finger darauf.</p>
+    <p>Dann erscheint eine Hilfe, und der Knopf wird <em>nicht</em> ausgelöst. Das klappt bei jedem Knopf und jedem Baustein. Bei den Bausteinen bekommst du sogar eine große Hilfe mit Beispielen.</p>
+  </div>
+  <div class="task">
+    <div class="task-head">Probier es aus</div>
+    <div class="task-body">
+      <p><strong>a)</strong> Tippe in JPad auf die Glühbirne. Was steht in dem Hinweis?</p>
+      <p><strong>b)</strong> Lege den Finger eine halbe Sekunde auf den Baustein <span class="ui">Klasse</span> links. Was erklärt dir JPad?</p>
+      <details class="reveal"><summary>Lösung anzeigen</summary><div class="answer">Die Glühbirne erklärt das lange Drücken. Beim Baustein <span class="ui">Klasse</span> erscheint eine große Hilfe: Eine Klasse ist ein Bauplan für viele gleichartige Objekte. Tippe auf das ✕ oder daneben, um die Hilfe zu schließen.</div></details>
+    </div>
+  </div>
+  <div class="done-row"><label class="done"><input type="checkbox" data-done="1"> Station erledigt</label></div>
+</section>
+
+<!-- ================= 2 ================= -->
+<section class="station" id="s2" data-station="2">
+  <div class="station-head"><div class="badge">2</div><div><small>Vorwissen</small><h2>Welcher Datentyp passt?</h2></div></div>
+  <p>Jede Variable in Java hat einen <strong>Datentyp</strong>. Er legt fest, welche Werte hineinpassen. Für den Anfang brauchst du vier:</p>
+  <div class="types">
+    <div class="type"><code class="t-ty">String</code><span>Text in Anführungszeichen</span><code class="t-str">"Bello"</code></div>
+    <div class="type"><code class="t-ty">Integer</code><span>ganze Zahl</span><code class="t-num">3</code></div>
+    <div class="type"><code class="t-ty">Double</code><span>Kommazahl, mit Punkt geschrieben</span><code class="t-num">12.5</code></div>
+    <div class="type"><code class="t-ty">Boolean</code><span>Wahrheitswert</span><code class="t-kw">true</code> / <code class="t-kw">false</code></div>
+  </div>
+  <p>Weißt du, welcher Datentyp passt? Tippe auf die Antwort, die du für richtig hältst:</p>
+  <div class="quiz" data-quiz="types"></div>
+  <div class="done-row"><label class="done"><input type="checkbox" data-done="2"> Station erledigt</label></div>
+</section>
+
+<!-- ================= 3 ================= -->
+<section class="station" id="s3" data-station="3">
+  <div class="station-head"><div class="badge">3</div><div><small>Baustein „Klasse“</small><h2>Die Klasse Hund</h2></div></div>
+  <p>Eine <strong>Klasse</strong> ist ein Bauplan. Sie legt fest, welche Eigenschaften (<strong>Attribute</strong>) und Fähigkeiten (<strong>Methoden</strong>) alle Objekte dieser Art haben. Jeder Hund hat einen Namen und ein Alter. Das sind die ersten beiden Attribute:</p>
+  <div class="code" data-file="Attribute für die Klasse Hund" data-src="attrs"></div>
+  <ol class="steps">
+    <li><div>Tippe oben auf <span class="ui">Kopieren</span>.</div></li>
+    <li><div>Tippe in JPad links auf den Baustein <span class="ui">Klasse</span>.</div></li>
+    <li><div>Gib als Namen <code>Hund</code> ein, mit großem H. Klassennamen beginnen immer mit einem Großbuchstaben.</div></li>
+    <li><div>Tippe auf <span class="ui">Klasse als Datei anlegen</span>. Oben erscheint ein neuer Reiter <span class="ui">Hund</span> mit dem Klassengerüst. Der Cursor blinkt schon in der leeren Zeile zwischen den geschweiften Klammern.</div></li>
+    <li><div>Halte den Finger in diese leere Zeile und wähle <span class="ui">Einsetzen</span>.</div></li>
+  </ol>
+  <figure><img class="shot" src="img/klasse-dialog.jpg" width="1180" height="820" alt="Der Dialog Neue Klasse in JPad: Name Hund, darunter die Knöpfe Klasse als Datei anlegen und Klasse hier einfügen, rechts eine Skizze zu Klassen und Objekten." loading="lazy">
+    <figcaption>Der Baustein <span class="ui">Klasse</span> fragt nach dem Namen. Rechts erklärt eine kleine Skizze, was eine Klasse ist.</figcaption></figure>
+  <p>So sieht deine Datei <code>Hund</code> danach aus:</p>
+  <div class="code" data-file="Hund.java" data-src="hund1" data-nocopy></div>
+  <div class="note"><span class="note-title">Gut zu wissen</span><p>JPad rückt den Code beim Einfügen von Bausteinen automatisch ein. Sieht dein Code trotzdem einmal unordentlich aus, tippe oben auf <span class="ui">Code formatieren</span>.</p></div>
+  <div class="done-row"><label class="done"><input type="checkbox" data-done="3"> Station erledigt</label></div>
+</section>
+
+<!-- ================= 4 ================= -->
+<section class="station" id="s4" data-station="4">
+  <div class="station-head"><div class="badge">4</div><div><small>Baustein „Attribut“</small><h2>Ist Bello stubenrein?</h2></div></div>
+  <p>Ob ein Hund allein daheim bleiben darf, hängt davon ab, ob er <strong>stubenrein</strong> ist. Dafür bekommt die Klasse ein drittes Attribut. Diesmal ohne Kopieren, mit dem Baustein:</p>
+  <ol class="steps">
+    <li><div>Tippe links auf den Baustein <span class="ui">Attribut</span>.</div></li>
+    <li><div>Wähle als Datentyp <code>Boolean</code>. Ein Hund ist entweder stubenrein (<code>true</code>) oder nicht (<code>false</code>).</div></li>
+    <li><div>Gib als Namen <code>istStubenrein</code> ein und tippe auf <span class="ui">Einfügen</span>.</div></li>
+  </ol>
+  <p>JPad setzt das neue Attribut unter die anderen Attribute, egal wo der Cursor gerade steht:</p>
+  <div class="code" data-file="Hund.java" data-src="hund2" data-mark="4-4" data-nocopy></div>
+  <div class="task">
+    <div class="task-head">Kurz nachgedacht</div>
+    <div class="task-body">
+      <p>Warum heißt das Attribut <code>istStubenrein</code> und nicht einfach <code>stubenrein</code>?</p>
+      <details class="reveal"><summary>Lösung anzeigen</summary><div class="answer">Beides wäre erlaubt. Mit „ist…“ liest sich ein <code>Boolean</code> wie eine Ja-Nein-Frage: <em>Ist Bello stubenrein? – true.</em> Das macht den Code leichter lesbar. Namen von Attributen beginnen immer mit einem Kleinbuchstaben, jedes weitere Wort mit einem Großbuchstaben.</div></details>
+    </div>
+  </div>
+  <div class="done-row"><label class="done"><input type="checkbox" data-done="4"> Station erledigt</label></div>
+</section>
+
+<!-- ================= 5 ================= -->
+<section class="station" id="s5" data-station="5">
+  <div class="station-head"><div class="badge">5</div><div><small>Neu</small><h2>Was ist eine Methode?</h2></div></div>
+  <p>Attribute beschreiben, was ein Hund <em>hat</em>. <strong>Methoden</strong> beschreiben, was ein Hund <em>kann</em>. Eine Methode ist ein Stück Code mit einem Namen. Ruft man sie auf, wird ihr Code ausgeführt.</p>
+  <p>Eine Methode hat einen <strong>Kopf</strong> und einen <strong>Rumpf</strong> in geschweiften Klammern. Tippe auf die Teile des Methodenkopfs:</p>
+  <div class="anatomy">
+    <div class="anatomy-line" id="anatomy">
+      <button class="part" type="button" data-p="ret">void</button>
+      <button class="part" type="button" data-p="name">kannAlleinDaheimSein</button>
+      <button class="part" type="button" data-p="params">()</button>
+      <span>{ … }</span>
+    </div>
+    <p class="anatomy-say" id="anatomySay">Tippe auf ein Teil.</p>
+  </div>
+  <p>Unsere Methode soll prüfen, ob der Hund stubenrein ist, und das Ergebnis ausgeben. Dafür braucht sie eine <strong>Verzweigung</strong> mit <code>if</code> und <code>else</code>: <em>Wenn</em> die Bedingung wahr ist, läuft der erste Teil, <em>sonst</em> der zweite.</p>
+  <div class="code" data-file="So soll die Methode am Ende aussehen" data-src="method" data-nocopy></div>
+  <div class="done-row"><label class="done"><input type="checkbox" data-done="5"> Station erledigt</label></div>
+</section>
+
+<!-- ================= 6 ================= -->
+<section class="station" id="s6" data-station="6">
+  <div class="station-head"><div class="badge">6</div><div><small>Bausteine „Methode“, „if – else“, „println“</small><h2>Die Methode bauen</h2></div></div>
+  <p>Jetzt baust du die Methode in der Klasse <code>Hund</code>, Baustein für Baustein. Achte darauf, dass der Reiter <span class="ui">Hund</span> geöffnet ist.</p>
+  <ol class="steps">
+    <li><div>Tippe auf den Baustein <span class="ui">Methode</span>. Es öffnet sich der Dialog „Baue Deine neue Methode“.</div></li>
+    <li><div>Gib als Namen <code>kannAlleinDaheimSein</code> ein. Bei der Frage nach der Rückgabe bleibt <code>void</code> stehen. Parameter brauchst du keine, lass das Feld „So heißt der Parameter“ also leer. Tippe auf <span class="ui">Einfügen</span>.</div></li>
+    <li><div>Die leere Methode steht jetzt am Ende der Klasse, der Cursor blinkt in ihrem Rumpf. Tippe auf den Baustein <span class="ui">if – else</span>.</div></li>
+    <li><div>Das Wort <code>Bedingung</code> ist markiert. Tippe einfach los und ersetze es durch <code>istStubenrein == true</code>.</div></li>
+    <li><div>Springe mit der Taste <span class="key" aria-label="Tabulator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h12"/><path d="M12 8l4 4-4 4"/><path d="M20 6v12"/></svg></span> in der Hilfsleiste unten in den ersten Rumpf.</div></li>
+    <li><div>Tippe auf den Baustein <span class="ui">println</span> und schreibe in die Klammern: <code>name + " darf allein daheim bleiben."</code></div></li>
+    <li><div>Tippe noch einmal auf <span class="key" aria-label="Tabulator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h12"/><path d="M12 8l4 4-4 4"/><path d="M20 6v12"/></svg></span>. Jetzt steht der Cursor im <code>else</code>-Teil.</div></li>
+    <li><div>Noch einmal <span class="ui">println</span>, diesmal mit <code>name + " muss noch üben."</code></div></li>
+  </ol>
+  <figure><img class="shot" src="img/methode-dialog.jpg" width="1180" height="820" alt="Der Dialog Baue Deine neue Methode in JPad mit dem Namen kannAlleinDaheimSein, Rückgabe void und ohne Parameter. Rechts eine animierte Skizze." loading="lazy">
+    <figcaption>Der Methoden-Dialog. Die Skizze rechts zeigt, wie Parameter hinein- und Rückgabewerte herauswandern. Du kannst sie oben ausblenden.</figcaption></figure>
+  <p>Wenn alles geklappt hat, sieht deine Klasse so aus. Vergleiche genau, oder kopiere die Lösung, falls etwas schiefgegangen ist:</p>
+  <div class="code" data-file="Hund.java" data-src="hund3"></div>
+  <div class="note warn"><span class="note-title">Rot unterstrichen?</span><p>JPad prüft deinen Code schon beim Schreiben. Eine rote Wellenlinie zeigt einen Fehler. Was nicht stimmt, siehst du rechts in der Ansicht <span class="ui">Probleme</span>. Tippst du dort auf einen Fehler, springt JPad an die richtige Stelle.</p></div>
+  <div class="done-row"><label class="done"><input type="checkbox" data-done="6"> Station erledigt</label></div>
+</section>
+
+<!-- ================= 7 ================= -->
+<section class="station" id="s7" data-station="7">
+  <div class="station-head"><div class="badge">7</div><div><small>Baustein „Variable“ und „new“</small><h2>Bello wird gebaut</h2></div></div>
+  <p>Die Klasse ist nur der Bauplan. Damit es einen echten Hund gibt, musst du ein <strong>Objekt</strong> erzeugen. Das passiert im <span class="ui">Hauptprogramm</span>, dem Reiter ganz links.</p>
+  <ol class="steps">
+    <li><div>Tippe oben auf den Reiter <span class="ui">Hauptprogramm</span>.</div></li>
+    <li><div>Tippe auf den Baustein <span class="ui">Variable</span>. Wähle unter <span class="ui">Eigene Klassen</span> den Datentyp <code>Hund</code> und gib den Namen <code>bello</code> ein. JPad schreibt <code>Hund bello;</code></div></li>
+    <li><div>Tippe in der Hilfsleiste einmal auf <span class="key" aria-label="Cursor nach links"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span>. Jetzt steht der Cursor vor dem Semikolon.</div></li>
+    <li><div>Tippe auf den Baustein <span class="ui">new</span>. Daraus wird <code>Hund bello = new Hund();</code> Erst jetzt gibt es Bello wirklich.</div></li>
+    <li><div>Kopiere die folgenden Zeilen und setze sie in eine neue Zeile darunter ein. Sie füllen Bellos Attribute und rufen seine Methode auf.</div></li>
+  </ol>
+  <div class="code" data-file="Hauptprogramm.java (ab Zeile 2)" data-src="mainRest"></div>
+  <p>Starte dein Programm mit <span class="key key-run" aria-label="Start">▶</span> oben rechts.</p>
+  <div class="note rule"><span class="note-title">Und wo ist jetzt der Lernpfad?</span>
+    <p>Beim Start schaltet JPad die rechte Ansicht auf <span class="ui">Ausgabe</span>, damit du sofort siehst, was dein Programm schreibt. Der Lernpfad ist nicht weg, er liegt nur dahinter.</p>
+    <ul>
+      <li><strong>iPad quer:</strong> Tippe rechts oben auf den ersten Reiter mit dem Wegweiser-Symbol <span class="key" aria-label="Lernpfad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21c0-3.5 3-4.5 6-5.5s5-2.5 3.5-5S9 7 10 5"/><path d="M10 5V2.5l5 1.8-5 1.7"/></svg></span>.</li>
+      <li><strong>iPad hochkant:</strong> Tippe unten in der Leiste auf <span class="ui">Lernpfad</span>, und mit <span class="ui">Code</span> kommst du zurück zum Editor.</li>
+    </ul>
+  </div>
+  <p>In der Ausgabe sollte stehen:</p>
+  <div class="code"><div class="code-head"><span class="fname">Ausgabe</span></div><pre><span class="ln" data-n="">Bello darf allein daheim bleiben.</span></pre></div>
+  <div class="task">
+    <div class="task-head">Experimente</div>
+    <div class="task-body">
+      <p><strong>a)</strong> Ändere im Hauptprogramm <code>true</code> in <code>false</code> und starte noch einmal. Was gibt Bello jetzt aus?</p>
+      <details class="reveal"><summary>Lösung anzeigen</summary><div class="answer"><code>Bello muss noch üben.</code> Die Bedingung <code>istStubenrein == true</code> ist jetzt falsch, deshalb läuft der <code>else</code>-Teil.</div></details>
+      <p><strong>b)</strong> Lege einen zweiten Hund <code>wuffi</code> an, der 1 Jahr alt und nicht stubenrein ist, und lass auch ihn antworten.</p>
+      <details class="reveal"><summary>Lösung anzeigen</summary><div class="answer"><div class="code" data-file="Hauptprogramm.java (Ergänzung)" data-src="wuffi"></div><p>Beide Hunde wurden nach demselben Bauplan gebaut, haben aber eigene Werte. Deshalb antworten sie verschieden.</p></div></details>
+    </div>
+  </div>
+  <div class="done-row"><label class="done"><input type="checkbox" data-done="7"> Station erledigt</label></div>
+</section>
+
+<!-- ================= 8 ================= -->
+<section class="station" id="s8" data-station="8">
+  <div class="station-head"><div class="badge">8</div><div><small>Zuschauen</small><h2>Schritt für Schritt</h2></div></div>
+  <p>Mit <span class="key key-run" aria-label="Start">▶</span> läuft dein Programm in einem Rutsch durch. Mit dem Knopf <span class="ui">Schritt</span> kannst du ihm dagegen beim Arbeiten zusehen, Zeile für Zeile.</p>
+  <ol class="steps">
+    <li><div>Wechsle rechts zur Ansicht <span class="ui">Variablen</span>.</div></li>
+    <li><div>Tippe oben auf <span class="ui">Schritt</span>. Das Programm startet und hält sofort vor der ersten Zeile an. Diese Zeile ist <strong>gelb</strong> markiert: Sie ist als Nächstes dran.</div></li>
+    <li><div>Tippe weiter auf <span class="ui">Schritt</span> und beobachte die Ansicht <span class="ui">Variablen</span>: Erst taucht <code>bello</code> auf, dann bekommt er nach und nach seinen Namen, sein Alter und <code>istStubenrein</code>.</div></li>
+    <li><div>Bei <code>bello.kannAlleinDaheimSein();</code> springt JPad mit dem nächsten Schritt in den Reiter <span class="ui">Hund</span>, direkt in die Methode. Du siehst, welcher Teil der Verzweigung ausgeführt wird.</div></li>
+  </ol>
+  <figure><img class="shot" src="img/schritt.jpg" width="1180" height="820" alt="JPad im Schritt-Modus: Im Hauptprogramm ist Zeile 2 gelb markiert, rechts zeigt die Ansicht Variablen bello, alle Attribute sind noch null." loading="lazy">
+    <figcaption>Zeile 1 ist ausgeführt, die gelbe Zeile 2 ist als Nächstes dran. Bello gibt es schon, aber alle Attribute sind noch <code>null</code> (leer).</figcaption></figure>
+  <div class="note"><span class="note-title">Die kleinen Schritt-Knöpfe</span><p>Solange das Programm angehalten ist, erscheinen neben <span class="ui">Schritt</span> zwei weitere Knöpfe: <span class="ui">Methode überspringen</span> führt einen Methodenaufruf in einem einzigen Schritt aus, <span class="ui">Methode verlassen</span> läuft bis zum Ende der aktuellen Methode. Mit <span class="key" aria-label="Stopp">■</span> beendest du das Programm. Und weißt du nicht mehr, welcher Knopf was macht? Finger drauflegen!</p></div>
+  <div class="done-row"><label class="done"><input type="checkbox" data-done="8"> Station erledigt</label></div>
+</section>
+
+<!-- ================= 9 ================= -->
+<section class="station" id="s9" data-station="9">
+  <div class="station-head"><div class="badge">9</div><div><small>Haltepunkt und Diagramm</small><h2>Bello im Objektdiagramm</h2></div></div>
+  <p>Bei langen Programmen dauert es, mit <span class="ui">Schritt</span> bis zur spannenden Stelle zu kommen. Dafür gibt es <strong>Haltepunkte</strong>: Das Programm läuft normal los und hält erst an der markierten Zeile an.</p>
+  <ol class="steps">
+    <li><div>Tippe im <span class="ui">Hauptprogramm</span> auf die Zeilennummer der Zeile <code>bello.kannAlleinDaheimSein();</code>. Links neben der Nummer erscheint ein oranger Punkt: Hier ist jetzt ein Haltepunkt. Alternativ setzt du den Cursor in die Zeile und tippst in der Hilfsleiste auf <span class="key" aria-label="Haltepunkt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.2 3h7.6L21 8.2v7.6L15.8 21H8.2L3 15.8V8.2z"/><path d="M9 12h6"/></svg></span>.</div></li>
+    <li><div>Öffne rechts die Ansicht <span class="ui">Diagramm</span> und tippe oben auf <span class="ui">Objekte</span>.</div></li>
+    <li><div>Starte mit <span class="key key-run" aria-label="Start">▶</span>. Das Programm hält vor der markierten Zeile an.</div></li>
+    <li><div>Im Objektdiagramm siehst du jetzt Bello als Karte: oben <code>bello : Hund</code>, darunter alle Attribute mit ihren Werten.</div></li>
+  </ol>
+  <figure><img class="shot" src="img/objektdiagramm.jpg" width="1180" height="820" alt="JPad am Haltepunkt angehalten. Rechts das Objektdiagramm mit der Karte bello : Hund und den Attributen name = Bello, alter = 3, istStubenrein = true." loading="lazy">
+    <figcaption>Am Haltepunkt angehalten: Das Objektdiagramm zeigt Bello mit allen Attributen.</figcaption></figure>
+  <div class="task">
+    <div class="task-head">Beobachte</div>
+    <div class="task-body">
+      <p><strong>a)</strong> Tippe im Diagramm oben auf <span class="ui">Klassen</span>. Was ist der Unterschied zur Ansicht <span class="ui">Objekte</span>?</p>
+      <details class="reveal"><summary>Lösung anzeigen</summary><div class="answer">Das Klassendiagramm zeigt den <strong>Bauplan</strong>: die Klasse <code>Hund</code> mit ihren Attributen, deren Datentypen und der Methode. Das Objektdiagramm zeigt die <strong>gebauten Objekte</strong> mit ihren aktuellen Werten. Von einer Klasse kann es viele Objekte geben.</div></details>
+      <p><strong>b)</strong> Hast du in Station 7 auch Wuffi angelegt? Setze den Haltepunkt ans Ende des Programms. Wie viele Karten zeigt das Objektdiagramm?</p>
+      <details class="reveal"><summary>Lösung anzeigen</summary><div class="answer">Zwei: <code>bello : Hund</code> und <code>wuffi : Hund</code>. Jedes <code>new</code> baut genau ein Objekt.</div></details>
+    </div>
+  </div>
+  <p>Einen Haltepunkt entfernst du, indem du noch einmal auf die Zeilennummer tippst.</p>
+  <div class="done-row"><label class="done"><input type="checkbox" data-done="9"> Station erledigt</label></div>
+</section>
+
+<!-- ================= 10 ================= -->
+<section class="station" id="s10" data-station="10">
+  <div class="station-head"><div class="badge">10</div><div><small>Abschluss</small><h2>Das Wichtigste in vier Fragen</h2></div></div>
+  <div class="quiz" data-quiz="final"></div>
+  <div class="note"><span class="note-title">Noch zwei Helfer für später</span>
+    <ul>
+      <li><span class="ui">Umbenennen</span> (der Stift neben Rückgängig): Gefällt dir ein Name nicht mehr, ändert JPad ihn überall im Projekt auf einmal.</li>
+      <li><span class="ui">Projekt sichern</span> (der Pfeil nach unten): Speichert dein Projekt als Datei, zum Beispiel in deinem ByCS-Ordner. Ein Punkt am Pfeil zeigt, dass es noch ungesicherte Änderungen gibt.</li>
+    </ul>
+  </div>
+  <div class="done-row"><label class="done"><input type="checkbox" data-done="10"> Station erledigt</label></div>
+</section>
+
+</main>
+
+<footer class="wrap footer">
+  <p>Demo-Lernpfad zu JPad. Deine Häkchen werden mit dem Projekt auf diesem Gerät gemerkt. Du kannst das Demo-Projekt jederzeit über das Menü neu laden.</p>
+</footer>
+
+<script>
+(() => {
+  // ---------- Quelltexte ----------
+  const SRC = {
+    attrs: 'String name;\nInteger alter;',
+    hund1: 'class Hund {\n   String name;\n   Integer alter;\n}',
+    hund2: 'class Hund {\n   String name;\n   Integer alter;\n   Boolean istStubenrein;\n}',
+    method: 'void kannAlleinDaheimSein() {\n   if (istStubenrein == true) {\n      println(name + " darf allein daheim bleiben.");\n   } else {\n      println(name + " muss noch üben.");\n   }\n}',
+    hund3: 'class Hund {\n   String name;\n   Integer alter;\n   Boolean istStubenrein;\n   void kannAlleinDaheimSein() {\n      if (istStubenrein == true) {\n         println(name + " darf allein daheim bleiben.");\n      } else {\n         println(name + " muss noch üben.");\n      }\n   }\n}',
+    mainRest: 'bello.name = "Bello";\nbello.alter = 3;\nbello.istStubenrein = true;\nbello.kannAlleinDaheimSein();',
+    wuffi: 'Hund wuffi = new Hund();\nwuffi.name = "Wuffi";\nwuffi.alter = 1;\nwuffi.istStubenrein = false;\nwuffi.kannAlleinDaheimSein();'
+  };
+
+  // ---------- Hervorhebung wie in JPad ----------
+  const KW = new Set(["class","new","void","return","if","else","while","for","true","false","null","this","extends"]);
+  const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  function hl(line) {
+    const re = /(\/\/.*$)|("(?:[^"\\]|\\.)*")|(\b\d+(?:\.\d+)?\b)|([A-Za-z_äöüÄÖÜß]\w*)|(\s+)|([^\sA-Za-z_\d"]+)/g;
+    let out = "", m;
+    while ((m = re.exec(line))) {
+      if (m[1]) out += `<span class="t-com">${esc(m[1])}</span>`;
+      else if (m[2]) out += `<span class="t-str">${esc(m[2])}</span>`;
+      else if (m[3]) out += `<span class="t-num">${m[3]}</span>`;
+      else if (m[4]) {
+        const w = m[4], rest = line.slice(re.lastIndex);
+        if (KW.has(w)) out += `<span class="t-kw">${w}</span>`;
+        else if (/^\s*\(/.test(rest) && !/^[A-Z]/.test(w)) out += `<span class="t-fn">${w}</span>`;
+        else if (/^[A-Z]/.test(w)) out += `<span class="t-ty">${w}</span>`;
+        else out += w;
+      } else out += esc(m[0]);
+    }
+    return out;
+  }
+  const lines = (src, mark) => src.split("\n").map((l, i) => `<span class="ln${mark && mark(i + 1) ? " is-mark" : ""}" data-n="${i + 1}">${hl(l) || " "}</span>`).join("");
+
+  const copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
+  async function copyText(text, btn, target) {
+    let ok = false;
+    try { await navigator.clipboard.writeText(text); ok = true; } catch (e) { }
+    if (!ok && target) {
+      const r = document.createRange(); r.selectNodeContents(target);
+      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      try { ok = document.execCommand("copy"); } catch (e) { }
+    }
+    const label = btn.querySelector("span"), old = label.textContent;
+    label.textContent = ok ? "Kopiert" : "Markiert – jetzt kopieren";
+    btn.classList.add("is-copied");
+    setTimeout(() => { label.textContent = old; btn.classList.remove("is-copied"); }, 1800);
+  }
+  function renderCode(box) {
+    const src = SRC[box.dataset.src];
+    let mark = null;
+    if (box.dataset.mark) { const [a, b] = box.dataset.mark.split("-").map(Number); mark = n => n >= a && n <= b; }
+    const copy = box.hasAttribute("data-nocopy") ? "" : `<button class="copy" type="button">${copyIcon}<span>Kopieren</span></button>`;
+    box.innerHTML = `<div class="code-head"><span class="fname">${esc(box.dataset.file)}</span>${copy}</div><pre>${lines(src, mark)}</pre>`;
+    const btn = box.querySelector(".copy");
+    if (btn) btn.addEventListener("click", () => copyText(src, btn, box.querySelector("pre")));
+  }
+  document.querySelectorAll(".code[data-src]").forEach(renderCode);
+
+  // ---------- Fortschritt ----------
+  const KEY = "jpad-demo-done";
+  let done = {};
+  try { done = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { }
+  const stations = [...document.querySelectorAll(".station")];
+  const stops = document.getElementById("trailStops");
+  stops.innerHTML = stations.map(s => `<a href="#${s.id}" data-stop="${s.dataset.station}" aria-label="Station ${s.dataset.station}: ${esc(s.querySelector("h2").textContent)}">${s.dataset.station}</a>`).join("");
+  function renderProgress() {
+    let n = 0;
+    stations.forEach(s => {
+      const id = s.dataset.station, d = !!done[id];
+      if (d) n++;
+      stops.querySelector(`[data-stop="${id}"]`).classList.toggle("is-done", d);
+      const cb = s.querySelector(`[data-done="${id}"]`); if (cb) cb.checked = d;
+    });
+    document.getElementById("trailCount").textContent = `${n} / ${stations.length}`;
+  }
+  document.querySelectorAll("[data-done]").forEach(cb => cb.addEventListener("change", () => {
+    done[cb.dataset.done] = cb.checked;
+    try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (e) { }
+    renderProgress();
+  }));
+  renderProgress();
+
+  // ---------- Rundgang über die Oberfläche ----------
+  const TOUR = [{"x": 3, "y": 5, "title": "Menü", "text": "Hier legst du neue Projekte an, öffnest und sicherst Projektdateien, stellst die Darstellung ein und lädst dieses Demo-Projekt."}, {"x": 15.4, "y": 5, "title": "Projektname", "text": "Der Name deines Projekts. Tippe darauf, um es umzubenennen. Darunter steht, ob dein Projekt schon als Datei gesichert ist."}, {"x": 41.5, "y": 5, "title": "Bearbeiten", "text": "Code kopieren (alle Dateien oder nur diese), Umbenennen, Rückgängig, Wiederholen, Code formatieren und Projekt als Datei sichern."}, {"x": 57.5, "y": 5, "title": "Die Glühbirne", "text": "Erinnert dich: Lege den Finger eine halbe Sekunde auf einen Knopf, dann erklärt JPad ihn dir. Das ist der wichtigste Trick überhaupt!"}, {"x": 79.3, "y": 5, "title": "Aussehen", "text": "Ein Spaß-Knopf: Er wechselt zwischen dem normalen Aussehen, einem Bonbon- und einem Hacker-Look."}, {"x": 90.5, "y": 5, "title": "Ausführen", "text": "Schritt führt dein Programm Zeile für Zeile aus, das rote Quadrat beendet es, der gelbe Knopf startet es."}, {"x": 5.9, "y": 32.7, "title": "Bausteine", "text": "Statt zu tippen, tippst du auf einen Baustein: Klasse, Attribut, Methode, if, println … JPad fügt den passenden Code an der richtigen Stelle ein."}, {"x": 22.2, "y": 10.4, "title": "Dateireiter", "text": "Jede Klasse hat ihre eigene Datei. Ganz links liegt immer das Hauptprogramm, dort startet dein Programm."}, {"x": 33.4, "y": 56.5, "title": "Code-Editor", "text": "Hier steht dein Code. Fehler werden rot unterstrichen, sobald du sie schreibst."}, {"x": 73.9, "y": 12.1, "title": "Ansicht rechts", "text": "Lernpfad, Ausgabe deines Programms, Variablen, Diagramm und Probleme. Mit den Pfeilen rechts daneben machst du die Ansicht breiter."}, {"x": 45, "y": 95, "title": "Hilfsleiste", "text": "Cursor bewegen, Zeilen einfügen und löschen, Klammern und Zeichen, die auf der iPad-Tastatur schwer zu finden sind, und Haltepunkte setzen."}];
+  const tour = document.getElementById("tour"), tourSay = document.getElementById("tourSay");
+  TOUR.forEach((t, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "pin";
+    b.textContent = i + 1;
+    b.style.left = t.x + "%";
+    b.style.top = t.y + "%";
+    b.setAttribute("aria-label", t.title);
+    b.addEventListener("click", () => {
+      tour.querySelectorAll(".pin").forEach(x => x.classList.toggle("is-on", x == b));
+      tourSay.innerHTML = `<b>${i + 1}. ${t.title}</b> ${t.text}`;
+    });
+    tour.appendChild(b);
+  });
+
+  // ---------- Methodenkopf zerlegen ----------
+  const PARTS = {
+    ret: "<b>Rückgabetyp:</b> <code>void</code> bedeutet „leer“: Die Methode tut etwas (sie gibt einen Satz aus), liefert aber keinen Wert zurück.",
+    name: "<b>Methodenname:</b> <code>kannAlleinDaheimSein</code>. Er beginnt mit einem Kleinbuchstaben und sagt, was die Methode tut. Aufgerufen wird sie mit <code>bello.kannAlleinDaheimSein();</code>",
+    params: "<b>Parameterliste:</b> Die runden Klammern sind leer, die Methode braucht also keine zusätzlichen Angaben. Alles, was sie wissen muss, steht schon in den Attributen des Hundes."
+  };
+  const anatomy = document.getElementById("anatomy"), anatomySay = document.getElementById("anatomySay");
+  anatomy.addEventListener("click", e => {
+    const p = e.target.closest(".part"); if (!p) return;
+    anatomy.querySelectorAll(".part").forEach(x => x.classList.toggle("is-on", x == p));
+    anatomySay.innerHTML = PARTS[p.dataset.p];
+  });
+
+  // ---------- Quiz ----------
+  const QUIZ = {
+    types: [
+      { q: "Der Name eines Hundes, zum Beispiel <code>\"Bello\"</code>:",
+        o: [["<code>String</code>", true, "Richtig. Text steht in Anführungszeichen und ist ein String."], ["<code>Integer</code>", false, "Integer ist für ganze Zahlen. Ein Name ist Text."], ["<code>Boolean</code>", false, "Boolean kennt nur true und false."], ["<code>Double</code>", false, "Double ist für Kommazahlen."]] },
+      { q: "Das Alter eines Hundes in ganzen Jahren, zum Beispiel <code>3</code>:",
+        o: [["<code>String</code>", false, "Mit einem String könnte man nicht rechnen, zum Beispiel alter + 1."], ["<code>Integer</code>", true, "Richtig. Ganze Zahlen ohne Komma sind Integer."], ["<code>Double</code>", false, "Ginge auch, aber für ganze Jahre reicht Integer."], ["<code>Boolean</code>", false, "Boolean kennt nur true und false."]] },
+      { q: "Das Gewicht eines Hundes in Kilogramm, zum Beispiel <code>12.5</code>:",
+        o: [["<code>Integer</code>", false, "Integer kann keine Nachkommastellen speichern. Aus 12.5 würde ein Fehler."], ["<code>Double</code>", true, "Richtig. Kommazahlen sind Double. In Java schreibt man den Punkt statt des Kommas."], ["<code>String</code>", false, "Dann wäre es nur Text, und man könnte nicht damit rechnen."]] },
+      { q: "Ob der Hund stubenrein ist:",
+        o: [["<code>String</code>", false, "\"ja\" und \"nein\" als Text gehen, sind aber umständlich zu prüfen."], ["<code>Integer</code>", false, "0 und 1 könnte man nehmen, aber es gibt einen eigenen Typ für Ja und Nein."], ["<code>Boolean</code>", true, "Richtig. Ein Boolean ist entweder true (wahr) oder false (falsch)."]] },
+      { q: "Welcher Wert passt <strong>nicht</strong> in eine Variable vom Typ <code>Integer</code>?",
+        o: [["<code>7</code>", false, "7 ist eine ganze Zahl und passt."], ["<code>-2</code>", false, "Auch negative ganze Zahlen passen in einen Integer."], ["<code>2.5</code>", true, "Richtig. 2.5 hat Nachkommastellen, dafür braucht man Double."], ["<code>0</code>", false, "0 ist eine ganze Zahl und passt."]] }
+    ],
+    final: [
+      { q: "Was ist der Unterschied zwischen einer Klasse und einem Objekt?",
+        o: [["Es gibt keinen, das sind zwei Wörter für dasselbe.", false, "Die Klasse ist der Bauplan, das Objekt das gebaute Ding."], ["Die Klasse ist der Bauplan, ein Objekt wird mit new danach gebaut.", true, "Richtig. Nach dem Bauplan Hund kannst du beliebig viele Hunde bauen."], ["Ein Objekt ist der Bauplan für Klassen.", false, "Andersherum: Die Klasse ist der Bauplan."]] },
+      { q: "Was bedeutet <code>void</code> im Kopf einer Methode?",
+        o: [["Die Methode hat keine Parameter.", false, "Ob es Parameter gibt, steht in den runden Klammern."], ["Die Methode gibt keinen Wert zurück.", true, "Richtig. kannAlleinDaheimSein() gibt etwas aus, liefert aber keinen Wert zurück."], ["Die Methode ist leer.", false, "Auch eine void-Methode kann viele Anweisungen enthalten."]] },
+      { q: "Wie bekommst du schnell heraus, was ein Knopf in JPad tut?",
+        o: [["In der Anleitung nachlesen", false, "Geht schneller: Finger drauflegen."], ["Den Finger eine halbe Sekunde auf den Knopf legen", true, "Richtig. Daran erinnert dich die Glühbirne."], ["Einfach ausprobieren und hoffen", false, "Mit Finger-Auflegen bekommst du die Hilfe, ohne den Knopf auszulösen."]] },
+      { q: "Wozu ist ein Haltepunkt gut?",
+        o: [["Er beendet das Programm an dieser Stelle.", false, "Das Programm hält nur an. Mit Schritt oder ▶ geht es weiter."], ["Das Programm hält vor dieser Zeile an, und du kannst Variablen und Objekte ansehen.", true, "Richtig. So kommst du schnell an die spannende Stelle."], ["Er markiert Zeilen mit Fehlern.", false, "Fehler zeigt JPad mit roten Wellenlinien und in der Ansicht Probleme."]] }
+    ]
+  };
+  document.querySelectorAll("[data-quiz]").forEach(box => {
+    QUIZ[box.dataset.quiz].forEach(item => {
+      const q = document.createElement("div");
+      q.className = "q";
+      q.innerHTML = `<div class="q-text">${item.q}</div><div class="q-opts">${item.o.map((o, i) => `<button class="q-opt" type="button" data-i="${i}">${o[0]}</button>`).join("")}</div><div class="q-fb" aria-live="polite"></div>`;
+      const fb = q.querySelector(".q-fb");
+      q.querySelector(".q-opts").addEventListener("click", e => {
+        const b = e.target.closest(".q-opt"); if (!b) return;
+        const o = item.o[+b.dataset.i];
+        q.querySelectorAll(".q-opt").forEach(x => x.classList.remove("is-right", "is-wrong"));
+        b.classList.add(o[1] ? "is-right" : "is-wrong");
+        fb.className = "q-fb " + (o[1] ? "good" : "bad");
+        fb.textContent = (o[1] ? "✓ " : "✗ ") + o[2];
+      });
+      box.appendChild(q);
+    });
+  });
+
+  // ---------- Pixel-Hund ----------
+  const DOG = [
+    "........................",
+    "........................",
+    ".....dd..........dd.....",
+    "....dbbd........dbbd....",
+    "....dbbbdddddddddbbd....",
+    ".....dbbbbbbbbbbbbd.....",
+    ".....bbbbbbbbbbbbbb.....",
+    ".....bbwwbbbbbbwwbb.....",
+    ".....bbkwbbbbbbkwbb.....",
+    ".....bbbbbbwwbbbbbb.....",
+    "......bbbbwkkwbbbb......",
+    "......bbbbwwwwbbbb......",
+    ".......bbbwppwbbb.......",
+    ".......rrrrrrrrrr.......",
+    "......bbbbbggbbbbb......",
+    ".....bbbbwwwwwwbbbb.....",
+    ".....bbbwwwwwwwwbbb.....",
+    ".....bbbwwwwwwwwbbb.....",
+    ".....dbbwwwwwwwwbbd.....",
+    ".....dbbbwwbbwwbbbd.....",
+    "....ddbbbwwbbwwbbbdd....",
+    "........................"
+  ];
+  const COL = { b: "#a8653a", d: "#6e3d1f", w: "#f6ead8", k: "#1e1612", p: "#e8708a", r: "#d23c3c", g: "#f2c14e" };
+  const art = document.getElementById("dogArt");
+  let px = `<rect x="0" y="0" width="24" height="15" fill="url(#sky)"/><rect x="0" y="15" width="24" height="9" fill="#6fbf5a"/><rect x="0" y="15" width="24" height="1" fill="#8fd472"/>`;
+  for (const [x, y] of [[2, 18], [20, 17], [4, 22], [18, 21], [1, 20], [22, 22]]) px += `<rect x="${x}" y="${y}" width="1" height="1" fill="#f7e36b"/>`;
+  px += `<rect x="19" y="2" width="3" height="3" fill="#ffd166"/><rect x="2" y="3" width="4" height="1" fill="#fff" opacity=".8"/><rect x="3" y="2" width="2" height="1" fill="#fff" opacity=".8"/>`;
+  DOG.forEach((row, y) => [...row].forEach((c, x) => { if (COL[c]) px += `<rect x="${x}" y="${y}" width="1" height="1" fill="${COL[c]}"/>`; }));
+  art.innerHTML = `<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7b8ce8"/><stop offset=".55" stop-color="#e99ab8"/><stop offset="1" stop-color="#ffcf8a"/></linearGradient></defs>${px}`;
+})();
+
+</script>
+</body>
+</html>
