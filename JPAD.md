@@ -59,7 +59,9 @@ Bedienung und Gestaltung.
   und Häkchen else; rechts daneben die Vorschau mit Syntaxfarben. Leere Bedingungen werden Eingabestellen im Editor,
   markierte Zeilen landen im if-Rumpf. Die Bedingungsfelder sind kleine Editoren mit derselben Code Completion
   wie im Editor (ConditionField.ts): ohne Punkt die an der Cursorstelle sichtbaren Namen, nach dem Punkt die Elemente
-  des Typs davor – der Typ wird selbst aus der Symboltabelle bestimmt (name., this.x., Hund., a.getB()., feld[i]., "x".). „else if“, „else“ und „for-each“ stehen jetzt unter „Mehr…“.
+  des Typs davor – der Typ wird selbst aus der Symboltabelle bestimmt (name., this.x., Hund., a.getB()., feld[i]., "x".).
+  Solange der Dialog offen ist, schreibt die Hilfsleiste in das zuletzt benutzte Bedingungsfeld (liegt dann über dem
+  Dialog, nur Zeichen; ohne ; { } Zeilen-/Haltepunkt-/Info-Knöpfe). < > && || == % setzen dort je ein Leerzeichen davor und danach. „else if“, „else“ und „for-each“ stehen jetzt unter „Mehr…“.
 - **Baustein „new“** auf einer Zeile wie `Hund bello;` entfernt das Semikolon und ergänzt `= new Hund();`.
 - **Umbenennen** wählt das Symbol am Cursor bzw. in der Markierung gleich vor.
 - **Dialoge** (ab 700 px Breite) lassen sich an der Griffleiste oder Überschrift verschieben. Sie erscheinen

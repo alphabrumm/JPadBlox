@@ -2638,3 +2638,15 @@ button.jp-acc-head { font: inherit; font-size: 13px; font-family: var(--font-cod
 .jp-sheet .jp-condfield .cm-content { padding: 12px 14px; min-height: 0; caret-color: var(--ink); }
 .jp-sheet .jp-condfield .cm-line { padding: 0; }
 .jp-sheet .jp-condfield .cm-placeholder { color: var(--ink-2); opacity: .7; }
+
+/* JPadBlox: Hilfsleiste für Eingabefelder im Dialog (Bedingungen im if-Dialog): über dem Dialog,
+   nur Zeichen; Zeilen-, Haltepunkt-, Info- und Umschaltknöpfe sowie ; und { } entfallen */
+html.field-keys .jp-keybar { display: flex; z-index: 75; }
+.jp-keybar.is-field .jp-blocks-scroll { display: none !important; }
+.jp-keybar.is-field .jp-keybar-scroll:not(.jp-blocks-scroll) { display: flex !important; }
+.jp-keybar.is-field [data-nofield],
+.jp-keybar.is-field [data-action="mode"],
+.jp-keybar.is-field .jp-key-line,
+.jp-keybar.is-field [data-action="breakpoint"],
+.jp-keybar.is-field [data-action="info"] { display: none !important; }
+html.field-keys .jp-sheet-layer { padding-bottom: calc(var(--keyboard-offset) + 56px); }

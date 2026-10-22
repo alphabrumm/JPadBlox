@@ -27,12 +27,14 @@ import { JavaArrayType } from "../compiler/java/types/JavaArrayType.js";
 import { GenericTypeParameter } from "../compiler/java/types/GenericTypeParameter.js";
 import { getVisibilityUpTo } from "../compiler/java/types/VisibilityTools.js";
 
-export type FieldHandle = { value: () => string, focus: () => void, destroy: () => void, el: HTMLElement };
+export type FieldHandle = { value: () => string, focus: () => void, destroy: () => void, el: HTMLElement, view?: EditorView };
 
 /** Ein Feld anlegen (im Element host). */
 export function createConditionField(host: HTMLElement, o: {
     source: CompletionSource, value?: string, placeholder?: string,
-    onChange?: () => void, onEnter?: () => void
+    onChange?: () => void, onEnter?: () => void,
+    /** Feld bekommt den Fokus (dann schreibt die Hilfsleiste hierhin) */
+    onFocus?: (view: EditorView) => void
 }): FieldHandle {
     const view = new EditorView({
         parent: host,
@@ -70,11 +72,13 @@ export function createConditionField(host: HTMLElement, o: {
                 // (CodeMirror setzt das class-Attribut selbst, deshalb nicht per classList)
                 EditorView.editorAttributes.of({ class: "jp-condfield" }),
                 EditorView.updateListener.of(u => { if (u.docChanged) o.onChange?.(); }),
+                EditorView.domEventHandlers({ focus: (_e, v) => { o.onFocus?.(v); return false; } }),
             ]
         })
     });
     return {
         el: view.dom,
+        view,
         value: () => view.state.doc.toString(),
         focus: () => { view.focus(); view.dispatch({ selection: { anchor: view.state.doc.length } }); },
         destroy: () => view.destroy(),

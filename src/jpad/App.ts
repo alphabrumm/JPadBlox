@@ -181,7 +181,11 @@ export class App {
                 // Es gilt, was am Anfang der Cursorzeile sichtbar ist (dort bzw. darunter landet der Baustein)
                 const v = this.editor.view, line = v.state.doc.lineAt(v.state.selection.main.head);
                 const anchor = line.from + /^\s*/.exec(line.text)![0].length;
-                return createConditionField(host, { ...f, source: this.bridge.fieldCompletionSource(anchor) });
+                // Die Hilfsleiste schreibt in das Feld, solange der Dialog offen ist (zuletzt benutztes Feld)
+                const h = createConditionField(host, { ...f, source: this.bridge.fieldCompletionSource(anchor), onFocus: (fv) => this.keyBar.setField(fv) });
+                const destroy = h.destroy;
+                h.destroy = () => { if (h.view) this.keyBar.clearField(h.view); destroy(); };
+                return h;
             },
         };
         wireBlockPanel(this.el.blockPanel, blockContext);

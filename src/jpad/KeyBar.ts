@@ -2,8 +2,12 @@ import { icon } from "./Icons.js";
 import { TouchEditor } from "./TouchEditor.js";
 import { LanguageBridge } from "./LanguageBridge.js";
 import { BLOCKS, insertBlock, blockRowHtml, BlockContext } from "./Blocks.js";
+import type { EditorView } from "@codemirror/view";
+import { hasNextSnippetField, nextSnippetField } from "@codemirror/autocomplete";
 
-type Key = { label: string, insert?: string, action?: string, aria?: string, tip?: string, help?: string, wide?: boolean };
+type Key = { label: string, insert?: string, action?: string, aria?: string, tip?: string, help?: string, wide?: boolean,
+    /** in Eingabefeldern (Bedingung im if-Dialog) ausgeblendet */
+    noField?: boolean };
 
 /**
  * Hilfsleiste über der Bildschirmtastatur mit den Zeichen, die auf der
@@ -11,9 +15,9 @@ type Key = { label: string, insert?: string, action?: string, aria?: string, tip
  */
 const KEYS: Key[] = [
     { label: icon("tab"), action: "tab", aria: "Einrücken", tip: "Einrücken (Tabulator)", help: "tab" },
-    { label: "{ }", insert: "{§}", tip: "Geschweifte Klammern { } einfügen – für Klassen-, Methoden- und Blockrümpfe", help: "braces" },
+    { label: "{ }", noField: true, insert: "{§}", tip: "Geschweifte Klammern { } einfügen – für Klassen-, Methoden- und Blockrümpfe", help: "braces" },
     { label: "( )", insert: "(§)", tip: "Runde Klammern ( ) einfügen – für Parameter und Bedingungen", help: "parens" },
-    { label: ";", insert: ";", tip: "Strichpunkt ; – beendet eine Anweisung", help: "semicolon" },
+    { label: ";", noField: true, insert: ";", tip: "Strichpunkt ; – beendet eine Anweisung", help: "semicolon" },
     { label: "=", insert: " = ", tip: "Zuweisung = – speichert einen Wert in einer Variablen (am Zeilenende mit Strichpunkt dahinter)", help: "assign" },
     { label: "\" \"", insert: "\"§\"", tip: "Anführungszeichen \" \" einfügen – für Text (String)", help: "quotes" },
     { label: ".", insert: ".", tip: "Punkt . – ruft eine Methode oder ein Attribut eines Objekts auf", help: "dot" },
@@ -75,7 +79,7 @@ export class KeyBar {
             </div>
             <div class="jp-keybar-main">
             <div class="jp-keybar-scroll">
-                ${KEYS.map((k, i) => `<button data-key="${i}" ${k.aria ? `aria-label="${k.aria}"` : ""} ${k.tip ? `data-tip="${k.tip.replace(/"/g, "&quot;")}"` : ""} ${k.help ? `data-help="${k.help}"` : ""}>${k.label}</button>`).join("")}
+                ${KEYS.map((k, i) => `<button data-key="${i}" ${k.noField ? "data-nofield" : ""} ${k.aria ? `aria-label="${k.aria}"` : ""} ${k.tip ? `data-tip="${k.tip.replace(/"/g, "&quot;")}"` : ""} ${k.help ? `data-help="${k.help}"` : ""}>${k.label}</button>`).join("")}
             </div>
             <div class="jp-keybar-scroll jp-blocks-scroll">
                 ${blockRowHtml()}
@@ -117,7 +121,7 @@ export class KeyBar {
             if (!b || e.touches.length > 1) { tap?.b.classList.remove("is-pressed"); tap = null; return; }
             if (!inScroller(b)) e.preventDefault();
             const t = e.touches[0];
-            tap = { b, x: t.clientX, y: t.clientY, moved: false, hadFocus: this.editor.view.hasFocus };
+            tap = { b, x: t.clientX, y: t.clientY, moved: false, hadFocus: this.target.hasFocus };
             b.classList.add("is-pressed");
         }, { passive: false });
         this.el.addEventListener("touchmove", e => {
@@ -137,7 +141,7 @@ export class KeyBar {
             e.preventDefault();
             t.b.click();
             // Falls Safari den Fokus doch genommen hat: zurückgeben, solange der Finger-Gestus noch gilt
-            if (t.hadFocus && !this.editor.view.hasFocus && t.b.dataset.action != "hide") this.editor.view.focus();
+            if (t.hadFocus && !this.target.hasFocus && t.b.dataset.action != "hide") this.target.focus();
         }, { passive: false });
         this.el.addEventListener("touchcancel", () => { tap?.b.classList.remove("is-pressed"); tap = null; });
 
@@ -240,18 +244,54 @@ export class KeyBar {
         }
     }
 
+    // ------------------------------------------------ Eingabefeld (Bedingung im if-Dialog)
+
+    /** Eingabefeld mit Fokus (z. B. Bedingung im if-Dialog): Die Leiste schreibt dann dorthin */
+    private field: EditorView | null = null;
+
+    /** Ziel der Tasten: das zuletzt benutzte Eingabefeld eines offenen Dialogs, sonst der Editor */
+    private get target(): EditorView { return this.field ?? this.editor.view; }
+
+    setField(view: EditorView | null) {
+        this.field = view;
+        this.el.classList.toggle("is-field", !!view);
+        document.documentElement.classList.toggle("field-keys", !!view);
+    }
+
+    /** Feld wird geschlossen: Leiste schreibt wieder in den Editor */
+    clearField(view: EditorView) {
+        if (this.field == view) this.setField(null);
+    }
+
+    /** Text an der Cursorstelle des Ziels einfügen; § markiert die Cursorposition danach */
+    private insertText(text: string) {
+        if (!this.field) { this.editor.insert(text); return; }
+        const view = this.field;
+        let cursorDelta = text.indexOf("§");
+        if (cursorDelta >= 0) text = text.replace("§", ""); else cursorDelta = text.length;
+        const r = view.state.selection.main;
+        view.dispatch({ changes: { from: r.from, to: r.to, insert: text }, selection: { anchor: r.from + cursorDelta }, userEvent: "input.type", scrollIntoView: true });
+    }
+
     private activate(b: HTMLElement) {
         if (b.dataset.block != null) {
             if (this.blockContext) insertBlock(this.blockContext, BLOCKS[parseInt(b.dataset.block)]);
         } else if (b.dataset.key != null) {
             const k = KEYS[parseInt(b.dataset.key)];
-            if (k.action == "tab") this.editor.indentMore();
-            else if (k.label == "=" && this.restOfLineEmpty()) this.editor.insert(" = §;");   // meist folgt ein Semikolon
+            if (k.action == "tab") {
+                // Im Feld: zur nächsten Eingabestelle (z. B. Parameter von equals(…)), sonst nichts
+                if (this.field) { if (hasNextSnippetField(this.field.state)) nextSnippetField(this.field); }
+                else this.editor.indentMore();
+            }
+            else if (k.label == "=" && !this.field && this.restOfLineEmpty()) this.editor.insert(" = §;");   // meist folgt ein Semikolon
             else if (k.label == "+") this.insertSpaced("+");
-            else if (k.insert) this.editor.insert(k.insert);
+            // In Bedingungen: Vergleichs- und Verknüpfungszeichen mit genau einem Leerzeichen davor und danach
+            else if (this.field && ["<", ">", "&&", "||", "==", "%"].includes(k.label)) this.insertSpaced(k.label);
+            else if (k.insert) this.insertText(k.insert);
         } else if (b.dataset.action) {
             this.runAction(b.dataset.action);
         }
+        if (this.field && !this.field.hasFocus && b.dataset.action != "hide") this.field.focus();
     }
 
     /**
@@ -259,7 +299,7 @@ export class KeyBar {
      * (vorhandene Leerzeichen links vom Cursor werden auf eines gekürzt; am Zeilenanfang kein Leerzeichen davor)
      */
     private insertSpaced(op: string) {
-        const view = this.editor.view, st = view.state, sel = st.selection.main;
+        const view = this.target, st = view.state, sel = st.selection.main;
         const line = st.doc.lineAt(sel.from);
         const before = st.sliceDoc(line.from, sel.from);
         const trimmed = before.replace(/[ \t]+$/, "");
@@ -290,10 +330,14 @@ export class KeyBar {
                 break;
             case "lineAdd": this.editor.insertLine(); break;
             case "lineDelete": this.editor.deleteLine(); break;
-            case "left": this.editor.moveCursor(-1); break;
-            case "right": this.editor.moveCursor(1); break;
+            case "left": case "right": {
+                const v = this.target, d = action == "left" ? -1 : 1;
+                const head = Math.max(0, Math.min(v.state.doc.length, v.state.selection.main.head + d));
+                v.dispatch({ selection: { anchor: head }, scrollIntoView: true });
+                break;
+            }
             case "info": this.showInfo(await this.bridge.hover(this.editor.getCursorOffset())); break;
-            case "hide": this.editor.view.contentDOM.blur(); break;
+            case "hide": this.target.contentDOM.blur(); break;
             case "breakpoint": this.editor.onToggleBreakpoint?.(this.editor.getCursorLine()); break;
         }
     }
