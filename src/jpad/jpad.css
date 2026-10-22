@@ -2624,3 +2624,17 @@ button.jp-acc-head { font: inherit; font-size: 13px; font-family: var(--font-cod
     white-space: nowrap;
 }
 .jp-tapnote.is-visible { opacity: 1; transform: translate(-50%, 0); }
+
+/* JPadBlox: Bedingungsfelder mit Code Completion im if-Dialog (sehen aus wie Eingabefelder).
+   Höhere Spezifität als das Grund-Theme von CodeMirror nötig. */
+.jp-condhost { min-width: 0; }
+.jp-if-line > .jp-condhost { flex: 1; }
+.jp-sheet .jp-condfield.cm-editor {
+    font-size: 16px; color: var(--ink); background: var(--bg);
+    border: 1.5px solid var(--line); border-radius: var(--radius-m);
+}
+.jp-sheet .jp-condfield.cm-editor.cm-focused { outline: none; border-color: var(--accent); }
+.jp-sheet .jp-condfield .cm-scroller { font-family: var(--font-code); line-height: 1.4; overflow-x: auto; overflow-y: hidden; }
+.jp-sheet .jp-condfield .cm-content { padding: 12px 14px; min-height: 0; caret-color: var(--ink); }
+.jp-sheet .jp-condfield .cm-line { padding: 0; }
+.jp-sheet .jp-condfield .cm-placeholder { color: var(--ink-2); opacity: .7; }

@@ -1,7 +1,8 @@
 import * as monaco from 'monaco-editor';
 import type { Completion, CompletionContext, CompletionResult } from "@codemirror/autocomplete";
 import { startCompletion } from "@codemirror/autocomplete";
-import { OwnNames, rankItem, matchesPrefix, isCallable } from "./CompletionOrder.js";
+import { OwnNames, rankItem, matchesPrefix, isCallable, declaredMembersOfType } from "./CompletionOrder.js";
+import { splitChain, resolveChainType, itemsForType } from "./ConditionField.js";
 import { snippet } from "@codemirror/autocomplete";
 import type { EditorView } from "@codemirror/view";
 import MarkdownIt from "markdown-it";
@@ -135,9 +136,20 @@ export class LanguageBridge {
         if (context.aborted) return null;
 
         const from = word ? word.from : requestPos;
+        return this.present(context, model, list.suggestions, from, requestPos, null);
+    }
+
+    /**
+     * Vorschläge der Online-IDE in CodeMirror-Vorschläge umwandeln, ordnen und gruppieren.
+     * field: Vorschläge für ein einzeiliges Eingabefeld (Bedingung im if-Dialog) statt für den Editor –
+     * eingefügt wird dann nur im Feld; afterDot/declared/key kommen von dort.
+     */
+    private present(context: CompletionContext, model: monaco.editor.ITextModel, suggestions: monaco.languages.CompletionItem[],
+        from: number, requestPos: number,
+        field: { afterDot: boolean, declared: Set<string> | null, key: string } | null): CompletionResult | null {
 
         // Monaco sortiert nach sortText; CodeMirror nach Treffergüte + boost.
-        const sorted = list.suggestions.slice().sort((a, b) =>
+        const sorted = suggestions.slice().sort((a, b) =>
             (a.sortText || (typeof a.label == "string" ? a.label : a.label.label))
                 .localeCompare(b.sortText || (typeof b.label == "string" ? b.label : b.label.label)));
         const n = sorted.length;
@@ -147,7 +159,7 @@ export class LanguageBridge {
             const labelDetail = typeof item.label == "string" ? undefined : (item.label.detail || item.label.description);
 
             let range: monaco.IRange | undefined = undefined;
-            if (item.range) {
+            if (item.range && !field) {
                 range = (item.range as any).replace ? (item.range as any).replace : <monaco.IRange>item.range;
             }
             const rangeStart = range ? model.getOffsetAt({ lineNumber: range.startLineNumber, column: range.startColumn }) : from;
@@ -172,6 +184,12 @@ export class LanguageBridge {
                     return div;
                 } : undefined,
                 apply: (view: EditorView, _c: Completion, _from: number, to: number) => {
+                    if (field) {
+                        // Eingabefeld: nur das getippte Wort ersetzen
+                        if (rawSnippet && hasSnippetFields(insertText)) snippet(convertSnippet(insertText))(view, _c, _from, to);
+                        else view.dispatch({ changes: { from: _from, to, insert: insertText }, selection: { anchor: _from + insertText.length }, userEvent: "input.complete" });
+                        return;
+                    }
                     // Die Online-IDE ersetzt auch Buchstaben hinter dem Cursor („if|a = 4“ → „a“ verschwindet).
                     // Das ist nur beim Ändern eines bestehenden Aufrufs sinnvoll („h.lau|fe(5)“);
                     // sonst ersetzen wir nur bis zum Cursor.
@@ -235,11 +253,11 @@ export class LanguageBridge {
 
         // JPadBlox: eigene Reihenfolge und Gruppen (siehe CompletionOrder.ts)
         const typed = context.state.sliceDoc(from, requestPos);
-        const afterDot = context.state.sliceDoc(Math.max(0, from - 1), from) == ".";
-        const afterNew = /\bnew\s+$/.test(context.state.sliceDoc(context.state.doc.lineAt(from).from, from));
+        const afterDot = field ? field.afterDot : context.state.sliceDoc(Math.max(0, from - 1), from) == ".";
+        const afterNew = !field && /\bnew\s+$/.test(context.state.sliceDoc(context.state.doc.lineAt(from).from, from));
         const own = this.ordering.ownNames();
-        const declared = afterDot ? this.ordering.declaredMembers(model, from - 1) : null;
-        const key = model.uri.toString() + ":" + from;
+        const declared = field ? field.declared : afterDot ? this.ordering.declaredMembers(model, from - 1) : null;
+        const key = field ? field.key : model.uri.toString() + ":" + from;
         if (this.expandedKey != key) this.expandedKey = null;
         const ranked = usable
             .map(item => {
@@ -272,6 +290,59 @@ export class LanguageBridge {
         }
         if (showAll) more.forEach((r, i) => options.push(makeCompletion(r.item, main.length + i)));
         return { from, options, filter: false };
+    }
+
+    /**
+     * JPadBlox: Vorschläge für ein einzeiliges Eingabefeld (Bedingung im if-Dialog). Es gelten die
+     * Namen, die an der Stelle anchor im Code sichtbar sind; der Text des Feldes steht nicht im Code.
+     */
+    fieldCompletionSource(anchor: number) {
+        return async (context: CompletionContext): Promise<CompletionResult | null> => {
+            const model = this.getModel();
+            if (!model) return null;
+            const word = context.matchBefore(/[\wäöüÄÖÜß]*/);
+            const from = word ? word.from : context.pos;
+            const before = context.state.sliceDoc(0, from);
+            const afterDot = /\.\s*$/.test(before);
+            if (!context.explicit && from == context.pos && !afterDot) return null;
+            if (word && /^\d/.test(word.text)) return null;
+            // im Textliteral keine Vorschläge
+            if ((before.replace(/\\./g, "").match(/"/g) ?? []).length % 2 == 1) return null;
+
+            const main: any = (this.completionProvider as any).findMainForModel?.(model);
+            let module: any = main?.getCurrentWorkspace()?.getModuleForMonacoModel(model);
+            if (module?.isMoreThanOneVersionAheadOfLastCompilation?.()) {
+                await main.getCompiler().waitTillCompilationFinished();
+                module = main.getCurrentWorkspace()?.getModuleForMonacoModel(model);
+            }
+            if (!module) return null;
+            const p = model.getPositionAt(anchor);
+            const position = new monaco.Position(p.lineNumber, p.column);
+            let items: monaco.languages.CompletionItem[] = [];
+            let declared: Set<string> | null = null;
+            try {
+                if (!afterDot) {
+                    const list = await this.completionProvider.provideCompletionItems(model, position, { triggerKind: 0 } as any, noCancel);
+                    // Anweisungs-Vorlagen (if, while, println …) passen nicht in eine Bedingung
+                    items = (list?.suggestions ?? []).filter(it => it.kind != monaco.languages.CompletionItemKind.Snippet);
+                } else {
+                    const segs = splitChain(before.replace(/\s*\.\s*$/, ""));
+                    if (!segs) return null;
+                    const table = module.findSymbolTableAtPosition(position);
+                    const type = resolveChainType(segs, table, table?.classContext, main.getCompiler());
+                    if (!type) return null;
+                    items = itemsForType(type, table?.classContext, main.getCompiler());
+                    items = (this.completionProvider as any).deleteDoublesWithIdenticalInsertText?.(items) ?? items;
+                    declared = declaredMembersOfType(type);
+                }
+            } catch (e) {
+                console.warn("Vervollständigung im Feld fehlgeschlagen", e);
+                return null;
+            }
+            if (items.length == 0 || context.aborted) return null;
+            return this.present(context, model, items, from, context.pos,
+                { afterDot, declared, key: "field:" + anchor + ":" + before });
+        };
     }
 
     /** JPadBlox: Reihenfolge der Vorschläge (von App gesetzt) */

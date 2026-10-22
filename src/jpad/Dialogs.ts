@@ -3,6 +3,7 @@ import { escapeHtml } from "./LanguageBridge.js";
 import { createMethodAnimation } from "./MethodAnimation.js";
 import { createClassAnimation } from "./ClassAnimation.js";
 import type { IfResult } from "./Blocks.js";
+import type { FieldHandle } from "./ConditionField.js";
 
 type PromptOptions = {
     title: string;
@@ -49,7 +50,7 @@ export class Dialogs {
 
     constructor(private root: HTMLElement) { }
 
-    private open(inner: string, onReady: (sheet: HTMLElement, close: (v: any) => void) => void): Promise<any> {
+    private open(inner: string, onReady: (sheet: HTMLElement, close: (v: any) => void) => void | (() => void)): Promise<any> {
         return new Promise(resolve => {
             const layer = document.createElement("div");
             layer.className = "jp-sheet-layer";
@@ -79,19 +80,22 @@ export class Dialogs {
             requestAnimationFrame(() => layer.classList.add("is-open"));
 
             let closed = false;
+            let cleanup: (() => void) | undefined;
             const close = (v: any) => {
                 if (closed) return;
                 closed = true;
+                try { cleanup?.(); } catch (e) { }
                 layer.classList.remove("is-open");
                 document.removeEventListener("keydown", onKey);
                 setTimeout(() => layer.remove(), 200);
                 resolve(v);
             };
-            const onKey = (e: KeyboardEvent) => { if (e.key == "Escape") close(null); };
+            // Escape, das schon ein Eingabefeld verarbeitet hat (z. B. Vorschlagsliste schließen), schließt den Dialog nicht
+            const onKey = (e: KeyboardEvent) => { if (e.key == "Escape" && !e.defaultPrevented) close(null); };
             document.addEventListener("keydown", onKey);
             layer.addEventListener("click", (e) => { if (e.target == layer) close(null); });
             sheet.querySelectorAll<HTMLElement>("[data-cancel]").forEach(b => b.addEventListener("click", () => close(null)));
-            onReady(sheet, close);
+            cleanup = onReady(sheet, close) || undefined;
         });
     }
 
@@ -107,7 +111,7 @@ export class Dialogs {
         let dx = 0, dy = 0;
         let drag: { x: number, y: number, dx: number, dy: number, base: DOMRect } | null = null;
         const onDown = (e: PointerEvent) => {
-            if ((<HTMLElement>e.target).closest("button, input, select, textarea, a")) return;
+            if ((<HTMLElement>e.target).closest("button, input, select, textarea, a, .cm-editor")) return;
             const r = sheet.getBoundingClientRect();
             drag = { x: e.clientX, y: e.clientY, dx, dy, base: new DOMRect(r.left - dx, r.top - dy, r.width, r.height) };
             (<HTMLElement>e.currentTarget).setPointerCapture(e.pointerId);
@@ -478,9 +482,14 @@ export class Dialogs {
      * JPadBlox: Baustein „if“. Bedingung, beliebig viele else-if-Zweige (hinzufügen/entfernen) und ein
      * else-Zweig; rechts daneben die Vorschau des Codes. Leere Bedingungen werden zu Eingabestellen im Editor.
      */
-    ifStatement(o: { build: (r: IfResult) => string }): Promise<IfResult | null> {
-        const input = (data: string, placeholder: string) =>
-            `<input type="text" ${data} placeholder="${placeholder}" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off" enterkeyhint="done">`;
+    ifStatement(o: {
+        build: (r: IfResult) => string,
+        /** Eingabefeld mit Code Completion (sonst einfaches Textfeld) */
+        field?: (host: HTMLElement, f: { placeholder: string, onChange: () => void, onEnter: () => void }) => FieldHandle
+    }): Promise<IfResult | null> {
+        const input = (data: string, placeholder: string) => o.field
+            ? `<div class="jp-condhost" ${data} data-placeholder="${placeholder}"></div>`
+            : `<input type="text" ${data} placeholder="${placeholder}" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off" enterkeyhint="done">`;
         return this.open(`
             <div class="jp-if-split">
             <div class="jp-if-input">
@@ -507,11 +516,25 @@ export class Dialogs {
             </div>`, (sheet, close) => {
             sheet.classList.add("is-if");
             const q = <T extends HTMLElement>(s: string) => sheet.querySelector<T>(s)!;
-            const cond = q<HTMLInputElement>("[data-cond]"), elseBox = q<HTMLInputElement>("[data-else]");
+            const elseBox = q<HTMLInputElement>("[data-else]");
             const list = q<HTMLElement>(".jp-if-elseifs"), preview = q<HTMLElement>("[data-preview]");
+            const form = q<HTMLFormElement>("form");
+            // Ein Feld je Bedingung: Code-Completion-Feld oder einfaches Textfeld
+            const fields = new Map<HTMLElement, FieldHandle>();
+            const makeField = (el: HTMLElement): FieldHandle => {
+                if (!o.field) {
+                    const i = <HTMLInputElement>el;
+                    return { el: i, value: () => i.value, focus: () => i.focus(), destroy: () => { } };
+                }
+                const h = o.field(el, { placeholder: el.dataset.placeholder ?? "", onChange: () => refresh(), onEnter: () => form.requestSubmit() });
+                fields.set(el, h);
+                return h;
+            };
+            const cond = makeField(q("[data-cond]"));
+            const elseIfFields: FieldHandle[] = [];
             const current = (): IfResult => ({
-                cond: cond.value,
-                elseIfs: [...list.querySelectorAll<HTMLInputElement>("input")].map(i => i.value),
+                cond: cond.value(),
+                elseIfs: elseIfFields.map(f => f.value()),
                 hasElse: elseBox.checked,
             });
             const refresh = () => { preview.innerHTML = highlightJava(o.build(current())); };
@@ -521,16 +544,24 @@ export class Dialogs {
                 row.innerHTML = `<span><code>else if</code> – Bedingung:</span>
                     <div class="jp-if-line">${input("", "z. B. alter > 5")}
                     <button type="button" class="jp-btn jp-if-remove" data-tip="Diesen else-if-Zweig entfernen" aria-label="else-if-Zweig entfernen">${icon("close")}</button></div>`;
-                row.querySelector("button")!.addEventListener("click", () => { row.remove(); refresh(); });
                 list.appendChild(row);
+                const f = makeField(row.querySelector<HTMLElement>(".jp-if-line > :first-child")!);
+                elseIfFields.push(f);
+                row.querySelector("button")!.addEventListener("click", () => {
+                    elseIfFields.splice(elseIfFields.indexOf(f), 1);
+                    f.destroy();
+                    row.remove();
+                    refresh();
+                });
                 refresh();
-                row.querySelector("input")!.focus();
+                f.focus();
             });
             sheet.addEventListener("input", refresh);
             elseBox.addEventListener("change", refresh);
             refresh();
             setTimeout(() => cond.focus(), 60);
-            q("form").addEventListener("submit", (e) => { e.preventDefault(); close(current()); });
+            form.addEventListener("submit", (e) => { e.preventDefault(); close(current()); });
+            return () => fields.forEach(h => h.destroy());
         });
     }
 

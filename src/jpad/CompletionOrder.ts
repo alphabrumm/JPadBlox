@@ -42,6 +42,15 @@ export function declaredMembers(main: JPadMain, model: monaco.editor.ITextModel,
         if (!module?.getTypeAtPosition) return null;
         const p = model.getPositionAt(dotOffset);
         const type: any = module.getTypeAtPosition(p.lineNumber, p.column);
+        return declaredMembersOfType(type);
+    } catch (e) {
+        return null;
+    }
+}
+
+/** Wie declaredMembers, aber für einen schon bekannten Typ (z. B. aus dem if-Dialog) */
+export function declaredMembersOfType(type: any): Set<string> | null {
+    try {
         // auch statischer Zugriff (Klassenname.) zählt
         const t = type?.nonPrimitiveType ?? type;
         if (!(t instanceof IJavaClass || t instanceof JavaEnum)) return null;

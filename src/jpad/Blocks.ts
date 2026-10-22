@@ -5,6 +5,7 @@ import { insertNewlineAndIndent } from "@codemirror/commands";
 import { getIndentation, indentString, indentUnit } from "@codemirror/language";
 import apiText from "./api/online-ide-api.txt?raw";
 import type { Dialogs, VarCtor, VariableResult } from "./Dialogs.js";
+import type { FieldHandle } from "./ConditionField.js";
 
 /**
  * JPadBlox: Code-Bausteine zum Antippen.
@@ -156,6 +157,8 @@ export type BlockContext = {
     constructorSuggestion: (offset: number) => Promise<string | null>;
     /** Kurzer, dezenter Hinweis unten am Bildschirm */
     hint: (text: string) => void;
+    /** Eingabefeld mit Code Completion für Stellen an der Cursorposition (Bedingungen im if-Dialog) */
+    conditionField?: (host: HTMLElement, f: { placeholder: string, onChange: () => void, onEnter: () => void }) => FieldHandle;
 };
 
 /** Fügt den Baustein ein (bzw. umschließt die markierten Zeilen) und formatiert danach den Code. */
@@ -667,6 +670,7 @@ function ifText(r: IfResult, snippetMode: boolean): string {
 async function insertIf(ctx: BlockContext, block: Block): Promise<boolean> {
     const r = await ctx.dialogs.ifStatement({
         build: (x) => ifText(x, false).replace(/\t/g, "   "),
+        field: ctx.conditionField,
     });
     if (!r) return false;
     // Nummer der Eingabestelle im if-Rumpf: direkt nach der Bedingung (1, bzw. 1 bei fester Bedingung + 1)

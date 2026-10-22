@@ -1,3 +1,4 @@
+import { createConditionField } from "./ConditionField.js";
 import jQuery from "jquery";
 import * as monaco from 'monaco-editor';
 import { JPadMain } from "./JPadMain.js";
@@ -176,6 +177,12 @@ export class App {
             },
             fileExists: (name) => this.main.getFiles().some(f => f.name.toLowerCase() == (name + ".java").toLowerCase()),
             hint: (text) => this.hint(text),
+            conditionField: (host, f) => {
+                // Es gilt, was am Anfang der Cursorzeile sichtbar ist (dort bzw. darunter landet der Baustein)
+                const v = this.editor.view, line = v.state.doc.lineAt(v.state.selection.main.head);
+                const anchor = line.from + /^\s*/.exec(line.text)![0].length;
+                return createConditionField(host, { ...f, source: this.bridge.fieldCompletionSource(anchor) });
+            },
         };
         wireBlockPanel(this.el.blockPanel, blockContext);
         this.keyBar.blockContext = blockContext;
