@@ -2435,3 +2435,11 @@ html.phone .jp-topbar .jp-skinbtn { display: none; }
 .jp-type-row-var { flex-wrap: nowrap; gap: 10px; }
 .jp-type-row-var .jp-field { flex: 1 1 0; min-width: 0; }
 .jp-type-row-var .jp-select { width: 100%; min-width: 0; }
+
+/* Willkommen beim ersten Start */
+.jp-welcome { max-width: 520px; }
+.jp-welcome-mark { width: 52px; height: 52px; border-radius: 14px; background: var(--marker); color: var(--marker-ink); display: grid; place-items: center; font-weight: 800; font-size: 28px; margin-bottom: 10px; }
+.jp-welcome p { margin: 0 0 10px; line-height: 1.5; }
+.jp-welcome ul { margin: 0 0 12px; padding-left: 20px; line-height: 1.45; }
+.jp-welcome li { margin: 6px 0; }
+.jp-welcome-tip { padding: 10px 12px; border-radius: var(--radius-s); background: var(--marker-soft); }

@@ -34,6 +34,8 @@ Bedienung und Gestaltung.
 - **Umbenennen** (Stift links neben Rückgängig): Variable, Methode oder Klasse aus einer Liste wählen (sortiert nach
   Variablen, Methoden, Klassen, jeweils alphabetisch) und überall im Projekt umbenennen. Nutzt die Verwendungsstellen
   des Compilers (`src/jpad/Refactor.ts`); heißt eine Datei wie die umbenannte Klasse, wird sie mit umbenannt.
+- **Erster Start**: Willkommen-Fenster (browserbasierte, touchfreundliche Baustein-IDE mit integrierbaren Lernpfaden)
+  und automatisch der Demo-Lernpfad „Bello lernt Java“ (gemerkt in `jpadblox.welcomed`; wer schon Projekte hat, sieht es nicht).
 - **Demo-Projekt** im Menü: öffnet den Lernpfad `public/demo/index.html` („Bello lernt Java“: Oberfläche, Glühbirne,
   Datentypen, Klasse Hund mit Bausteinen, Methode mit if–else, Objekt, Schritt, Haltepunkt, Objektdiagramm) wie einen
   Lernpfad-Link. Die Bilder in `public/demo/img` sind Screenshots von JPadBlox und werden beim Laden eingebettet.

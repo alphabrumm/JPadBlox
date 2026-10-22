@@ -636,6 +636,24 @@ export class Dialogs {
         });
     }
 
+    /** JPadBlox: Willkommen beim allerersten Start */
+    welcome(): Promise<void> {
+        return this.open(`
+            <div class="jp-welcome">
+                <div class="jp-welcome-mark" aria-hidden="true">J</div>
+                <h2 class="jp-sheet-title">Willkommen bei JPad!</h2>
+                <p>JPad ist eine <b>Entwicklungsumgebung zum Java-Lernen</b>, die direkt im Browser läuft – ohne Installation und ohne Anmeldung.</p>
+                <ul>
+                    <li><b>Für Finger gemacht:</b> große Knöpfe, eine Hilfsleiste mit allen Klammern und Zeichen, kein Mauszeiger nötig.</li>
+                    <li><b>Bausteine statt Tipparbeit:</b> Klasse, Attribut, Methode, if, Variable … antippen, und JPad fügt den passenden Code ein.</li>
+                    <li><b>Lernpfade inklusive:</b> Interaktive Lernpfade (HTML-Seiten) lassen sich direkt in ein Projekt einbetten und erscheinen gleich neben deinem Code.</li>
+                </ul>
+                <p>Rechts startet gerade der Lernpfad <b>„Bello lernt Java“</b>. Er führt dich durch die Oberfläche und deine erste eigene Klasse.</p>
+                <p class="jp-welcome-tip"><span aria-hidden="true">💡</span> Weißt du nicht, was ein Knopf tut? Lege eine halbe Sekunde den Finger darauf.</p>
+            </div>
+            <div class="jp-sheet-buttons"><button class="jp-btn jp-btn-primary" data-cancel>Los geht's</button></div>`, () => { });
+    }
+
     sheet(title: string, html: string): Promise<void> {
         return this.open(`
             <h2 class="jp-sheet-title">${escapeHtml(title)}</h2>

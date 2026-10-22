@@ -99,7 +99,12 @@ export class App {
         matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => this.applyTheme(this.getThemeChoice()));
 
         await this.store.open();
-        const linkMessage = await this.openFromLink();
+        // Allererster Start (noch kein Projekt, noch nie begrüßt): Demo-Lernpfad öffnen und Willkommen zeigen
+        let firstRun = false;
+        try { firstRun = !localStorage.getItem("jpadblox.welcomed") && this.store.list().length == 0; } catch (e) { }
+        let linkMessage = await this.openFromLink(firstRun && !/[?&](projekt|lernpfad)=/.test(location.search)
+            ? { projekt: null, lernpfad: "demo/index.html" } : undefined);
+        if (firstRun) linkMessage = linkMessage?.error ? linkMessage : undefined;   // statt „geöffnet“ kommt das Willkommen
         this.project = this.store.ensureCurrent();
 
         this.buildShell();
@@ -194,6 +199,7 @@ export class App {
         }
         this.root.removeAttribute("aria-busy");
         this.root.querySelector(".jp-boot")?.remove();
+        if (firstRun) this.showWelcome();
         if (linkMessage?.error) this.dialogs.alert({ title: "Lernpfad lässt sich nicht öffnen", text: linkMessage.error });
         else if (linkMessage?.info) this.toast(linkMessage.info, "check", 5000);
 
@@ -970,6 +976,12 @@ export class App {
         }
     }
 
+    /** Willkommen beim allerersten Start (danach nie wieder) */
+    showWelcome() {
+        try { localStorage.setItem("jpadblox.welcomed", "1"); } catch (e) { }
+        this.dialogs.welcome();
+    }
+
     /**
      * Menü „Demo-Projekt laden“: öffnet den Demo-Lernpfad (public/demo) wie einen Lernpfad-Link.
      * Gibt es das Demo-Projekt schon, öffnet sich dieses mit dem bisherigen Stand.
@@ -1224,9 +1236,9 @@ export class App {
      * Projekt; ruft man denselben Link erneut auf, öffnet sich dieses Projekt mit dem Stand des Schülers.
      * Danach verschwindet der Parameter aus der Adresszeile, damit Neuladen nichts doppelt anlegt.
      */
-    private async openFromLink(): Promise<{ error?: string, info?: string } | undefined> {
+    private async openFromLink(override?: { projekt: string | null, lernpfad: string | null }): Promise<{ error?: string, info?: string } | undefined> {
         const params = new URLSearchParams(location.search);
-        const raw = { projekt: params.get("projekt"), lernpfad: params.get("lernpfad") };
+        const raw = override ?? { projekt: params.get("projekt"), lernpfad: params.get("lernpfad") };
         if (!raw.projekt && !raw.lernpfad) return undefined;
         const clean = () => {
             params.delete("projekt");
