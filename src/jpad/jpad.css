@@ -2323,7 +2323,10 @@ html.phone .jp-topbar .jp-skinbtn { display: none; }
 :root[data-skin="flat"] .jp-blockgroup h3 { letter-spacing: 0.12em; }
 :root[data-skin="flat"] .jp-editor .cm-cursor { border-left: 9px solid rgba(0, 80, 240, 0.45); animation: jp-blink 1s steps(1) infinite; }
 @keyframes jp-blink { 50% { border-left-color: transparent; } }
-:root[data-skin="flat"] .jp-skinbtn { color: var(--danger) !important; }
+:root[data-skin="flat"] .jp-skinbtn { color: var(--accent) !important; }
+/* ganz flach: keine Hintergrundfläche hinter und in den Bausteinen */
+:root[data-skin="flat"] .jp-blockpanel .jp-blockgroup-items { background: transparent; padding: 0; }
+:root[data-skin="flat"] :is(.jp-blockpanel, .jp-keybar) button.jp-block:not(:active):not(.is-pressed) { background: transparent; box-shadow: none; }
 :root[data-skin="flat"] ::selection { background: rgba(0, 80, 240, 0.3); }
 :root[data-skin="flat"] .jp-drawer { border-right: 1px solid var(--accent); }
 :root[data-skin="flat"] .jp-tip, :root[data-skin="flat"] .jp-dialog { border: 1px solid var(--accent); }
