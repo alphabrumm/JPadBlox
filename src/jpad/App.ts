@@ -175,6 +175,7 @@ export class App {
                 }, 50);
             },
             fileExists: (name) => this.main.getFiles().some(f => f.name.toLowerCase() == (name + ".java").toLowerCase()),
+            hint: (text) => this.hint(text),
         };
         wireBlockPanel(this.el.blockPanel, blockContext);
         this.keyBar.blockContext = blockContext;
@@ -1638,6 +1639,22 @@ export class App {
         } else {
             this.toast(`Code der Datei „${files[0].name.replace(/\.java$/, "")}“ in die Zwischenablage kopiert. ` + hint, "copyFile", 5000);
         }
+    }
+
+    private hintTimer: any;
+    /** Kurzer, dezenter Hinweis unten (ohne Symbol, verschwindet schnell) */
+    hint(text: string, duration: number = 1800) {
+        let h = this.root.querySelector<HTMLElement>(".jp-tapnote");
+        if (!h) {
+            h = document.createElement("div");
+            h.className = "jp-tapnote";
+            h.setAttribute("role", "status");
+            this.root.appendChild(h);
+        }
+        h.textContent = text;
+        h.classList.add("is-visible");
+        clearTimeout(this.hintTimer);
+        this.hintTimer = setTimeout(() => h!.classList.remove("is-visible"), duration);
     }
 
     toast(text: string, iconName: string = "info", duration: number = 3200) {

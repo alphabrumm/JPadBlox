@@ -69,6 +69,19 @@ export const BLOCK_HELP: Record<string, Help> = {
         labCaption: "Was passiert mit dem Parameter beim Aufruf? Tippe auf „Nächster Schritt“",
         warn: "Auch ohne Parameter braucht der Aufruf die Klammern: `s1.schlafen();` – ohne `()` erkennt Java keinen Methodenaufruf.",
     },
+    "b-getset": {
+        title: "{get,set}", kind: "Baustein",
+        text: "Ergänzt **Getter** und **Setter**. Im Dialog wählst du für jedes Attribut: `get` (eine Methode, die den Wert **zurückgibt**), `set` (eine Methode, die einen **neuen Wert setzt**) oder beides. Tippe auf die Spaltenüberschrift, um eine ganze Spalte an- oder abzuwählen.",
+        examples: [
+            { caption: "Getter für den Namen eines Schafs", code: "public String getName() {\n   return name;\n}" },
+            { caption: "Setter für die Farbe", code: "public void setFarbe(String farbe) {\n   this.farbe = farbe;\n}" },
+            { caption: "Benutzen", code: "s1.setFarbe(\"braun\");\nprintln(s1.getFarbe());   // braun" },
+        ],
+        lab: "param",
+        labCaption: "Genau so wandert der Wert beim Aufruf ins Attribut (hier mit umbenennen)",
+        note: "Getter und Setter brauchst du vor allem, wenn die Attribute `private` sind: Dann kommt man von außen nur über sie an die Werte.",
+        warn: "Im Setter heißen Parameter und Attribut oft gleich – dann unbedingt `this.farbe = farbe;` schreiben, sonst ändert sich nichts.",
+    },
     "b-getter": {
         title: "Getter", kind: "Baustein",
         text: "Ein Getter ist eine Methode, die den **Wert eines Attributs zurückgibt**. Er heißt `get` + Attributname mit großem Anfangsbuchstaben. Der Rückgabetyp ist der Typ des Attributs.",
@@ -90,10 +103,13 @@ export const BLOCK_HELP: Record<string, Help> = {
         warn: "Im Setter heißen Parameter und Attribut oft gleich – dann unbedingt `this.farbe = farbe;` schreiben, sonst ändert sich nichts.",
     },
     "b-public": {
-        title: "public", kind: "Sichtbarkeit", code: true,
-        text: "`public` heißt **öffentlich**: Von überall aus darf man darauf zugreifen. Methoden wie Getter, Setter oder `schlafen()` sind meist `public`, damit andere Klassen sie benutzen können.",
-        examples: [{ caption: "Öffentliche Methode der Klasse Schaf", code: "public void unterhalten() {\n   println(maehGeraeusch);\n}" }],
-        note: "Im UML-Klassendiagramm steht vor öffentlichen Elementen ein `+`.",
+        title: "public?", kind: "Sichtbarkeit", code: true,
+        text: "Der Baustein setzt die **Sichtbarkeit**: **1× tippen** `public`, **2× tippen** `private`, **3× tippen** entfernt sie wieder. `public` heißt **öffentlich**: Von überall aus darf man darauf zugreifen. `private` heißt **privat**: Nur die Klasse selbst darf darauf zugreifen.",
+        examples: [
+            { caption: "Öffentliche Methode der Klasse Schaf", code: "public void unterhalten() {\n   println(maehGeraeusch);\n}" },
+            { caption: "Private Attribute – Zugriff von außen nur über Getter und Setter", code: "class Schaf {\n   private String name;\n   private String farbe;\n}" },
+        ],
+        note: "Im UML-Klassendiagramm steht vor öffentlichen Elementen ein `+`, vor privaten ein `-`.",
     },
     "b-private": {
         title: "private", kind: "Sichtbarkeit", code: true,
@@ -131,7 +147,7 @@ export const BLOCK_HELP: Record<string, Help> = {
 
     "b-if": {
         title: "if", kind: "Verzweigung", code: true,
-        text: "`if` führt den Block nur aus, **wenn die Bedingung wahr ist**. Sonst wird er übersprungen.",
+        text: "`if` führt den Block nur aus, **wenn die Bedingung wahr ist**. Sonst wird er übersprungen. Im Dialog des Bausteins kannst du beliebig viele `else if`-Zweige (weitere Bedingungen) und einen `else`-Zweig (sonst) dazunehmen.",
         examples: [
             { caption: "Nur schwarze Schafe sagen etwas", code: "if (farbe.equals(\"schwarz\")) {\n   println(name + \" ist das schwarze Schaf.\");\n}" },
             { caption: "Mit einer Zahl (Attribut Integer alter)", code: "if (alter > 10) {\n   println(name + \" ist ein altes Schaf.\");\n}" },

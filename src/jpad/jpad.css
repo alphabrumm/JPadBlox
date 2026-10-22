@@ -2573,3 +2573,54 @@ html.phone .jp-topbar .jp-skinbtn { display: none; }
 /* Objektkarten behalten auch in den Themes mit spitzen Ecken ihre runden Ecken (Unterschied zur Klassenkarte) */
 :root[data-skin="hacker"] .jp-uml-card.is-object,
 :root[data-skin="flat"] .jp-uml-card.is-object { border-radius: 14px !important; }
+
+/* JPadBlox: Dialog „{get,set}“ – Tabelle Attribut | get | set */
+.jp-acc-table { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 2px 6px; max-height: 50vh; overflow-y: auto; }
+.jp-acc-head { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); padding: 4px 10px; }
+button.jp-acc-head { font: inherit; font-size: 13px; font-family: var(--font-code); text-transform: none; letter-spacing: 0; font-weight: 700;
+    color: var(--accent); background: none; border: 1.5px solid var(--line); border-radius: var(--radius-s); min-width: 76px; min-height: 30px; cursor: pointer; }
+.jp-acc-name { font-family: var(--font-code); font-size: 15px; color: var(--ink); padding: 0 10px; min-height: 44px; display: flex; align-items: center;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border-top: 1px solid var(--line); }
+.jp-acc-box, .jp-acc-have { display: flex; align-items: center; justify-content: center; min-width: 76px; min-height: 44px; border-top: 1px solid var(--line); }
+.jp-acc-box { cursor: pointer; }
+.jp-acc-box input { width: 22px; height: 22px; accent-color: var(--accent); margin: 0; }
+.jp-acc-have { font-size: 12px; color: var(--ink-2); }
+
+/* JPadBlox: Dialog „if“ – Eingaben links, Vorschau rechts (schmal: darunter) */
+.jp-if-split { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.jp-if-elseifs { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.jp-if-elseifs:empty { display: none; }
+.jp-if-row code, .jp-if-hint code { font-family: var(--font-code); font-weight: 700; color: var(--syn-keyword); }
+.jp-if-line { display: flex; gap: 8px; align-items: stretch; }
+.jp-if-line input { flex: 1; min-width: 0; }
+.jp-field .jp-if-line input {
+    font: inherit; font-size: 17px; color: var(--ink); background: var(--bg);
+    border: 1.5px solid var(--line); border-radius: var(--radius-m); padding: 12px 14px;
+}
+.jp-field .jp-if-line input:focus { border-color: var(--accent); outline: none; }
+.jp-btn.jp-if-remove { flex: none; min-width: 44px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+.jp-btn.jp-if-remove svg { width: 18px; height: 18px; }
+.jp-if-actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+.jp-if-actions .jp-btn-small { margin-top: 0; align-self: center; }
+.jp-if-else span { font-family: var(--font-code); }
+.jp-if-hint { margin: 10px 0 0; font-size: 13px; color: var(--ink-2); }
+.jp-if-preview { margin-top: 0; align-content: start; }
+.jp-if-preview code { display: block; font-size: 14px; white-space: pre; overflow-x: auto; overflow-wrap: normal; }
+@media (min-width: 700px) {
+    .jp-sheet.is-if { max-width: min(760px, calc(100vw - 24px)) !important; }
+    .jp-if-split { grid-template-columns: minmax(0, 1fr) minmax(220px, 300px); gap: 18px; }
+    .jp-if-preview { max-height: 70vh; overflow: auto; }
+}
+
+/* JPadBlox: kurzer, dezenter Hinweis unten (z. B. beim Baustein „public?“) */
+.jp-tapnote {
+    position: fixed; left: 50%; z-index: 70;
+    bottom: calc(var(--bottomnav-h) + 14px + env(safe-area-inset-bottom) + var(--keyboard-offset));
+    padding: 6px 14px; border-radius: 999px; font-size: 13px;
+    background: color-mix(in srgb, var(--surface) 88%, transparent); color: var(--ink-2);
+    border: 1px solid var(--line); box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    transform: translate(-50%, 8px); opacity: 0; pointer-events: none; transition: opacity 160ms, transform 160ms;
+    white-space: nowrap;
+}
+.jp-tapnote.is-visible { opacity: 1; transform: translate(-50%, 0); }

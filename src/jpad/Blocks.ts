@@ -26,16 +26,17 @@ export type BlockGroup = "klasse" | "ablauf" | "daten";
  * Art des Bausteins:
  *  line     Vorlage in eigener Zeile        inline   Vorlage an der Cursorstelle
  *  else     hängt sich an eine Zeile mit }   text     fester Text an der Cursorstelle (public, break; …)
- *  visibility  public/private: ersetzt ein vorhandenes public/private/protected in der Zeile
+ *  visibility  „public?“: 1× tippen public, 2× private, 3× keine Sichtbarkeit (ersetzt ein vorhandenes in der Zeile)
  *  attribut / variable   Dialog mit Datentyp und Name
  *  constructor  Konstruktor zu den Attributen („insert constructor“ der Online-IDE)
- *  getter / setter  Auswahl der Attribute, dann get…/set…-Methoden
+ *  accessors  „{get,set}“: je Attribut Getter, Setter oder beides auswählen
+ *  if       Dialog: Bedingung, beliebig viele else-if-Zweige, else-Zweig
  *  method   Dialog: Name, Rückgabetyp, Parameter
  *  new      passender Konstruktor zum Datentyp links vom =
  *  comment  Kommentar einfügen bzw. Zeilen aus- und einkommentieren
  */
 export type BlockKind = "line" | "inline" | "else" | "text" | "visibility" | "attribut" | "variable" | "array" | "new" | "comment"
-    | "constructor" | "getter" | "setter" | "method" | "class";
+    | "constructor" | "accessors" | "method" | "class" | "if";
 
 export type Block = {
     label: string;
@@ -48,6 +49,8 @@ export type Block = {
     help?: string;
     /** steht in der eingeklappten Kategorie „Mehr…“ (Farbe bleibt die der eigenen Gruppe) */
     more?: boolean;
+    /** Eingabestelle, die für § im Rumpf eingesetzt wird (Standard ${}) */
+    bodyField?: string;
 };
 
 export const GROUP_NAMES: Record<BlockGroup, string> = {
@@ -66,35 +69,29 @@ export const BLOCKS: Block[] = [
         tip: "Konstruktor anlegen: leer (Standardkonstruktor) oder passend zu den Attributen – Auswahl im Dialog" },
     { group: "klasse", label: "Methode", help: "b-methode", kind: "method", tpl: "",
         tip: "Neue Methode: Name, Rückgabetyp (oder void) und Parameter im Dialog festlegen" },
-    { group: "klasse", label: "Getter", help: "b-getter", kind: "getter", tpl: "",
-        tip: "Getter-Methoden: Du wählst die Attribute aus, für die eine Methode get…() ergänzt wird, die den Wert zurückgibt" },
-    { group: "klasse", label: "Setter", help: "b-setter", kind: "setter", tpl: "",
-        tip: "Setter-Methoden: Du wählst die Attribute aus, für die eine Methode set…(…) ergänzt wird, die den Wert setzt" },
+    { group: "klasse", label: "{get,set}", help: "b-getset", kind: "accessors", tpl: "",
+        tip: "Getter und Setter: Im Dialog wählst du für jedes Attribut, ob eine Methode get…() (gibt den Wert zurück), set…(…) (setzt den Wert) oder beide ergänzt werden" },
     { group: "klasse", label: "extends", help: "b-extends", more: true, kind: "line", tpl: "class ${Name} extends ${Oberklasse} {\n\t§\n}",
         tip: "Unterklasse: class Name extends Oberklasse { … }" },
     { group: "klasse", label: "super", help: "b-super", more: true, kind: "line", tpl: "super(${});",
         tip: "Konstruktor der Oberklasse aufrufen: super(…); – muss die erste Anweisung im Konstruktor sein" },
-    { group: "klasse", label: "public", help: "b-public", kind: "visibility", tpl: "public",
-        tip: "Fügt an der Cursorstelle public ein (von überall aus sichtbar); steht in der Zeile schon private, wird es durch public ersetzt" },
-    { group: "klasse", label: "private", help: "b-private", kind: "visibility", tpl: "private",
-        tip: "Fügt an der Cursorstelle private ein (nur innerhalb der eigenen Klasse sichtbar); steht in der Zeile schon public, wird es durch private ersetzt" },
+    { group: "klasse", label: "public?", help: "b-public", kind: "visibility", tpl: "public",
+        tip: "Sichtbarkeit: 1× tippen setzt public, 2× tippen private, 3× tippen entfernt die Sichtbarkeit wieder. Steht in der Zeile schon eine, wird sie ersetzt" },
     { group: "klasse", label: "//", help: "b-kommentar", kind: "comment", tpl: "// ${Kommentar}",
         tip: "Kommentar: In einer leeren Zeile wird ein Kommentar begonnen. Steht Code in der Zeile (oder sind Zeilen markiert), wird er mit // auskommentiert; ist schon eine davon auskommentiert, werden alle wieder einkommentiert" },
 
     // ---------- Ablauf ----------
-    { group: "ablauf", label: "if", help: "b-if", kind: "line", tpl: "if (${Bedingung}) {\n\t§\n}",
-        tip: "Bedingte Anweisung: if (Bedingung) { … }" },
-    { group: "ablauf", label: "if – else", help: "b-ifelse", kind: "line", tpl: "if (${Bedingung}) {\n\t§\n} else {\n\t${}\n}",
-        tip: "Zweiseitig bedingte Anweisung: if (Bedingung) { … } else { … }" },
-    { group: "ablauf", label: "else if", help: "b-elseif", kind: "else", tpl: "else if (${Bedingung}) {\n\t§\n}",
+    { group: "ablauf", label: "if", help: "b-if", kind: "if", tpl: "if (${Bedingung}) {\n\t§\n}",
+        tip: "Verzweigung: Im Dialog legst du die Bedingung fest und kannst beliebig viele else-if-Zweige und einen else-Zweig dazunehmen" },
+    { group: "ablauf", label: "else if", help: "b-elseif", more: true, kind: "else", tpl: "else if (${Bedingung}) {\n\t§\n}",
         tip: "Weitere Bedingung nach einem if-Block: else if (Bedingung) { … }" },
-    { group: "ablauf", label: "else", help: "b-else", kind: "else", tpl: "else {\n\t§\n}",
+    { group: "ablauf", label: "else", help: "b-else", more: true, kind: "else", tpl: "else {\n\t§\n}",
         tip: "Sonst-Teil nach einem if-Block: else { … }" },
     { group: "ablauf", label: "while", help: "b-while", kind: "line", tpl: "while (${Bedingung}) {\n\t§\n}",
         tip: "Wiederholung mit Bedingung: while (Bedingung) { … }" },
     { group: "ablauf", label: "for", help: "b-for", more: true, kind: "line", tpl: "for (Integer ${i} = 0; ${i} < ${10}; ${i}++) {\n\t§\n}",
         tip: "Zählschleife: for (Integer i = 0; i < 10; i++) { … }" },
-    { group: "ablauf", label: "for-each", help: "b-foreach", kind: "line", tpl: "for (${String} ${element} : ${liste}) {\n\t§\n}",
+    { group: "ablauf", label: "for-each", help: "b-foreach", more: true, kind: "line", tpl: "for (${String} ${element} : ${liste}) {\n\t§\n}",
         tip: "Jedes Element einer Liste oder eines Arrays durchlaufen: for (String element : liste) { … }" },
     { group: "ablauf", label: "do – while", help: "b-dowhile", more: true, kind: "line", tpl: "do {\n\t§\n} while (${Bedingung});",
         tip: "Wiederholung, die mindestens einmal läuft: do { … } while (Bedingung);" },
@@ -157,6 +154,8 @@ export type BlockContext = {
     fileExists: (name: string) => boolean;
     /** Text des Konstruktors, den die Online-IDE an dieser Stelle vorschlägt („insert constructor“), sonst null */
     constructorSuggestion: (offset: number) => Promise<string | null>;
+    /** Kurzer, dezenter Hinweis unten am Bildschirm */
+    hint: (text: string) => void;
 };
 
 /** Fügt den Baustein ein (bzw. umschließt die markierten Zeilen) und formatiert danach den Code. */
@@ -181,7 +180,10 @@ export async function insertBlock(ctx: BlockContext, block: Block) {
             insertText(view, block.tpl);
             break;
         case "visibility":
-            setVisibility(view, block.tpl);
+            cycleVisibility(ctx);
+            break;
+        case "if":
+            done = await insertIf(ctx, block);
             break;
         case "constructor": {
             const choice = await ctx.dialogs.constructorChoice();
@@ -189,9 +191,8 @@ export async function insertBlock(ctx: BlockContext, block: Block) {
             await insertConstructor(ctx, block, choice);
             break;
         }
-        case "getter":
-        case "setter":
-            done = await insertAccessors(ctx, block.kind);
+        case "accessors":
+            done = await insertAccessors(ctx);
             break;
         case "method":
             done = await insertMethod(ctx);
@@ -243,7 +244,7 @@ function insertTemplate(view: EditorView, block: Block) {
         return;
     }
 
-    tpl = tpl.replace("§", "${}");
+    tpl = tpl.replace("§", block.bodyField ?? "${}");
 
     if (block.kind == "inline") {
         snippet(tpl)(view, null, sel.from, sel.to);
@@ -301,6 +302,32 @@ function insertText(view: EditorView, text: string) {
 
 // ---------------------------------------------------------------- public / private
 
+/** Letztes Antippen von „public?“: schnell hintereinander in derselben Zeile zählt als 2× bzw. 3× tippen */
+let visTap = { time: 0, line: -1, count: 0 };
+const VIS_TAP_MS = 2000;
+
+/** „public?“: 1× tippen public, 2× private, 3× Sichtbarkeit entfernen (danach wieder von vorn) */
+function cycleVisibility(ctx: BlockContext) {
+    const view = ctx.view;
+    const lineNo = view.state.doc.lineAt(view.state.selection.main.head).number;
+    const now = Date.now();
+    const again = now - visTap.time < VIS_TAP_MS && visTap.line == lineNo;
+    visTap = { time: now, line: lineNo, count: again ? visTap.count % 3 + 1 : 1 };
+    if (visTap.count == 1) setVisibility(view, "public");
+    else if (visTap.count == 2) setVisibility(view, "private");
+    else removeVisibility(view);
+    ctx.hint("2× tippen: private  ·  3× tippen: –");
+}
+
+/** Vorhandenes public/private/protected (samt Leerzeichen dahinter) aus der Cursorzeile entfernen */
+function removeVisibility(view: EditorView) {
+    const line = view.state.doc.lineAt(view.state.selection.main.head);
+    const m = /\b(public|private|protected)\b[ \t]*/.exec(codeOnly(line.text));
+    if (!m) return;
+    const from = line.from + m.index;
+    view.dispatch({ changes: { from, to: from + m[0].length, insert: "" }, userEvent: "delete" });
+}
+
 /** public/private: ein vorhandenes public/private/protected in der Zeile ersetzen, sonst an der Cursorstelle einfügen */
 function setVisibility(view: EditorView, keyword: string) {
     const state = view.state;
@@ -310,11 +337,8 @@ function setVisibility(view: EditorView, keyword: string) {
     if (m) {
         if (m[1] != keyword) {
             const from = line.from + m.index;
-            view.dispatch({
-                changes: { from, to: from + m[1].length, insert: keyword },
-                selection: EditorSelection.cursor(from + keyword.length),
-                userEvent: "input"
-            });
+            // Cursor wird mitverschoben (steht er hinter „public “, steht er danach hinter „private “)
+            view.dispatch({ changes: { from, to: from + m[1].length, insert: keyword }, userEvent: "input" });
         }
         return;
     }
@@ -576,12 +600,12 @@ async function insertConstructor(ctx: BlockContext, block: Block, mode: "empty" 
 
 const cap = (s: string) => s.charAt(0).toLocaleUpperCase() + s.slice(1);
 
-async function insertAccessors(ctx: BlockContext, kind: "getter" | "setter"): Promise<boolean> {
+async function insertAccessors(ctx: BlockContext): Promise<boolean> {
     const view = ctx.view;
     const code = codeOnly(view.state.doc.toString());
     const classes = classesIn(code);
     const cls = classAt(classes, view.state.selection.main.head) ?? classes[0];
-    const title = kind == "getter" ? "Getter ergänzen" : "Setter ergänzen";
+    const title = "Getter und Setter";
     if (!cls) {
         await ctx.dialogs.alert({ title, text: "In dieser Datei gibt es noch keine Klasse." });
         return false;
@@ -592,31 +616,62 @@ async function insertAccessors(ctx: BlockContext, kind: "getter" | "setter"): Pr
         return false;
     }
     const body = code.slice(cls.open + 1, cls.close);
-    const prefix = kind == "getter" ? "get" : "set";
-    const items = attrs.map(a => {
-        const exists = new RegExp(String.raw`\b` + prefix + cap(a.name) + String.raw`\s*\(`).test(body);
-        return { id: a.name, label: `${a.type} ${a.name}`, note: exists ? "gibt es schon" : "", checked: !exists };
-    });
-    const chosen = await ctx.dialogs.choose({
+    const has = (prefix: string, name: string) => new RegExp(String.raw`\b` + prefix + cap(name) + String.raw`\s*\(`).test(body);
+    const chosen = await ctx.dialogs.accessors({
         title,
-        text: kind == "getter"
-            ? "Für welche Attribute soll eine Methode get…() ergänzt werden, die den Wert zurückgibt?"
-            : "Für welche Attribute soll eine Methode set…(…) ergänzt werden, die den Wert setzt?",
-        items,
-        confirm: "Ergänzen",
+        className: cls.name,
+        rows: attrs.map(a => ({ name: a.name, label: `${a.type} ${a.name}`, hasGet: has("get", a.name), hasSet: has("set", a.name) })),
     });
-    if (!chosen || chosen.length == 0) return false;
+    if (!chosen) return false;
 
     // Cursor ans Ende der Klasse (bzw. an die Cursorstelle im Klassenrumpf)
     view.dispatch({ selection: EditorSelection.cursor(view.state.selection.main.head) });
     prepareMemberLine(view, "end");
     const lines: string[] = [];
-    for (const a of attrs.filter(a => chosen.includes(a.name))) {
-        if (lines.length) lines.push("");
-        if (kind == "getter") lines.push(`public ${a.type} get${cap(a.name)}() {`, `return ${a.name};`, "}");
-        else lines.push(`public void set${cap(a.name)}(${a.type} ${a.name}) {`, `this.${a.name} = ${a.name};`, "}");
+    for (const a of attrs) {
+        const c = chosen.find(x => x.name == a.name);
+        if (!c) continue;
+        if (c.get) {
+            if (lines.length) lines.push("");
+            lines.push(`public ${a.type} get${cap(a.name)}() {`, `return ${a.name};`, "}");
+        }
+        if (c.set) {
+            if (lines.length) lines.push("");
+            lines.push(`public void set${cap(a.name)}(${a.type} ${a.name}) {`, `this.${a.name} = ${a.name};`, "}");
+        }
     }
     insertLines(view, lines);
+    return true;
+}
+
+// ---------------------------------------------------------------- if
+
+export type IfResult = { cond: string, elseIfs: string[], hasElse: boolean };
+
+/**
+ * Code der Verzweigung. Vorschau: leere Bedingungen als „…“; snippetMode: Eingabestellen zum
+ * Weiterspringen (nummeriert, damit gleich benannte Bedingungen nicht gemeinsam bearbeitet werden).
+ */
+function ifText(r: IfResult, snippetMode: boolean): string {
+    let n = 1;
+    const cond = (c: string) => c.trim() != "" ? (snippetMode ? escapeForSnippet(c.trim()) : c.trim())
+        : (snippetMode ? "${" + (n++) + ":Bedingung}" : "…");
+    const body = () => snippetMode ? "${" + (n++) + "}" : "…";
+    let t = `if (${cond(r.cond)}) {\n\t${snippetMode ? "§" : body()}\n}`;
+    if (snippetMode) n++;     // Nummer für den Rumpf des if (siehe bodyField)
+    for (const c of r.elseIfs) t += ` else if (${cond(c)}) {\n\t${body()}\n}`;
+    if (r.hasElse) t += ` else {\n\t${body()}\n}`;
+    return t;
+}
+
+async function insertIf(ctx: BlockContext, block: Block): Promise<boolean> {
+    const r = await ctx.dialogs.ifStatement({
+        build: (x) => ifText(x, false).replace(/\t/g, "   "),
+    });
+    if (!r) return false;
+    // Nummer der Eingabestelle im if-Rumpf: direkt nach der Bedingung (1, bzw. 1 bei fester Bedingung + 1)
+    const condIsField = r.cond.trim() == "";
+    insertTemplate(ctx.view, { ...block, kind: "line", tpl: ifText(r, true), bodyField: "${" + (condIsField ? 2 : 1) + "}" });
     return true;
 }
 
@@ -953,9 +1008,9 @@ document.documentElement.dataset.blockStyle = BLOCK_STYLE;
 
 /** Hinweistext beim langen Drücken auf einen Baustein */
 export function blockTip(b: Block): string {
-    return b.tpl.includes("§")
-        ? b.tip + ". Markierte Zeilen umschließt der Baustein. Tab oder Enter springt zum nächsten Platzhalter."
-        : b.tip + ". Tab oder Enter springt zum nächsten Platzhalter.";
+    if (b.tpl.includes("§")) return b.tip + ". Markierte Zeilen umschließt der Baustein. Tab oder Enter springt zum nächsten Platzhalter.";
+    if (b.tpl.includes("${")) return b.tip + ". Tab oder Enter springt zum nächsten Platzhalter.";
+    return b.tip;
 }
 
 function chipHtml(b: Block, i: number): string {

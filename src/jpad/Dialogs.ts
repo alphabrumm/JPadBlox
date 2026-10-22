@@ -2,6 +2,7 @@ import { icon } from "./Icons.js";
 import { escapeHtml } from "./LanguageBridge.js";
 import { createMethodAnimation } from "./MethodAnimation.js";
 import { createClassAnimation } from "./ClassAnimation.js";
+import type { IfResult } from "./Blocks.js";
 
 type PromptOptions = {
     title: string;
@@ -417,6 +418,119 @@ export class Dialogs {
                 if (r.array && !r.declOnly && !r.count) { error.textContent = "Bitte eine ganze Zahl größer als 0 eingeben."; count.focus(); return; }
                 close(r);
             });
+        });
+    }
+
+    /**
+     * JPadBlox: Baustein „{get,set}“. Je Attribut eine Zeile mit den Häkchen get und set
+     * (vorhandene Methoden stehen als „vorhanden“ da). Tippen auf die Spaltenüberschrift wählt die ganze Spalte.
+     */
+    accessors(o: { title: string, className: string, rows: { name: string, label: string, hasGet: boolean, hasSet: boolean }[] }):
+        Promise<{ name: string, get: boolean, set: boolean }[] | null> {
+        const cell = (kind: "get" | "set", r: { name: string, hasGet: boolean, hasSet: boolean }) =>
+            (kind == "get" ? r.hasGet : r.hasSet)
+                ? `<span class="jp-acc-have" data-tip="Diese Methode gibt es schon">vorhanden</span>`
+                : `<label class="jp-acc-box"><input type="checkbox" data-kind="${kind}" data-name="${escapeHtml(r.name)}" checked
+                     aria-label="${kind}${escapeHtml(r.name.charAt(0).toUpperCase() + r.name.slice(1))}"></label>`;
+        return this.open(`
+            <h2 class="jp-sheet-title">${escapeHtml(o.title)}</h2>
+            <p class="jp-sheet-text">Für welche Attribute von <b>${escapeHtml(o.className)}</b> sollen Methoden ergänzt werden?
+                <b>get</b> gibt den Wert zurück, <b>set</b> setzt einen neuen Wert.</p>
+            <form class="jp-form">
+                <div class="jp-acc-table">
+                    <span class="jp-acc-head">Attribut</span>
+                    <button type="button" class="jp-acc-head jp-acc-col" data-col="get" data-tip="Alle get-Häkchen an- bzw. abwählen">get</button>
+                    <button type="button" class="jp-acc-head jp-acc-col" data-col="set" data-tip="Alle set-Häkchen an- bzw. abwählen">set</button>
+                    ${o.rows.map(r => `<span class="jp-acc-name">${escapeHtml(r.label)}</span>${cell("get", r)}${cell("set", r)}`).join("")}
+                </div>
+                <p class="jp-field-error" aria-live="polite"></p>
+                <div class="jp-sheet-buttons">
+                    <button type="button" class="jp-btn" data-cancel>Abbrechen</button>
+                    <button type="submit" class="jp-btn jp-btn-primary">Ergänzen</button>
+                </div>
+            </form>`, (sheet, close) => {
+            const error = sheet.querySelector<HTMLElement>(".jp-field-error")!;
+            const boxes = (kind?: string) => [...sheet.querySelectorAll<HTMLInputElement>("input[data-kind]" + (kind ? `[data-kind=${kind}]` : ""))];
+            sheet.querySelectorAll<HTMLElement>("[data-col]").forEach(b => b.addEventListener("click", () => {
+                const col = boxes(b.dataset.col);
+                const on = !col.every(c => c.checked);
+                col.forEach(c => c.checked = on);
+                error.textContent = "";
+            }));
+            sheet.addEventListener("change", () => error.textContent = "");
+            sheet.querySelector("form")!.addEventListener("submit", (e) => {
+                e.preventDefault();
+                const result = o.rows.map(r => ({
+                    name: r.name,
+                    get: boxes("get").some(c => c.dataset.name == r.name && c.checked),
+                    set: boxes("set").some(c => c.dataset.name == r.name && c.checked),
+                })).filter(r => r.get || r.set);
+                if (result.length == 0) {
+                    error.textContent = boxes().length ? "Bitte mindestens ein Häkchen setzen." : "Alle Getter und Setter gibt es schon.";
+                    return;
+                }
+                close(result);
+            });
+        });
+    }
+
+    /**
+     * JPadBlox: Baustein „if“. Bedingung, beliebig viele else-if-Zweige (hinzufügen/entfernen) und ein
+     * else-Zweig; rechts daneben die Vorschau des Codes. Leere Bedingungen werden zu Eingabestellen im Editor.
+     */
+    ifStatement(o: { build: (r: IfResult) => string }): Promise<IfResult | null> {
+        const input = (data: string, placeholder: string) =>
+            `<input type="text" ${data} placeholder="${placeholder}" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off" enterkeyhint="done">`;
+        return this.open(`
+            <div class="jp-if-split">
+            <div class="jp-if-input">
+            <h2 class="jp-sheet-title">Verzweigung bauen</h2>
+            <form class="jp-form">
+                <label class="jp-field jp-if-row">
+                    <span><code>if</code> – Bedingung:</span>
+                    ${input("data-cond", "z. B. alter > 10")}
+                </label>
+                <div class="jp-if-elseifs"></div>
+                <div class="jp-if-actions">
+                    <button type="button" class="jp-btn jp-btn-small" data-addelseif>+ else if</button>
+                    <label class="jp-array-check jp-if-else"><input type="checkbox" data-else><span>else</span></label>
+                </div>
+                <p class="jp-if-hint">Leere Bedingungen trägst du später im Code ein (Tab/Enter springt weiter).</p>
+                <p class="jp-field-error" aria-live="polite"></p>
+                <div class="jp-sheet-buttons">
+                    <button type="button" class="jp-btn" data-cancel>Abbrechen</button>
+                    <button type="submit" class="jp-btn jp-btn-primary">Einfügen</button>
+                </div>
+            </form>
+            </div>
+            <div class="jp-preview jp-if-preview" aria-live="polite"><span class="jp-preview-label">Vorschau</span><code data-preview></code></div>
+            </div>`, (sheet, close) => {
+            sheet.classList.add("is-if");
+            const q = <T extends HTMLElement>(s: string) => sheet.querySelector<T>(s)!;
+            const cond = q<HTMLInputElement>("[data-cond]"), elseBox = q<HTMLInputElement>("[data-else]");
+            const list = q<HTMLElement>(".jp-if-elseifs"), preview = q<HTMLElement>("[data-preview]");
+            const current = (): IfResult => ({
+                cond: cond.value,
+                elseIfs: [...list.querySelectorAll<HTMLInputElement>("input")].map(i => i.value),
+                hasElse: elseBox.checked,
+            });
+            const refresh = () => { preview.innerHTML = highlightJava(o.build(current())); };
+            q("[data-addelseif]").addEventListener("click", () => {
+                const row = document.createElement("div");
+                row.className = "jp-field jp-if-row jp-if-elseif";
+                row.innerHTML = `<span><code>else if</code> – Bedingung:</span>
+                    <div class="jp-if-line">${input("", "z. B. alter > 5")}
+                    <button type="button" class="jp-btn jp-if-remove" data-tip="Diesen else-if-Zweig entfernen" aria-label="else-if-Zweig entfernen">${icon("close")}</button></div>`;
+                row.querySelector("button")!.addEventListener("click", () => { row.remove(); refresh(); });
+                list.appendChild(row);
+                refresh();
+                row.querySelector("input")!.focus();
+            });
+            sheet.addEventListener("input", refresh);
+            elseBox.addEventListener("change", refresh);
+            refresh();
+            setTimeout(() => cond.focus(), 60);
+            q("form").addEventListener("submit", (e) => { e.preventDefault(); close(current()); });
         });
     }
 

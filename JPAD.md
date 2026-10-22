@@ -50,6 +50,14 @@ Bedienung und Gestaltung.
   (eigene Klasse ohne Konstruktor: nur der Standardkonstruktor) und das Häkchen „nur Deklaration“. Über den Knöpfen
   steht die Vorschau der Anweisung mit Syntaxfarben; Konstruktorparameter werden als Platzhalter eingefügt.
   Unter dem Datentyp die Häkchen „Array anlegen“ und „nur Deklaration“ (beide zusammen: `Typ[] name;`).
+- **Baustein „public?“** (ersetzt public und private): 1× tippen `public`, 2× `private`, 3× Sichtbarkeit entfernen
+  (zählt als Mehrfachtipp, wenn innerhalb von 2 s in derselben Zeile getippt wird). Unten erscheint dezent
+  „2× tippen: private · 3× tippen: –“.
+- **Baustein „{get,set}“** (ersetzt Getter und Setter): Tabelle Attribut | get | set; vorhandene Methoden stehen als
+  „vorhanden“ da, Tippen auf die Spaltenüberschrift wählt die ganze Spalte.
+- **Baustein „if“** (ersetzt if und if – else): Dialog mit Bedingung, beliebig vielen else-if-Zweigen (+ else if / ×)
+  und Häkchen else; rechts daneben die Vorschau mit Syntaxfarben. Leere Bedingungen werden Eingabestellen im Editor,
+  markierte Zeilen landen im if-Rumpf. „else if“, „else“ und „for-each“ stehen jetzt unter „Mehr…“.
 - **Baustein „new“** auf einer Zeile wie `Hund bello;` entfernt das Semikolon und ergänzt `= new Hund();`.
 - **Umbenennen** wählt das Symbol am Cursor bzw. in der Markierung gleich vor.
 - **Dialoge** (ab 700 px Breite) lassen sich an der Griffleiste oder Überschrift verschieben. Sie erscheinen
