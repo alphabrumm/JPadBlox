@@ -157,6 +157,57 @@ export class Dialogs {
         });
     }
 
+    /**
+     * JPadBlox: Umbenennen – Symbol aus einer Liste wählen (gruppiert), neuen Namen eingeben.
+     * Liefert { id, name } oder null.
+     */
+    rename(o: {
+        groups: { label: string, items: { id: string, label: string, name: string }[] }[],
+        validate: (id: string, name: string) => string | null
+    }): Promise<{ id: string, name: string } | null> {
+        const options = o.groups.filter(g => g.items.length > 0).map(g =>
+            `<optgroup label="${escapeHtml(g.label)}">${g.items.map(i =>
+                `<option value="${escapeHtml(i.id)}" data-name="${escapeHtml(i.name)}">${escapeHtml(i.label)}</option>`).join("")}</optgroup>`
+        ).join("");
+        return this.open(`
+            <h2 class="jp-sheet-title">Umbenennen</h2>
+            <p class="jp-sheet-text">Welche Variable, Methode oder Klasse soll einen neuen Namen bekommen? JPad ändert den Namen überall im Projekt.</p>
+            <form class="jp-form">
+                <label class="jp-field">
+                    <span>Was umbenennen?</span>
+                    <select class="jp-select" data-ref="symbol">${options}</select>
+                </label>
+                <label class="jp-field">
+                    <span>Neuer Name</span>
+                    <input type="text" data-ident autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off" enterkeyhint="done">
+                </label>
+                <p class="jp-hint jp-rename-hint">Tipp: Namen von Variablen und Methoden beginnen mit einem Kleinbuchstaben (z. B. <code>alter</code>, <code>bellen</code>), Namen von Klassen mit einem Großbuchstaben (z. B. <code>Hund</code>).</p>
+                <p class="jp-field-error" aria-live="polite"></p>
+                <div class="jp-sheet-buttons">
+                    <button type="button" class="jp-btn" data-cancel>Abbrechen</button>
+                    <button type="submit" class="jp-btn jp-btn-primary">Umbenennen</button>
+                </div>
+            </form>`, (sheet, close) => {
+            const select = sheet.querySelector("select")!;
+            const input = sheet.querySelector<HTMLInputElement>("[data-ident]")!;
+            const error = sheet.querySelector<HTMLElement>(".jp-field-error")!;
+            const fill = () => {
+                input.value = select.selectedOptions[0]?.dataset.name ?? "";
+                error.textContent = "";
+            };
+            select.addEventListener("change", () => { fill(); input.focus(); input.select(); });
+            fill();
+            setTimeout(() => { input.focus(); input.select(); }, 60);
+            input.addEventListener("input", () => error.textContent = "");
+            sheet.querySelector("form")!.addEventListener("submit", (e) => {
+                e.preventDefault();
+                const msg = o.validate(select.value, input.value);
+                if (msg) { error.textContent = msg; input.focus(); return; }
+                close({ id: select.value, name: input.value.trim() });
+            });
+        });
+    }
+
     /** JPadBlox: Auswahl mehrerer Einträge (Häkchen). Liefert die ids der gewählten Einträge oder null. */
     choose(o: { title: string, text: string, items: { id: string, label: string, note?: string, checked?: boolean }[], confirm: string }): Promise<string[] | null> {
         return this.open(`

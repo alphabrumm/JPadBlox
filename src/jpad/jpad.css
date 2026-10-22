@@ -1867,7 +1867,8 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 .jp-app[data-layout="split"][data-cols="edit-w"] .jp-main { grid-template-columns: minmax(0, 25fr) minmax(0, 75fr); }
 .jp-app[data-layout="split"]:is([data-cols="edit-n"], [data-cols="edit-w"]) .jp-pane-side { display: none; }
 /* Ansicht rechts vergrößert: doppelt so breit, Bausteine schmal; volle Breite: nur die Ansicht rechts */
-.jp-app[data-layout="split"][data-cols="info"] .jp-main { grid-template-columns: auto minmax(0, 1fr) 40%; }
+/* Ansicht rechts vergrößert: genauso breit wie der Editor */
+.jp-app[data-layout="split"][data-cols="info"] .jp-main { grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr); }
 .jp-app[data-layout="split"][data-cols="infofull"] .jp-main { grid-template-columns: minmax(0, 1fr); }
 .jp-app[data-layout="split"][data-cols="infofull"] :is(.jp-pane-blocks, .jp-pane-code) { display: none; }
 .jp-layoutbtn[hidden] { display: none !important; }
@@ -2397,3 +2398,7 @@ html.phone .jp-topbar .jp-skinbtn { display: none; }
 :root[data-skin="hacker"] ::selection { background: rgba(0, 255, 156, 0.3); }
 :root[data-skin="hacker"] .jp-drawer { border-right: 1px solid var(--accent); }
 :root[data-skin="hacker"] .jp-tip, :root[data-skin="hacker"] .jp-dialog { border: 1px solid var(--accent); }
+
+/* Umbenennen-Dialog */
+.jp-rename-hint { font-size: 13px; margin: 2px 0 0; color: var(--ink-2); }
+.jp-rename-hint code { font-family: var(--font-code); font-size: 0.95em; }

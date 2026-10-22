@@ -236,6 +236,7 @@ export class App {
                 <div class="jp-toolgroup jp-edit-tools" data-ref="editTools">
                     <button class="jp-iconbtn" data-ref="copyAllBtn" data-tip="Code aller Dateien in die Zwischenablage kopieren" aria-label="Code aller Dateien kopieren" title="Code aller Dateien kopieren">${icon("copyAll")}</button>
                     <button class="jp-iconbtn" data-ref="copyFileBtn" data-tip="Code der geöffneten Datei in die Zwischenablage kopieren" aria-label="Code dieser Datei kopieren" title="Code dieser Datei kopieren">${icon("copyFile")}</button>
+                    <button class="jp-iconbtn" data-ref="refactorBtn" data-tip="Umbenennen: eine Variable, Methode oder Klasse überall im Projekt umbenennen" aria-label="Umbenennen" title="Umbenennen">${icon("refactor")}</button>
                     <button class="jp-iconbtn" data-ref="undo" data-tip="Rückgängig: letzte Änderung zurücknehmen" aria-label="Rückgängig" title="Rückgängig">${icon("undo")}</button>
                     <button class="jp-iconbtn" data-ref="redo" data-tip="Wiederholen: zurückgenommene Änderung wiederherstellen" aria-label="Wiederholen" title="Wiederholen">${icon("redo")}</button>
                     <button class="jp-iconbtn jp-wide-only" data-ref="formatBtn" data-tip="Code formatieren: Einrückungen und Abstände ordnen" aria-label="Code formatieren" title="Code formatieren">${icon("format")}</button>
@@ -380,6 +381,7 @@ export class App {
         this.el.formatBtn.addEventListener("click", () => this.formatCode());
         this.el.saveBtn.addEventListener("click", () => this.exportProject());
         this.el.skinBtn.addEventListener("click", () => this.nextSkin());
+        this.el.refactorBtn.addEventListener("click", () => this.renameDialog());
         this.renderSkinButton();
 
         // Kopfzeilen-Knöpfe sollen dem Editor den Fokus nicht wegnehmen (sonst klappt die Tastatur zu)
@@ -455,7 +457,7 @@ export class App {
          * Editor: „Vergrößern“ blendet die Ansicht rechts aus, der Editor nimmt ihren Platz ein (die Ansicht vorher
          *   wird gemerkt). Dann stehen dort zwei Knöpfe: „Volle Breite“ (Editor über das ganze Fenster, Ausgabe usw.
          *   als Reiter unten) und „Verkleinern“ (zurück zur gemerkten Ansicht).
-         * Ansicht rechts: „Vergrößern“ macht sie doppelt so breit (40 %), die Bausteine schmal, der Editor bekommt
+         * Ansicht rechts: „Vergrößern“ macht sie so breit wie den Editor, die Bausteine schmal, der Editor bekommt
          *   den Rest (die Ansicht vorher wird gemerkt). Dann zwei Knöpfe: „Volle Breite“ (Ansicht rechts über das
          *   ganze Fenster) und „Verkleinern“ (zurück zur gemerkten Ansicht).
          *   Tippt man dabei auf „Vergrößern“ der Bausteine, wird die Ansicht rechts wieder schmal.
@@ -931,6 +933,31 @@ export class App {
         } catch (e) {
             console.warn("JPadBlox: Formatieren nach Baustein fehlgeschlagen", e);
         }
+    }
+
+    /** Refactor-Knopf: Variable, Methode oder Klasse im ganzen Projekt umbenennen. */
+    async renameDialog() {
+        this.main.flush();
+        const { collectCandidates, validateNewName, renameSymbol } = await import("./Refactor.js");
+        const all = collectCandidates(this.main);
+        if (all.length == 0) {
+            this.toast("Im Projekt gibt es noch nichts zum Umbenennen.", "info", 4000);
+            return;
+        }
+        const group = (kind: string, label: string) => ({
+            label, items: all.filter(c => c.kind == kind).map(c => ({ id: c.id, name: c.name, label: `${c.name} – ${c.detail}` }))
+        });
+        const result = await this.dialogs.rename({
+            groups: [group("variable", "Variablen"), group("method", "Methoden"), group("class", "Klassen")],
+            validate: (id, name) => validateNewName(all.find(c => c.id == id)!, name, all)
+        });
+        if (!result) return;
+        const c = all.find(x => x.id == result.id)!;
+        const count = renameSymbol(this.main, c, result.name);
+        this.renderFileTabs();
+        this.main.getCompiler()?.triggerCompile();
+        this.toast(count > 0 ? `„${c.name}“ heißt jetzt „${result.name}“ (${count} ${count == 1 ? "Stelle" : "Stellen"}).`
+            : `„${c.name}“ wurde nicht gefunden. Gibt es noch Fehler im Code?`, "check", 4000);
     }
 
     async formatCode() {
