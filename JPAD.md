@@ -37,6 +37,10 @@ Bedienung und Gestaltung.
 - **Demo-Projekt** im Menü: öffnet den Lernpfad `public/demo/index.html` („Bello lernt Java“: Oberfläche, Glühbirne,
   Datentypen, Klasse Hund mit Bausteinen, Methode mit if–else, Objekt, Schritt, Haltepunkt, Objektdiagramm) wie einen
   Lernpfad-Link. Die Bilder in `public/demo/img` sind Screenshots von JPadBlox und werden beim Laden eingebettet.
+- **Autovervollständigung geordnet** (`src/jpad/CompletionOrder.ts`): ohne Punkt zuerst eigene Variablen, eigene
+  Methoden, eigene Klassen, Grundtypen (String, Integer, Double, Boolean, Character) und print/println; alles Übrige
+  hinter der Klappzeile „Weitere Vorschläge“. Nach einem Punkt erst Attribute, dann Methoden der Klasse selbst,
+  Geerbtes hinter „Geerbte Symbole“. Höchstens 5 Zeilen sichtbar, „insert constructor“ wird nie angeboten.
 - **Haltepunkte**: Knopf in der Hilfsleiste (oder Tippen auf die Zeilennummer). Das Programm hält vor der Zeile an
   und kann dann Schritt für Schritt weiterlaufen.
 - **Kein Mouse-over nötig**: alle Funktionen sind per Tippen erreichbar.

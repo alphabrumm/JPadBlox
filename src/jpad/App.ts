@@ -5,6 +5,7 @@ import { TouchEditor } from "./TouchEditor.js";
 import { LanguageBridge, escapeHtml } from "./LanguageBridge.js";
 import { ProjectInfo, ProjectStore, STARTER_FILES, ProjectFile } from "./ProjectStore.js";
 import { icon } from "./Icons.js";
+import { OwnNames, ownNames, declaredMembers } from "./CompletionOrder.js";
 import { Dialogs } from "./Dialogs.js";
 import { KeyBar } from "./KeyBar.js";
 import { blockPanelHtml, wireBlockPanel, BlockContext } from "./Blocks.js";
@@ -125,6 +126,15 @@ export class App {
         this.bridge = new LanguageBridge(<JavaLanguage>this.main.getCurrentProgrammingLanguage(),
             () => this.main.getActiveFile()?.getMonacoModel());
         this.bridge.onAfterCompletion = () => this.updateSignatureSoon();
+        // JPadBlox: eigene Symbole zuerst, Bibliothek und Geerbtes zugeklappt (CompletionOrder.ts)
+        let ownCache: { at: number, names: OwnNames } | null = null;
+        this.bridge.ordering = {
+            ownNames: () => {
+                if (!ownCache || Date.now() - ownCache.at > 1500) ownCache = { at: Date.now(), names: ownNames(this.main) };
+                return ownCache.names;
+            },
+            declaredMembers: (model, dotOffset) => declaredMembers(this.main, model, dotOffset)
+        };
 
         this.editor = new TouchEditor(this.el.editorHost, this.bridge, {
             onCursorActivity: () => this.updateSignatureSoon(),

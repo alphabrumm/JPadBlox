@@ -474,6 +474,19 @@ function prepareMemberLine(view: EditorView, where: "attributes" | "end"): Class
     return target;
 }
 
+/**
+ * Methode/Konstruktor: Die (leere) Cursorzeile bekommt eine Leerzeile Abstand zum Code darüber,
+ * sofern die Zeile darüber nicht schon leer ist.
+ */
+function blankLineAbove(view: EditorView) {
+    const state = view.state;
+    const line = state.doc.lineAt(state.selection.main.head);
+    if (line.number <= 1 || line.text.trim() != "") return;
+    const prev = state.doc.line(line.number - 1);
+    if (prev.text.trim() == "") return;
+    view.dispatch({ changes: { from: line.from, insert: "\n" }, selection: EditorSelection.cursor(state.selection.main.head + 1), scrollIntoView: true });
+}
+
 /** Mehrzeiligen Code an der (leeren) Cursorzeile einsetzen, eingerückt nach Klammertiefe; Cursor ans Ende von cursorLine */
 function insertLines(view: EditorView, lines: string[], cursorLine = -1) {
     const state = view.state;
@@ -522,6 +535,7 @@ const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
 async function insertConstructor(ctx: BlockContext, block: Block, mode: "empty" | "attrs") {
     const view = ctx.view;
     const cls = prepareMemberLine(view, "attributes");
+    blankLineAbove(view);
     const name = cls?.name ?? enclosingClassName(view.state.doc.toString(), view.state.selection.main.head);
     if (mode == "empty") {
         // Leerer Konstruktor (Standardkonstruktor), Cursor im Rumpf
@@ -617,6 +631,7 @@ async function insertMethod(ctx: BlockContext): Promise<boolean> {
     if (!r) return false;
     const view = ctx.view;
     prepareMemberLine(view, "end");
+    blankLineAbove(view);
     const params = r.params.map(p => `${p.type} ${p.name}`).join(", ");
     const tpl = r.returnType == "void"
         ? `void ${r.name}(${escapeForSnippet(params)}) {\n\t\${}\n}`
@@ -774,7 +789,7 @@ async function insertDeclaration(ctx: BlockContext, kind: "attribut" | "variable
             { label: "Klassenbibliothek", items: lib },
         ],
         // Safari am iPad schlägt bei Feldern mit „Name“ im Text eigene Kontaktdaten vor (zerschießt das Layout)
-        nameLabel: "So soll Deine Variable heißen:",
+        nameLabel: kind == "attribut" ? "So soll Dein Attribut heißen:" : "So soll Deine Variable heißen:",
         countLabel: kind == "array" ? "Wie viele Elemente sollen Platz haben?" : undefined,
         arrayOption: kind != "array",
         confirm: "Einfügen",

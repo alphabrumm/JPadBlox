@@ -239,7 +239,7 @@ export class Dialogs {
 
     /**
      * JPadBlox: „Baue Deine neue Methode“ – Name, Rückgabetyp (void oder Datentyp) und Parameter.
-     * Weitere Parameter lassen sich mit „+ weiterer Parameter“ ergänzen; Zeilen ohne Namen zählen nicht.
+     * Parameter kommen einzeln mit „+ Parameter hinzufügen“ dazu (anfangs keiner); Zeilen ohne Namen zählen nicht.
      */
     method(o: { groups: { label: string, items: string[] }[], validate: (name: string) => string | null }):
         Promise<{ name: string, returnType: string, params: { type: string, name: string }[] } | null> {
@@ -268,8 +268,8 @@ export class Dialogs {
                 </label>
                 <div class="jp-field">
                     <span>Willst Du der Methode Daten mitgeben?</span>
-                    <div class="jp-param-rows">${paramRow}</div>
-                    <button type="button" class="jp-btn jp-btn-small" data-addparam>+ weiterer Parameter</button>
+                    <div class="jp-param-rows"></div>
+                    <button type="button" class="jp-btn jp-btn-small" data-addparam>+ Parameter hinzufügen</button>
                 </div>
                 <p class="jp-field-error" aria-live="polite"></p>
                 <div class="jp-sheet-buttons">
@@ -390,7 +390,14 @@ export class Dialogs {
                 <h2 class="jp-sheet-title">Neuer Konstruktor</h2>
                 <button type="button" class="jp-btn jp-btn-small jp-method-toggle" data-togglesketch></button>
             </div>
-            <p class="jp-sheet-text">Der Konstruktor baut beim <code>new</code> ein neues Objekt. Welchen möchtest du anlegen?</p>
+            <div class="jp-sheet-text jp-ctor-text">
+                <p>Der Konstruktor ist die Methode, die beim Bauen eines neuen Objekts ausgeführt wird.</p>
+                <ul>
+                    <li>Der Konstruktor hat <b><i>keinen</i></b> <b>Rückgabetyp</b></li>
+                    <li>Der Konstruktor hat den <i>gleichen Namen wie seine Klasse</i></li>
+                    <li>Der Konstruktor wird durch das <i>Schlüsselwort</i> <b><i>new</i></b> aufgerufen</li>
+                </ul>
+            </div>
             <div class="jp-choice-list">
                 <button type="button" class="jp-choice" data-choice="empty">
                     <b>Leerer Konstruktor</b>

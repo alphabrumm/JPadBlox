@@ -1,5 +1,7 @@
 import * as monaco from 'monaco-editor';
 import type { Completion, CompletionContext, CompletionResult } from "@codemirror/autocomplete";
+import { startCompletion } from "@codemirror/autocomplete";
+import { OwnNames, rankItem, matchesPrefix, isCallable } from "./CompletionOrder.js";
 import { snippet } from "@codemirror/autocomplete";
 import type { EditorView } from "@codemirror/view";
 import MarkdownIt from "markdown-it";
@@ -140,7 +142,7 @@ export class LanguageBridge {
                 .localeCompare(b.sortText || (typeof b.label == "string" ? b.label : b.label.label)));
         const n = sorted.length;
 
-        const options: Completion[] = sorted.map((item, rank) => {
+        const makeCompletion = (item: monaco.languages.CompletionItem, rank: number): Completion => {
             const label = typeof item.label == "string" ? item.label : item.label.label;
             const labelDetail = typeof item.label == "string" ? undefined : (item.label.detail || item.label.description);
 
@@ -214,14 +216,68 @@ export class LanguageBridge {
                 }
             };
             return completion;
-        });
-
-        return {
-            from,
-            options,
-            validFor: /^[\wäöüÄÖÜß@]*$/
         };
+
+        // „insert constructor“ der Online-IDE nie anbieten
+        const usable = sorted.filter(item => {
+            const l = typeof item.label == "string" ? "" : (item.label.detail || item.label.description || "");
+            return !/insert constructor/i.test(l) && !/insert constructor/i.test(item.detail || "");
+        });
+        if (usable.length == 0) return null;
+
+        if (!this.ordering) {
+            return {
+                from,
+                options: usable.map((item, rank) => makeCompletion(item, rank)),
+                validFor: /^[\wäöüÄÖÜß@]*$/
+            };
+        }
+
+        // JPadBlox: eigene Reihenfolge und Gruppen (siehe CompletionOrder.ts)
+        const typed = context.state.sliceDoc(from, requestPos);
+        const afterDot = context.state.sliceDoc(Math.max(0, from - 1), from) == ".";
+        const afterNew = /\bnew\s+$/.test(context.state.sliceDoc(context.state.doc.lineAt(from).from, from));
+        const own = this.ordering.ownNames();
+        const declared = afterDot ? this.ordering.declaredMembers(model, from - 1) : null;
+        const key = model.uri.toString() + ":" + from;
+        if (this.expandedKey != key) this.expandedKey = null;
+        const ranked = usable
+            .map(item => {
+                const label = typeof item.label == "string" ? item.label : item.label.label;
+                const r = rankItem(item.kind, label, afterDot, own, declared);
+                return { item, label, ...r };
+            })
+            .filter(r => matchesPrefix(r.label, r.item.filterText, typed))
+            // Konstruktoren wie Methoden aufrufen („Hund()“) ergibt nur nach „new“ Sinn
+            .filter(r => afterDot || afterNew || !(isCallable(r.item.kind) && /^[A-ZÄÖÜ]/.test(r.label) && /\(/.test(r.label)))
+            .sort((a, b) => a.group - b.group || a.label.localeCompare(b.label, "de", { sensitivity: "base" }));
+        if (ranked.length == 0) return null;
+        const main = ranked.filter(r => r.group < 9);
+        const more = ranked.filter(r => r.group >= 9);
+        // Nichts Eigenes passt (z. B. beim Tippen von „whi“): gleich alles zeigen, ohne Klappzeile
+        const showAll = main.length == 0 || this.expandedKey == key;
+        const options: Completion[] = main.map((r, i) => makeCompletion(r.item, i));
+        if (more.length > 0 && main.length > 0) {
+            const title = afterDot ? "Geerbte Symbole" : "Weitere Vorschläge";
+            options.push({
+                label: typed,
+                displayLabel: `${showAll ? "▾" : "▸"} ${title} (${more.length})`,
+                type: "jp-toggle",
+                detail: showAll ? "zuklappen" : "aufklappen",
+                apply: (view: EditorView) => {
+                    this.expandedKey = showAll ? null : key;
+                    setTimeout(() => startCompletion(view), 0);
+                }
+            });
+        }
+        if (showAll) more.forEach((r, i) => options.push(makeCompletion(r.item, main.length + i)));
+        return { from, options, filter: false };
     }
+
+    /** JPadBlox: Reihenfolge der Vorschläge (von App gesetzt) */
+    ordering: { ownNames: () => OwnNames, declaredMembers: (model: monaco.editor.ITextModel, dotOffset: number) => Set<string> | null } | null = null;
+    /** Wortanfang, an dem die zugeklappten Vorschläge gerade aufgeklappt sind */
+    private expandedKey: string | null = null;
 
     onAfterCompletion: (() => void) | undefined;
 

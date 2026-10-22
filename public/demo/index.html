@@ -356,9 +356,9 @@ figcaption { font-size: 15px; color: var(--ink-2); margin-top: 8px; }
     <li><div>Gib als Namen <code>kannAlleinDaheimSein</code> ein. Bei der Frage nach der Rückgabe bleibt <code>void</code> stehen. Parameter brauchst du keine, lass das Feld „So heißt der Parameter“ also leer. Tippe auf <span class="ui">Einfügen</span>.</div></li>
     <li><div>Die leere Methode steht jetzt am Ende der Klasse, der Cursor blinkt in ihrem Rumpf. Tippe auf den Baustein <span class="ui">if – else</span>.</div></li>
     <li><div>Das Wort <code>Bedingung</code> ist markiert. Tippe einfach los und ersetze es durch <code>istStubenrein == true</code>.</div></li>
-    <li><div>Springe mit der Taste <span class="key" aria-label="Tabulator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h12"/><path d="M12 8l4 4-4 4"/><path d="M20 6v12"/></svg></span> in der Hilfsleiste unten in den ersten Rumpf.</div></li>
+    <li><div>Platziere jetzt mit Finger, Maus oder Tastatur den Cursor im Rumpf der if-Schleife (also innerhalb der geschweiften Klammern).</div></li>
     <li><div>Tippe auf den Baustein <span class="ui">println</span> und schreibe in die Klammern: <code>name + " darf allein daheim bleiben."</code></div></li>
-    <li><div>Tippe noch einmal auf <span class="key" aria-label="Tabulator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h12"/><path d="M12 8l4 4-4 4"/><path d="M20 6v12"/></svg></span>. Jetzt steht der Cursor im <code>else</code>-Teil.</div></li>
+    <li><div>Platziere den Cursor genauso im Rumpf von <code>else</code>, also in der leeren Zeile zwischen <code>} else {</code> und <code>}</code>.</div></li>
     <li><div>Noch einmal <span class="ui">println</span>, diesmal mit <code>name + " muss noch üben."</code></div></li>
   </ol>
   <figure><img class="shot" src="img/methode-dialog.jpg" width="1180" height="820" alt="Der Dialog Baue Deine neue Methode in JPad mit dem Namen kannAlleinDaheimSein, Rückgabe void und ohne Parameter. Rechts eine animierte Skizze." loading="lazy">
@@ -471,7 +471,7 @@ figcaption { font-size: 15px; color: var(--ink-2); margin-top: 8px; }
     hund1: 'class Hund {\n   String name;\n   Integer alter;\n}',
     hund2: 'class Hund {\n   String name;\n   Integer alter;\n   Boolean istStubenrein;\n}',
     method: 'void kannAlleinDaheimSein() {\n   if (istStubenrein == true) {\n      println(name + " darf allein daheim bleiben.");\n   } else {\n      println(name + " muss noch üben.");\n   }\n}',
-    hund3: 'class Hund {\n   String name;\n   Integer alter;\n   Boolean istStubenrein;\n   void kannAlleinDaheimSein() {\n      if (istStubenrein == true) {\n         println(name + " darf allein daheim bleiben.");\n      } else {\n         println(name + " muss noch üben.");\n      }\n   }\n}',
+    hund3: 'class Hund {\n   String name;\n   Integer alter;\n   Boolean istStubenrein;\n\n   void kannAlleinDaheimSein() {\n      if (istStubenrein == true) {\n         println(name + " darf allein daheim bleiben.");\n      } else {\n         println(name + " muss noch üben.");\n      }\n   }\n}',
     mainRest: 'bello.name = "Bello";\nbello.alter = 3;\nbello.istStubenrein = true;\nbello.kannAlleinDaheimSein();',
     wuffi: 'Hund wuffi = new Hund();\nwuffi.name = "Wuffi";\nwuffi.alter = 1;\nwuffi.istStubenrein = false;\nwuffi.kannAlleinDaheimSein();'
   };

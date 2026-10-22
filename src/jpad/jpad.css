@@ -2402,3 +2402,15 @@ html.phone .jp-topbar .jp-skinbtn { display: none; }
 /* Umbenennen-Dialog */
 .jp-rename-hint { font-size: 13px; margin: 2px 0 0; color: var(--ink-2); }
 .jp-rename-hint code { font-family: var(--font-code); font-size: 0.95em; }
+
+/* Konstruktor-Dialog: Erklärung mit Aufzählung; Methoden-Dialog: Parameterliste anfangs leer */
+.jp-ctor-text p { margin: 0 0 6px; }
+.jp-ctor-text ul { margin: 0 0 4px; padding-left: 20px; }
+.jp-ctor-text li { margin: 2px 0; }
+.jp-param-rows:empty { display: none; }
+
+/* Vorschlagsliste: höchstens 5 Einträge sichtbar (Rest scrollbar); Klappzeile für weitere/geerbte Symbole */
+.cm-tooltip-autocomplete > ul { max-height: calc(5 * var(--jp-completion-row, 36px)) !important; }
+.cm-tooltip-autocomplete > ul > li { min-height: var(--jp-completion-row, 36px); box-sizing: border-box; }
+.cm-tooltip-autocomplete > ul > li:has(.cm-completionIcon-jp-toggle) { font-family: var(--font-ui); font-weight: 700; color: var(--accent); border-top: 1px solid var(--line); }
+.cm-completionIcon-jp-toggle { display: none; }
