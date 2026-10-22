@@ -180,6 +180,20 @@ export class ProjectStore {
         await this.request("readwrite", s => zip ? s.put({ scriptId: key, zip }) : s.delete(key));
     }
 
+    // ---------- Eingebetteter Lernpfad (HTML) ----------
+
+    async readLernpfad(projectId: string): Promise<string | null> {
+        await this.open();
+        const entry: any = await this.request("readonly", s => s.get(ProjectStore.scriptIdFor(projectId) + "-lernpfad"));
+        return typeof entry?.html == "string" && entry.html.length > 0 ? entry.html : null;
+    }
+
+    async writeLernpfad(projectId: string, html: string | null): Promise<void> {
+        await this.open();
+        const key = ProjectStore.scriptIdFor(projectId) + "-lernpfad";
+        await this.request("readwrite", s => html ? s.put({ scriptId: key, html }) : s.delete(key));
+    }
+
     async deleteProject(projectId: string): Promise<void> {
         await this.open();
         const files = await this.readFiles(projectId);
@@ -189,6 +203,7 @@ export class ProjectStore {
             s.delete(sid);
             s.delete(sid + "-classDiagram");
             s.delete(sid + "-spritesheet");
+            s.delete(sid + "-lernpfad");
         });
         this.saveList(this.list().filter(p => p.id != projectId));
         if (this.getCurrentId() == projectId) {
@@ -214,7 +229,7 @@ export class ProjectStore {
     }
 
     /** Liest eine Datei im Format der Online-IDE. Wirft eine Exception mit verständlicher Meldung. */
-    static parseImport(text: string, filename: string): { name: string, files: ProjectFile[], spritesheetBase64?: string } {
+    static parseImport(text: string, filename: string): { name: string, files: ProjectFile[], spritesheetBase64?: string, lernpfadHtml?: string } {
         let data: any;
         try {
             data = JSON.parse(text);
@@ -233,6 +248,8 @@ export class ProjectStore {
         }
         let name: string = data.name || filename.replace(/\.json$/i, "");
         const spritesheetBase64 = typeof data.spritesheetBase64 == "string" && data.spritesheetBase64.length > 0 ? data.spritesheetBase64 : undefined;
-        return { name, files, spritesheetBase64 };
+        // Eingebetteter Lernpfad (nur JPad; die Online-IDE ignoriert das Feld)
+        const lernpfadHtml = typeof data.lernpfadHtml == "string" && data.lernpfadHtml.trim().length > 0 ? data.lernpfadHtml : undefined;
+        return { name, files, spritesheetBase64, lernpfadHtml };
     }
 }

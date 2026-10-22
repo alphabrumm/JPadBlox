@@ -21,6 +21,11 @@ Bedienung und Gestaltung.
 - **Eigene Sprites** im Menü: Bilder aus Fotos/Dateien werden zu einem Spritesheet im Format der Online-IDE gepackt
   und sind im Code als `SpriteLibrary.<Name>` verfügbar. Sie gehören zum Projekt und stehen in der Projektdatei
   (`spritesheetBase64`), auch Online-IDE-Projekte mit eigenen Sprites lassen sich öffnen.
+- **Lernpfade** im Menü („Lernpfad einbetten“): Eine HTML-Seite oder ein ZIP (index.html mit Unterordnern wie `img/`)
+  wird ins Projekt eingebettet; Bilder werden dabei als data-URIs ins HTML geschrieben. Der Lernpfad reist in der
+  Projektdatei mit (Feld `lernpfadHtml`, die Online-IDE ignoriert es) und erscheint als erster Reiter der
+  Seitenleiste. Projekte ohne Lernpfad zeigen den Reiter nicht. Der Lernpfad läuft in einem abgeschotteten iframe
+  (kein Zugriff auf JPad); sein localStorage (z. B. Fortschritt) wird per postMessage je Projekt in JPad gespeichert.
 - **Haltepunkte**: Knopf in der Hilfsleiste (oder Tippen auf die Zeilennummer). Das Programm hält vor der Zeile an
   und kann dann Schritt für Schritt weiterlaufen.
 - **Kein Mouse-over nötig**: alle Funktionen sind per Tippen erreichbar.
@@ -46,7 +51,8 @@ Bedienung und Gestaltung.
 | `src/jpad/App.ts` | Oberfläche: Kopfzeile, Dateireiter, Ausgabe, Probleme, Menü |
 | `src/jpad/TouchTips.ts`, `TipHelp.ts` | Hilfe beim langen Drücken auf Buttons, Hinweis der Glühbirne |
 | `src/jpad/Diagram.ts` | Klassen- und Objektdiagramm |
-| `src/jpad/ProjectStore.ts` | Projektliste, Import/Export, eigene Spritesheets |
+| `src/jpad/ProjectStore.ts` | Projektliste, Import/Export, eigene Spritesheets, eingebettete Lernpfade |
+| `src/jpad/Lernpfad.ts` | Lernpfad aus HTML oder ZIP einlesen (Bilder als data-URIs einbetten) |
 | `src/jpad/UserSprites.ts` | „Eigene Sprites“: Bilder einlesen, Spritesheet packen/entpacken, Oberfläche |
 | `src/jpad/jpad.css` | Gestaltung, Hell/Dunkel |
 

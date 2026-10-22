@@ -28,8 +28,8 @@ function isHelperMarker(m: monaco.editor.IMarker): boolean {
     return m.message.startsWith(JCM.insertSemicolonHere());
 }
 
-type View = "code" | "output" | "variables" | "diagram" | "problems";
-type SideView = "output" | "variables" | "diagram" | "problems";
+type View = "code" | "lernpfad" | "output" | "variables" | "diagram" | "problems";
+type SideView = "lernpfad" | "output" | "variables" | "diagram" | "problems";
 type ThemeChoice = "auto" | "light" | "dark";
 
 /** JPadBlox: Aufteilung der drei Spalten (siehe applyLayout) */
@@ -66,6 +66,8 @@ export class App {
 
     view: View = "code";
     sideView: SideView = "output";
+    lernpfadHtml: string | null = null;
+    private lernpfadMessageHandler: ((ev: MessageEvent) => void) | null = null;
     errorCount = 0;
     modifiedSaveTimer: any;
 
@@ -158,6 +160,9 @@ export class App {
         this.renderFileTabs();
         this.renderProjectTitle();
         this.setView("code");
+        // Projekt mit eingebettetem Lernpfad: startet mit dem Lernpfad in der Seitenleiste
+        this.showLernpfad(await this.store.readLernpfad(this.project.id).catch(() => null));
+        if (this.lernpfadHtml) this.setSideView("lernpfad");
         this.root.removeAttribute("aria-busy");
         this.root.querySelector(".jp-boot")?.remove();
 
@@ -253,6 +258,7 @@ export class App {
             <section class="jp-pane jp-pane-side">
                 <div class="jp-sidehead">
                 <div class="jp-segmented jp-side-switch" role="tablist">
+                    <button role="tab" data-side="lernpfad" class="jp-lernpfad-tab" data-tip="Lernpfad: Anleitung und Aufgaben zu diesem Projekt" aria-label="Lernpfad" title="Lernpfad">${icon("lernpfad")}</button>
                     <button role="tab" data-side="output" data-tip="Ausgabe: Text und Grafik deines Programms">${icon("output")}<span>Ausgabe</span></button>
                     <button role="tab" data-side="variables" data-tip="Variablen und ihre Werte beim schrittweisen Ausführen">${icon("variables")}<span>Variablen</span></button>
                     <button role="tab" data-side="diagram" data-tip="Diagramm: Klassen und Objekte">${icon("diagram")}<span>Diagramm</span></button>
@@ -261,6 +267,7 @@ export class App {
                 <button class="jp-iconbtn jp-layoutbtn" data-ref="sideFullBtn"></button>
                 <button class="jp-iconbtn jp-layoutbtn" data-ref="sideLayoutBtn"></button>
                 </div>
+                <div class="jp-lernpfad" data-ref="lernpfad"></div>
                 <div class="jp-output" data-ref="outputHost"></div>
                 <div class="jp-variables joeCssFence" data-ref="variables"></div>
                 <div class="jp-diagram" data-ref="diagram"></div>
@@ -270,6 +277,7 @@ export class App {
 
         <nav class="jp-bottomnav" aria-label="Ansicht">
             <button data-view="code" data-tip="Code: der Editor mit deinen Dateien">${icon("code")}<span>Code</span></button>
+            <button data-view="lernpfad" class="jp-lernpfad-tab" data-tip="Lernpfad: Anleitung und Aufgaben zu diesem Projekt">${icon("lernpfad")}<span>Lernpfad</span></button>
             <button data-view="output" data-tip="Ausgabe: Text und Grafik deines Programms">${icon("output")}<span>Ausgabe</span></button>
             <button data-view="variables" data-tip="Variablen und ihre Werte beim schrittweisen Ausführen">${icon("variables")}<span>Variablen</span></button>
             <button data-view="diagram" data-tip="Diagramm: Klassen und Objekte">${icon("diagram")}<span>Diagramm</span></button>
@@ -289,6 +297,8 @@ export class App {
                     <button data-ref="openFileBtn" data-tip="Projekt aus einer Datei öffnen (z. B. aus ByCS Drive)">${icon("open")}<span>Projekt aus Datei öffnen</span></button>
                     <button data-ref="saveFileBtn" data-tip="Projekt als Datei sichern">${icon("save")}<span>Projekt als Datei sichern</span></button>
                     <button data-ref="userSpritesBtn" data-tip="Eigene Bilder als Sprites zum Projekt hinzufügen">${icon("imagePlus")}<span>Eigene Sprites</span></button>
+                    <button data-ref="lernpfadAddBtn" data-tip="Eine HTML-Seite oder ein ZIP (index.html mit Bildern) als Lernpfad in dieses Projekt einbetten">${icon("lernpfad")}<span>Lernpfad einbetten</span></button>
+                    <button data-ref="lernpfadRemoveBtn" data-tip="Den eingebetteten Lernpfad aus diesem Projekt entfernen">${icon("trash")}<span>Lernpfad entfernen</span></button>
                 </div>
                 <ul class="jp-projectlist" data-ref="projectList"></ul>
 
@@ -330,6 +340,7 @@ export class App {
             </div>
         </aside>
         <input type="file" accept=".json,application/json,text/plain" data-ref="fileInput" hidden>
+        <input type="file" accept=".html,.htm,.zip,text/html,application/zip" data-ref="lernpfadInput" hidden>
         `);
 
         this.root.querySelectorAll<HTMLElement>("[data-ref]").forEach(e => this.el[e.dataset.ref!] = e);
@@ -366,6 +377,12 @@ export class App {
             const f = (<HTMLInputElement>this.el.fileInput).files?.[0];
             if (f) this.importProject(f);
         });
+        this.el.lernpfadAddBtn.addEventListener("click", () => { (<HTMLInputElement>this.el.lernpfadInput).value = ""; this.el.lernpfadInput.click(); });
+        this.el.lernpfadInput.addEventListener("change", () => {
+            const f = (<HTMLInputElement>this.el.lernpfadInput).files?.[0];
+            if (f) this.embedLernpfad(f);
+        });
+        this.el.lernpfadRemoveBtn.addEventListener("click", () => this.removeLernpfad());
         this.el.handbookBtn.addEventListener("click", async () => {
             this.closeDrawer();
             const { openHandbook } = await import("./Handbook.js");
@@ -1062,6 +1079,105 @@ export class App {
         }
     }
 
+    // =====================================================================
+    // Lernpfad
+    // =====================================================================
+
+    /**
+     * Zeigt den eingebetteten Lernpfad im Reiter „Lernpfad“ an (oder blendet den Reiter aus).
+     * Der Lernpfad läuft in einem abgeschotteten iframe: Skripte und Links funktionieren,
+     * Zugriff auf JPad und die gespeicherten Projekte hat er nicht.
+     */
+    showLernpfad(html: string | null) {
+        this.lernpfadHtml = html;
+        const host = this.el.lernpfad;
+        host.innerHTML = "";
+        if (html) {
+            this.root.dataset.lernpfad = "1";
+            const frame = document.createElement("iframe");
+            frame.className = "jp-lernpfad-frame";
+            frame.title = "Lernpfad";
+            frame.setAttribute("sandbox", "allow-scripts allow-popups allow-popups-to-escape-sandbox allow-forms allow-modals");
+            frame.setAttribute("referrerpolicy", "no-referrer");
+            // Kopieren-Knöpfe im Lernpfad sollen Code in die Zwischenablage legen dürfen
+            frame.setAttribute("allow", "clipboard-write; fullscreen");
+            frame.srcdoc = this.withStorageShim(html);
+            host.appendChild(frame);
+        } else {
+            delete this.root.dataset.lernpfad;
+            if (this.sideView == "lernpfad") {
+                this.sideView = "output";
+                this.setView(this.view == "lernpfad" ? "output" : this.view);
+            }
+        }
+    }
+
+    private lernpfadStateKey() {
+        return "jpad.lernpfad." + this.project.id;
+    }
+
+    /**
+     * Im abgeschotteten iframe ist localStorage gesperrt. Damit z. B. der Fortschritt des
+     * Lernpfads erhalten bleibt, bekommt die Seite einen Ersatz, der seine Daten per
+     * postMessage an JPad schickt (gespeichert je Projekt).
+     */
+    private withStorageShim(html: string): string {
+        let state = "{}";
+        try { state = localStorage.getItem(this.lernpfadStateKey()) || "{}"; } catch (e) { }
+        if (!this.lernpfadMessageHandler) {
+            this.lernpfadMessageHandler = (ev: MessageEvent) => {
+                const frame = this.el.lernpfad.querySelector("iframe");
+                if (!frame || ev.source != frame.contentWindow || ev.data?.type != "jpad-lernpfad-storage") return;
+                try { localStorage.setItem(this.lernpfadStateKey(), JSON.stringify(ev.data.state)); } catch (e) { }
+            };
+            window.addEventListener("message", this.lernpfadMessageHandler);
+        }
+        const shim = `<script>(function(){var ok=false;try{ok=!!window.localStorage;}catch(e){}if(ok)return;`
+            + `var d=${state.replace(/</g, "\\u003c")};function save(){parent.postMessage({type:"jpad-lernpfad-storage",state:d},"*");}`
+            + `var s={getItem:function(k){k=String(k);return Object.prototype.hasOwnProperty.call(d,k)?d[k]:null;},`
+            + `setItem:function(k,v){d[String(k)]=String(v);save();},removeItem:function(k){delete d[String(k)];save();},`
+            + `clear:function(){d={};save();},key:function(i){return Object.keys(d)[i]||null;}};`
+            + `Object.defineProperty(s,"length",{get:function(){return Object.keys(d).length;}});`
+            + `try{Object.defineProperty(window,"localStorage",{value:s,configurable:true});}catch(e){}})();<\/script>`;
+        // möglichst früh einfügen, damit die Skripte des Lernpfads den Ersatz schon vorfinden
+        const m = html.match(/<head[^>]*>/i) || html.match(/<html[^>]*>/i);
+        return m ? html.replace(m[0], m[0] + shim) : shim + html;
+    }
+
+    async embedLernpfad(file: File) {
+        try {
+            const { readLernpfadFile } = await import("./Lernpfad.js");
+            const html = await readLernpfadFile(file);
+            if (this.lernpfadHtml && !await this.dialogs.confirm({
+                title: "Lernpfad ersetzen?",
+                text: "Dieses Projekt hat schon einen Lernpfad. Er wird durch die neue Datei ersetzt.",
+                confirm: "Ersetzen"
+            })) return;
+            await this.store.writeLernpfad(this.project.id, html);
+            this.showLernpfad(html);
+            this.markModified();
+            this.closeDrawer();
+            this.setSideView("lernpfad");
+            this.toast(`Lernpfad „${file.name}“ eingebettet. Er wird mit dem Projekt als Datei gesichert.`, "check", 4000);
+        } catch (e: any) {
+            this.dialogs.alert({ title: "Lernpfad lässt sich nicht einbetten", text: e?.message || String(e) });
+        }
+    }
+
+    async removeLernpfad() {
+        const ok = await this.dialogs.confirm({
+            title: "Lernpfad entfernen?",
+            text: "Der Lernpfad wird aus diesem Projekt entfernt. Der Code bleibt erhalten.",
+            confirm: "Entfernen"
+        });
+        if (!ok) return;
+        await this.store.writeLernpfad(this.project.id, null);
+        this.showLernpfad(null);
+        this.markModified();
+        this.renderSettings();
+        this.toast("Lernpfad entfernt.", "check");
+    }
+
     /**
      * Meldet die eigenen Sprites des Projekts bei Compiler und Grafik an (Code von Martin Pabst)
      * und kompiliert neu, damit SpriteLibrary.<Name> sofort bekannt ist.
@@ -1089,6 +1205,7 @@ export class App {
             const zip = await this.store.readSpritesheet(this.project.id);
             if (zip) exported.spritesheetBase64 = bytesToBase64(zip);
         } catch (e) { console.error(e); }
+        if (this.lernpfadHtml) (exported as any).lernpfadHtml = this.lernpfadHtml;
         const json = JSON.stringify(exported, undefined, 2);
         const filename = this.project.name.replace(/[\\/:*?"<>|]/g, "_") + ".json";
         const file = new File([json], filename, { type: "application/json" });
@@ -1120,7 +1237,7 @@ export class App {
     async importProject(file: File) {
         try {
             const text = await file.text();
-            const { name, files, spritesheetBase64 } = ProjectStore.parseImport(text, file.name);
+            const { name, files, spritesheetBase64, lernpfadHtml } = ProjectStore.parseImport(text, file.name);
             const p = this.store.createInfo(name);
             p.exported = p.modified;
             this.store.update(p.id, { exported: p.modified });
@@ -1129,6 +1246,7 @@ export class App {
                 try { await this.store.writeSpritesheet(p.id, base64ToBytes(spritesheetBase64)); }
                 catch (e) { console.error("Spritesheet der Projektdatei ist beschädigt", e); }
             }
+            if (lernpfadHtml) await this.store.writeLernpfad(p.id, lernpfadHtml);
             this.closeDrawer();
             this.toast(`„${p.name}“ geöffnet.`, "check");
             this.switchToProject(p.id);
@@ -1223,6 +1341,8 @@ export class App {
     }
 
     renderSettings() {
+        this.el.lernpfadRemoveBtn.hidden = !this.lernpfadHtml;
+        this.el.lernpfadAddBtn.querySelector("span")!.textContent = this.lernpfadHtml ? "Lernpfad ersetzen" : "Lernpfad einbetten";
         const c = this.getThemeChoice();
         this.el.themeSwitch.querySelectorAll<HTMLElement>("[data-theme-choice]").forEach(b =>
             b.setAttribute("aria-pressed", String(b.dataset.themeChoice == c)));

@@ -37,6 +37,7 @@ const paths: Record<string, string> = {
     lightbulb: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/>',
     variables: '<path d="M7 4C5 4 5 6 5 8s-1 3-2 4c1 1 2 2 2 4s0 4 2 4"/><path d="M17 4c2 0 2 2 2 4s1 3 2 4c-1 1-2 2-2 4s0 4-2 4"/><path d="M9.5 9l5 6M14.5 9l-5 6"/>',
     search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+    lernpfad: '<path d="M5 21c0-3.5 3-4.5 6-5.5s5-2.5 3.5-5S9 7 10 5"/><path d="M10 5V2.5l5 1.8-5 1.7"/><circle cx="5" cy="21" r="0.6" fill="currentColor"/>',
     book: '<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/><path d="M9 8h6M9 12h4"/>',
     pastePlus: '<path d="M15 4h2a2 2 0 0 1 2 2v5"/><path d="M9 4H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h6"/><rect x="9" y="2.5" width="6" height="3.5" rx="1"/><path d="M18 14.5v7M14.5 18h7"/>',
     copyFile: '<rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2"/><path d="M11.5 13l-1.5 1.5 1.5 1.5M16.5 13l1.5 1.5-1.5 1.5"/>',

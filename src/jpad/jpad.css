@@ -396,6 +396,12 @@ html.phone .jp-bulbgroup { display: none; }
 .jp-app[data-layout="tabs"]:not([data-view="code"]) .jp-pane-code { display: none; }
 .jp-app[data-layout="tabs"] .jp-side-switch { display: none; }
 .jp-app:not([data-side="problems"]) .jp-problems { display: none; }
+/* Lernpfad: Reiter nur bei Projekten mit eingebettetem Lernpfad; das iframe bleibt geladen */
+.jp-app:not([data-lernpfad]) .jp-lernpfad-tab { display: none; }
+.jp-app:not([data-side="lernpfad"]) .jp-lernpfad { display: none; }
+.jp-lernpfad { flex: 1; min-height: 0; position: relative; background: #fff; }
+.jp-lernpfad-frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+.jp-side-switch .jp-lernpfad-tab { flex: none; padding-left: 12px; padding-right: 12px; }
 .jp-app:not([data-side="variables"]) .jp-variables { display: none; }
 /* Die Ausgabe bleibt gerendert (Grafik läuft weiter), wird aber verdeckt */
 .jp-app:not([data-side="output"]) .jp-output { visibility: hidden; position: absolute; inset: 0; pointer-events: none; }
@@ -2208,3 +2214,4 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 .jp-array-check:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
 .jp-count-field[hidden] { display: none; }
 .jp-form .jp-type-row + .jp-field { margin-top: 14px; }
+.jp-menu-actions button[hidden] { display: none; }
