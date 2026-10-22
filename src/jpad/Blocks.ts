@@ -855,6 +855,10 @@ async function insertDeclaration(ctx: BlockContext, kind: "attribut" | "variable
         nameLabel: kind == "attribut" ? "So soll Dein Attribut heißen:" : kind == "array" ? "So soll Dein Array heißen:" : "So soll Deine Variable heißen:",
         countLabel: kind == "array" ? "Wie viele Elemente sollen Platz haben?" : undefined,
         arrayOption: kind != "array",
+        build: (r) => {
+            const name = r.name || "…";
+            return (kind == "array" || r.array) ? `${r.type}[] ${name} = new ${r.type}[${r.count ?? "…"}];` : `${r.type} ${name};`;
+        },
         confirm: "Einfügen",
         validate: validateName
     });

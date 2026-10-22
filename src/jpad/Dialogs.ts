@@ -112,8 +112,10 @@ export class Dialogs {
         validate?: (name: string) => string | null,
         /** JPadBlox (Array): zusätzliches Feld für eine natürliche Zahl > 0 */
         countLabel?: string,
-        /** JPadBlox: Häkchen „Array anlegen“ neben dem Datentyp; ist es gesetzt, erscheint das Feld für die Anzahl */
-        arrayOption?: boolean
+        /** JPadBlox: Häkchen „Array“ neben dem Datentyp; ist es gesetzt, erscheint das Feld für die Anzahl */
+        arrayOption?: boolean,
+        /** JPadBlox: Vorschau der Anweisung über den Knöpfen */
+        build?: (r: { type: string, name: string, count?: number, array?: boolean }) => string
     }): Promise<{ type: string, name: string, count?: number, array?: boolean } | null> {
         const countLabel = o.countLabel ?? (o.arrayOption ? "Wie viele Elemente sollen maximal Platz haben?" : undefined);
         const options = o.groups.filter(g => g.items.length > 0).map(g =>
@@ -129,7 +131,7 @@ export class Dialogs {
                     </label>
                     ${o.arrayOption ? `<label class="jp-array-check">
                         <input type="checkbox" data-isarray>
-                        <span>Array anlegen</span>
+                        <span>Array</span>
                     </label>` : ""}
                 </div>
                 <label class="jp-field">
@@ -140,6 +142,7 @@ export class Dialogs {
                     <span>${escapeHtml(countLabel)}</span>
                     <input type="text" data-count inputmode="numeric" pattern="[0-9]*" autocomplete="off" enterkeyhint="done">
                 </label>` : ""}
+                ${o.build ? `<div class="jp-preview" aria-live="polite"><span class="jp-preview-label">Vorschau</span><code data-preview></code></div>` : ""}
                 <p class="jp-field-error" aria-live="polite"></p>
                 <div class="jp-sheet-buttons">
                     <button type="button" class="jp-btn" data-cancel>Abbrechen</button>
@@ -160,6 +163,18 @@ export class Dialogs {
             });
             setTimeout(() => input.focus(), 60);
             input.addEventListener("input", () => error.textContent = "");
+            // JPadBlox: Vorschau der Anweisung
+            const preview = sheet.querySelector<HTMLElement>("[data-preview]");
+            const refreshPreview = () => {
+                if (!preview || !o.build) return;
+                const c = parseInt(countInput?.value.trim() ?? "");
+                preview.innerHTML = highlightJava(o.build({ type: select.value, name: input.value.trim(), array: isArray ? isArray.checked : undefined, count: isFinite(c) && c > 0 ? c : undefined }));
+            };
+            select.addEventListener("change", refreshPreview);
+            isArray?.addEventListener("change", refreshPreview);
+            input.addEventListener("input", refreshPreview);
+            countInput?.addEventListener("input", refreshPreview);
+            refreshPreview();
             sheet.querySelector("form")!.addEventListener("submit", (e) => {
                 e.preventDefault();
                 const msg = o.validate?.(input.value);
@@ -255,13 +270,15 @@ export class Dialogs {
         return this.open(`
             <h2 class="jp-sheet-title">Variable anlegen</h2>
             <form class="jp-form">
-                <label class="jp-field">
-                    <span>Datentyp</span>
-                    <select class="jp-select" data-ref="type">${options}</select>
-                </label>
-                <div class="jp-check-row">
-                    <label class="jp-mini-check"><input type="checkbox" data-isarray><span>Array anlegen</span></label>
-                    <label class="jp-mini-check"><input type="checkbox" data-declonly><span>nur Deklaration</span></label>
+                <div class="jp-type-row jp-type-row-var">
+                    <label class="jp-field">
+                        <span>Datentyp</span>
+                        <select class="jp-select" data-ref="type">${options}</select>
+                    </label>
+                    <div class="jp-type-checks">
+                        <label class="jp-array-check"><input type="checkbox" data-isarray><span>Array</span></label>
+                        <label class="jp-array-check"><input type="checkbox" data-declonly><span>Nur Deklaration</span></label>
+                    </div>
                 </div>
                 <label class="jp-field">
                     <span>So soll Deine Variable heißen:</span>

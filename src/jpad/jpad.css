@@ -2429,3 +2429,9 @@ html.phone .jp-topbar .jp-skinbtn { display: none; }
 .jp-mini-check { display: inline-flex; align-items: center; gap: 7px; font-size: 14px; color: var(--ink-2); cursor: pointer; min-height: 32px; }
 .jp-mini-check input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
 .jp-mini-check:has(input:checked) { color: var(--ink); }
+
+/* Variablen-Dialog: Häkchen rechtsbündig in der Zeile des Datentyps */
+.jp-type-checks { display: flex; gap: 8px; margin-left: auto; flex-wrap: nowrap; justify-content: flex-end; }
+.jp-type-row-var { flex-wrap: nowrap; gap: 10px; }
+.jp-type-row-var .jp-field { flex: 1 1 0; min-width: 0; }
+.jp-type-row-var .jp-select { width: 100%; min-width: 0; }
