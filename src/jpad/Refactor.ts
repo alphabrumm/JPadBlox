@@ -143,3 +143,25 @@ export function renameSymbol(main: JPadMain, c: RenameCandidate, newName: string
     }
     return count;
 }
+
+/**
+ * Welches Symbol berührt der Cursor bzw. die Markierung? Liefert die id des passenden Eintrags
+ * aus `all` (oder undefined). Konstruktoren zählen als ihre Klasse.
+ */
+export function candidateAt(main: JPadMain, all: RenameCandidate[], model: monaco.editor.ITextModel, from: number, to: number): string | undefined {
+    try {
+        const module: any = main.getCurrentWorkspace()?.getModuleForMonacoModel(model);
+        const tracker = module?.compiledSymbolsUsageTracker;
+        if (!tracker) return undefined;
+        for (const off of [from, to, Math.max(0, from - 1)]) {
+            const p = model.getPositionAt(off);
+            const up = tracker.findSymbolAtPosition(new monaco.Position(p.lineNumber, p.column));
+            let sym = up?.symbol;
+            if (!sym) continue;
+            if (sym instanceof JavaMethod && sym.isConstructor) sym = sym.classEnumInterface;
+            const hit = all.find(c => c.symbol === sym) ?? all.find(c => c.name == sym.identifier && c.kind == (sym instanceof JavaMethod ? "method" : c.kind));
+            if (hit) return hit.id;
+        }
+    } catch (e) { }
+    return undefined;
+}

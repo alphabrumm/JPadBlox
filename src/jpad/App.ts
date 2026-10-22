@@ -985,8 +985,12 @@ export class App {
     /** Refactor-Knopf: Variable, Methode oder Klasse im ganzen Projekt umbenennen. */
     async renameDialog() {
         this.main.flush();
-        const { collectCandidates, validateNewName, renameSymbol } = await import("./Refactor.js");
+        const { collectCandidates, validateNewName, renameSymbol, candidateAt } = await import("./Refactor.js");
         const all = collectCandidates(this.main);
+        // Berührt der Cursor (oder die Markierung) ein Symbol, ist es gleich ausgewählt
+        const sel = this.editor.view.state.selection.main;
+        const model = this.main.getActiveFile()?.getMonacoModel();
+        const selectedId = model ? candidateAt(this.main, all, model, sel.from, sel.to) : undefined;
         if (all.length == 0) {
             this.toast("Im Projekt gibt es noch nichts zum Umbenennen.", "info", 4000);
             return;
@@ -996,7 +1000,8 @@ export class App {
         });
         const result = await this.dialogs.rename({
             groups: [group("variable", "Variablen"), group("method", "Methoden"), group("class", "Klassen")],
-            validate: (id, name) => validateNewName(all.find(c => c.id == id)!, name, all)
+            validate: (id, name) => validateNewName(all.find(c => c.id == id)!, name, all),
+            selectedId
         });
         if (!result) return;
         const c = all.find(x => x.id == result.id)!;

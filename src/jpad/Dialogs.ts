@@ -186,7 +186,9 @@ export class Dialogs {
      */
     rename(o: {
         groups: { label: string, items: { id: string, label: string, name: string }[] }[],
-        validate: (id: string, name: string) => string | null
+        validate: (id: string, name: string) => string | null,
+        /** vorausgewählter Eintrag (Symbol am Cursor) */
+        selectedId?: string
     }): Promise<{ id: string, name: string } | null> {
         const options = o.groups.filter(g => g.items.length > 0).map(g =>
             `<optgroup label="${escapeHtml(g.label)}">${g.items.map(i =>
@@ -219,6 +221,7 @@ export class Dialogs {
                 error.textContent = "";
             };
             select.addEventListener("change", () => { fill(); input.focus(); input.select(); });
+            if (o.selectedId && Array.from(select.options).some(op => op.value == o.selectedId)) select.value = o.selectedId;
             fill();
             setTimeout(() => { input.focus(); input.select(); }, 60);
             input.addEventListener("input", () => error.textContent = "");
@@ -252,13 +255,13 @@ export class Dialogs {
         return this.open(`
             <h2 class="jp-sheet-title">Variable anlegen</h2>
             <form class="jp-form">
-                <div class="jp-type-row">
-                    <label class="jp-field">
-                        <span>Datentyp</span>
-                        <select class="jp-select" data-ref="type">${options}</select>
-                    </label>
-                    <label class="jp-array-check"><input type="checkbox" data-isarray><span>Array anlegen</span></label>
-                    <label class="jp-array-check" data-declonly-wrap hidden><input type="checkbox" data-declonly><span>nur Deklaration</span></label>
+                <label class="jp-field">
+                    <span>Datentyp</span>
+                    <select class="jp-select" data-ref="type">${options}</select>
+                </label>
+                <div class="jp-check-row">
+                    <label class="jp-mini-check"><input type="checkbox" data-isarray><span>Array anlegen</span></label>
+                    <label class="jp-mini-check"><input type="checkbox" data-declonly><span>nur Deklaration</span></label>
                 </div>
                 <label class="jp-field">
                     <span>So soll Deine Variable heißen:</span>
@@ -286,7 +289,7 @@ export class Dialogs {
             const q = <T extends HTMLElement>(s: string) => sheet.querySelector<T>(s)!;
             const type = q<HTMLSelectElement>("[data-ref=type]"), name = q<HTMLInputElement>("[data-ident]");
             const isArray = q<HTMLInputElement>("[data-isarray]"), declOnly = q<HTMLInputElement>("[data-declonly]");
-            const declWrap = q<HTMLElement>("[data-declonly-wrap]"), valueField = q<HTMLElement>("[data-value-field]");
+            const valueField = q<HTMLElement>("[data-value-field]");
             const value = q<HTMLInputElement>("[data-value]"), ctorField = q<HTMLElement>("[data-ctor-field]");
             const ctor = q<HTMLSelectElement>("[data-ctor]"), countField = q<HTMLElement>(".jp-count-field");
             const count = q<HTMLInputElement>("[data-count]"), preview = q<HTMLElement>("[data-preview]");
@@ -295,20 +298,21 @@ export class Dialogs {
             const current = (): VariableResult => {
                 const basic = o.basicTypes.includes(type.value);
                 const c = parseInt(count.value.trim());
+                const only = declOnly.checked;
                 return {
                     type: type.value, name: name.value.trim(), array: isArray.checked,
-                    count: isFinite(c) && c > 0 ? c : undefined,
-                    declOnly: !isArray.checked && !basic && declOnly.checked,
-                    value: !isArray.checked && basic ? value.value : undefined,
-                    ctor: !isArray.checked && !basic && !declOnly.checked ? ctors[ctor.selectedIndex] : undefined
+                    count: isArray.checked && !only && isFinite(c) && c > 0 ? c : undefined,
+                    declOnly: only,
+                    value: !isArray.checked && basic && !only ? value.value : undefined,
+                    ctor: !isArray.checked && !basic && !only ? ctors[ctor.selectedIndex] : undefined
                 };
             };
             const refresh = () => {
                 const basic = o.basicTypes.includes(type.value);
-                declWrap.hidden = basic || isArray.checked;
-                valueField.hidden = !basic || isArray.checked;
+                // Felder für Wert, Konstruktor bzw. Anzahl entfallen bei „nur Deklaration“
+                valueField.hidden = !basic || isArray.checked || declOnly.checked;
                 ctorField.hidden = basic || isArray.checked || declOnly.checked;
-                countField.hidden = !isArray.checked;
+                countField.hidden = !isArray.checked || declOnly.checked;
                 value.placeholder = PLACEHOLDER[type.value] ?? "";
                 preview.innerHTML = highlightJava(o.build(current()));
                 error.textContent = "";
@@ -328,7 +332,7 @@ export class Dialogs {
                 const msg = o.validate(name.value);
                 if (msg) { error.textContent = msg; name.focus(); return; }
                 const r = current();
-                if (r.array && !r.count) { error.textContent = "Bitte eine ganze Zahl größer als 0 eingeben."; count.focus(); return; }
+                if (r.array && !r.declOnly && !r.count) { error.textContent = "Bitte eine ganze Zahl größer als 0 eingeben."; count.focus(); return; }
                 close(r);
             });
         });

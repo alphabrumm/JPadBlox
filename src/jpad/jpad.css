@@ -2423,3 +2423,9 @@ html.phone .jp-topbar .jp-skinbtn { display: none; }
 .jp-preview .pv-num { color: var(--syn-number); }
 .jp-preview .pv-ph { color: var(--ink-2); font-style: italic; }
 .jp-type-row { flex-wrap: wrap; }
+
+/* Variablen-Dialog: dezente Häkchen unter dem Datentyp */
+.jp-check-row { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 8px 0 4px; }
+.jp-mini-check { display: inline-flex; align-items: center; gap: 7px; font-size: 14px; color: var(--ink-2); cursor: pointer; min-height: 32px; }
+.jp-mini-check input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
+.jp-mini-check:has(input:checked) { color: var(--ink); }

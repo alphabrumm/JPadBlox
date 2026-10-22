@@ -707,6 +707,16 @@ function declaredType(doc: string, name: string): string | null {
  * und den passenden Konstruktor einfügen, Cursor in den Klammern.
  */
 function insertNew(view: EditorView) {
+    // Steht in der Zeile eine fertige Deklaration mit Semikolon („Hund bello;“), das Semikolon
+    // entfernen und den Cursor ans Ende setzen – dann geht es wie gewohnt weiter („= new Hund();“)
+    {
+        const st = view.state, ln = st.doc.lineAt(st.selection.main.head);
+        const m = /^(\s*(?:final\s+)?[A-Za-z_ÄÖÜäöü][\w.ÄÖÜäöüß]*(?:<[^=()]*>)?(?:\s*\[\s*\])*\s+[A-Za-z_ÄÖÜäöü][\wÄÖÜäöüß]*)\s*;\s*$/.exec(ln.text);
+        if (m && !/^\s*(return|throw|new|else|case|break|continue)\b/.test(ln.text)) {
+            const end = ln.from + m[1].length;
+            view.dispatch({ changes: { from: end, to: ln.to, insert: "" }, selection: EditorSelection.cursor(end) });
+        }
+    }
     const state = view.state, sel = state.selection.main;
     const line = state.doc.lineAt(sel.from);
     let before = state.sliceDoc(line.from, sel.from);
@@ -793,7 +803,7 @@ function formatValue(type: string, v: string): string {
 function variableText(r: VariableResult, snippetMode: boolean): string {
     const esc = (s: string) => snippetMode ? escapeForSnippet(s) : s;
     const name = r.name || "…";
-    if (r.array) return esc(`${r.type}[] ${name} = new ${r.type}[${r.count ?? "…"}];`);
+    if (r.array) return esc(r.declOnly ? `${r.type}[] ${name};` : `${r.type}[] ${name} = new ${r.type}[${r.count ?? "…"}];`);
     if (r.value !== undefined) {
         const v = r.value.trim();
         return esc(v == "" ? `${r.type} ${name};` : `${r.type} ${name} = ${formatValue(r.type, v)};`);
