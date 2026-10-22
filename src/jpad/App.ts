@@ -230,8 +230,8 @@ export class App {
                     <button class="jp-iconbtn" data-ref="saveBtn" data-tip="Projekt als Datei sichern. Ein Punkt zeigt Änderungen, die noch nicht gesichert sind." aria-label="Projekt als Datei sichern" title="Projekt als Datei sichern">${icon("save")}<span class="jp-dot"></span></button>
                 </div>
                 <span class="jp-topbar-sep" aria-hidden="true"></span>
+                <button class="jp-iconbtn jp-bulb" data-ref="bulbBtn" aria-label="Tipp: Hilfe zu den Buttons" data-tip="Tipp: So bekommst Du Hilfe zu jedem Button">${icon("lightbulb")}</button>
             </div>
-            <button class="jp-iconbtn jp-bulb" data-ref="bulbBtn" aria-label="Tipp: Hilfe zu den Buttons" data-tip="Tipp: So bekommst Du Hilfe zu jedem Button">${icon("lightbulb")}</button>
             <div class="jp-toolgroup jp-run-tools">
                 <button class="jp-iconbtn jp-step jp-step-more" data-ref="stepOver" data-help="stepOver" data-tip="Methode überspringen: führt einen Methodenaufruf in einem Schritt aus" aria-label="Methode überspringen" title="Methode überspringen">${icon("stepOver")}</button>
                 <button class="jp-iconbtn jp-step jp-step-more jp-wide-only" data-ref="stepOut" data-help="stepOut" data-tip="Methode verlassen: läuft bis zum Ende der aktuellen Methode" aria-label="Methode verlassen" title="Methode verlassen">${icon("stepOut")}</button>
@@ -520,7 +520,8 @@ export class App {
     /**
      * Querformat (Code und Ausgabe nebeneinander): Die Bearbeiten-Knöpfe (Kopieren, Rückgängig,
      * Wiederholen, Formatieren, Sichern) stehen rechtsbündig über dem Code-Editor, der Trennstrich rechts
-     * daneben genau mittig in der Lücke zur rechten Ansicht. Rechts davon folgen Glühbirne und Ausführen-Knöpfe.
+     * daneben genau mittig in der Lücke zur rechten Ansicht, die Glühbirne linksbündig über der rechten Ansicht.
+     * Die Ausführen-Knöpfe bleiben am rechten Rand.
      * Sonst (oder wenn der Platz nicht reicht) reihen sie sich einfach links neben der Glühbirne ein.
      */
     private alignBulb() {
@@ -530,6 +531,7 @@ export class App {
             g.classList.remove("is-aligned");
             g.style.left = "";
             sep.style.marginLeft = sep.style.marginRight = "";
+            this.el.bulbBtn.style.marginLeft = "";
         };
         reset();
         if (this.root.dataset.layout != "split" || getComputedStyle(g).display == "none") return;
@@ -541,14 +543,14 @@ export class App {
         const gapMid = (code.right + side.left) / 2;
         sep.style.marginLeft = Math.max(0, gapMid - code.right - 0.5) + "px";
         sep.style.marginRight = "0px";
+        this.el.bulbBtn.style.marginLeft = Math.max(0, side.left - gapMid - 0.5) + "px";
         g.classList.add("is-aligned");
         g.style.left = (code.right - tools.width - barRect.left) + "px";
-        // Überschneidet sich die Gruppe mit dem Projektnamen oder der Glühbirne: normal einreihen
+        // Überschneidet sich die Gruppe mit dem Projektnamen oder den Ausführen-Knöpfen: normal einreihen
         const gr = g.getBoundingClientRect();
         const proj = this.el.projectBtn.getBoundingClientRect();
-        const bulb = this.el.bulbBtn.getBoundingClientRect();
-        const next = bulb.width > 0 ? bulb : this.root.querySelector(".jp-run-tools")!.getBoundingClientRect();
-        if (gr.left < proj.right + 4 || gr.right > next.left - 4) reset();
+        const run = this.root.querySelector(".jp-run-tools")!.getBoundingClientRect();
+        if (gr.left < proj.right + 4 || gr.right > run.left - 4) reset();
     }
 
     /**

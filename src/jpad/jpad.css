@@ -222,7 +222,7 @@ html.phone .jp-topbar .jp-bulb, html.phone .jp-bulbgroup .jp-topbar-sep { displa
 .jp-topbar { position: relative; }
 .jp-bulbgroup { display: flex; align-items: center; flex: none; }
 .jp-bulbgroup.is-aligned { position: absolute; top: 50%; transform: translateY(-50%); }
-.jp-topbar-sep { flex: none; width: 1px; height: 22px; margin: 0 0 0 6px; background: var(--line); } /* rechts folgt der Abstand der Kopfzeile */
+.jp-topbar-sep { flex: none; width: 1px; height: 22px; margin: 0 6px; background: var(--line); }
 .jp-topbar .jp-bulb { width: 38px; } /* gegen die schmale Breite von .jp-iconbtn */
 
 /* Hilfe beim langen Drücken auf einen Button und Hinweis der Glühbirne (wie in QPad):
@@ -1848,6 +1848,14 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
    Bausteine | Editor | Ansicht rechts. Aufteilung je nach Vergrößern-Knopf (siehe App.applyLayout). */
 .jp-pane-blocks { display: none; }
 .jp-app[data-layout="split"] .jp-pane-blocks { display: flex; }
+/* iPad hochkant: Bausteine links neben dem Editor, gehören zur Ansicht „Code“ (nicht auf dem Handy,
+   nicht bei „Editor auf volle Breite“) */
+@media (min-width: 600px) {
+    html:not(.phone) .jp-app[data-layout="tabs"][data-view="code"]:not([data-cols="full"]) .jp-pane-blocks { display: flex; }
+    html:not(.phone) .jp-app[data-layout="tabs"][data-view="code"]:not([data-cols="full"]) .jp-main { grid-template-columns: auto minmax(0, 1fr); }
+    html:not(.phone) .jp-app[data-layout="tabs"][data-view="code"][data-bwide="true"]:not([data-cols="full"]) .jp-main { grid-template-columns: minmax(0, 30fr) minmax(0, 70fr); }
+    html:not(.phone) .jp-app[data-layout="tabs"][data-bwide="false"] .jp-pane-blocks { width: max-content; max-width: 30vw; }
+}
 .jp-app[data-layout="split"][data-cols="default"] .jp-main { grid-template-columns: auto minmax(0, 1fr) 20%; }
 .jp-app[data-layout="split"][data-cols="blocks"] .jp-main { grid-template-columns: minmax(0, 25fr) minmax(0, 55fr) minmax(0, 20fr); }
 /* Editor vergrößert: Ansicht rechts weg, Bausteine behalten ihre Breite */

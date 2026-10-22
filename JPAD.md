@@ -36,8 +36,8 @@ Bedienung und Gestaltung.
 - **Kein Mouse-over nötig**: alle Funktionen sind per Tippen erreichbar.
 - **Hilfe per langem Drücken**: Wer eine halbe Sekunde den Finger auf einen Button legt, sieht, was er bewirkt
   (der Button wird dabei nicht ausgelöst). Zeichen und Operatoren der Hilfsleiste, Schritt und Haltepunkt bekommen
-  eine ausführliche Hilfe mit Beispielen und „Achtung“-Hinweisen auf typische Denkfehler (Texte in `TipHelp.ts`). Die Glühbirne links neben „Schritt“ weist darauf hin (auf dem iPhone ausgeblendet).
-- **Zwei Layouts**: nebeneinander (iPad quer, Laptop) oder mit Reitern Code/Ausgabe/Probleme (Handy, iPad hoch).
+  eine ausführliche Hilfe mit Beispielen und „Achtung“-Hinweisen auf typische Denkfehler (Texte in `TipHelp.ts`). Die Glühbirne rechts neben dem Trennstrich der Kopfzeile weist darauf hin (auf dem iPhone ausgeblendet).
+- **Zwei Layouts**: nebeneinander (iPad quer, Laptop) oder mit Reitern Code/Ausgabe/Probleme (Handy, iPad hoch). Im iPad-Hochformat stehen die Bausteine in der Ansicht „Code“ links neben dem Editor.
 - **Hell, Dunkel oder automatisch** nach Systemeinstellung.
 - **Ohne Login, ohne Server**: Projekte werden automatisch im Browser gespeichert und lassen sich als
   Datei sichern und öffnen (iPad: Teilen-Menü → „In Dateien sichern“, AirDrop, Teams, mebis …).
