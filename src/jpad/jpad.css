@@ -2548,7 +2548,19 @@ html.phone .jp-topbar .jp-skinbtn { display: none; }
 @media (min-width: 700px) {
     .jp-sheet-layer.is-left { justify-content: flex-start; padding-left: 12px; }
     .jp-sheet-layer.is-left.is-open { background: rgba(10, 14, 24, 0.14); }
-    .jp-sheet.is-narrow.is-method .jp-method-split { grid-template-columns: minmax(0, 1fr); }
-    .jp-sheet.is-narrow.is-method .jp-method-input { padding-right: 0; }
-    .jp-sheet.is-narrow.is-method .jp-method-anim { padding-left: 0; padding-top: 16px; margin-top: 8px; border-left: 0; border-top: 1px solid var(--line); }
 }
+
+/* Kompaktere Dialoge: schmaler, kleinere Knöpfe; Skizzen (eingeblendet) auf etwa 75 % */
+@media (min-width: 700px) {
+    .jp-sheet { max-width: min(420px, var(--sheet-cap, 9999px)); padding: 16px 18px 14px; }
+    .jp-sheet:has(.jp-welcome) { max-width: min(540px, var(--sheet-cap, 9999px)); }
+    .jp-sheet.is-method.sketch-hidden { max-width: min(420px, var(--sheet-cap, 9999px)); }
+    .jp-sheet.is-method:not(.sketch-hidden) { max-width: 800px !important; }
+    .jp-method-split { grid-template-columns: minmax(0, 1fr) 340px; }
+    .jp-method-input { padding-right: 18px; }
+    .jp-method-anim { padding-left: 18px; }
+}
+.jp-sheet .jp-sheet-buttons { margin-top: 14px; }
+.jp-sheet .jp-sheet-buttons .jp-btn { min-height: 38px; padding: 0 14px; font-size: 15px; }
+.jp-sheet .jp-sheet-title { font-size: 18px; margin-bottom: 10px; }
+.jp-sheet .jp-choice { padding: 10px 12px; }

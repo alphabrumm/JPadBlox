@@ -61,11 +61,8 @@ export class Dialogs {
             if (wide && this.root.dataset.lernpfad) {
                 layer.classList.add("is-left");
                 const side = this.root.querySelector<HTMLElement>(".jp-pane-side")?.getBoundingClientRect();
-                if (side && side.width > 0 && side.left > 380) {
-                    const max = side.left - 24;
-                    sheet.style.maxWidth = max + "px";
-                    if (max < 760) sheet.classList.add("is-narrow");
-                }
+                // (Mit eingeblendeter Skizze darf der Dialog breiter werden, siehe CSS .is-method)
+                if (side && side.width > 0 && side.left > 380) sheet.style.setProperty("--sheet-cap", (side.left - 24) + "px");
             }
             if (wide) this.makeDraggable(sheet);
             requestAnimationFrame(() => layer.classList.add("is-open"));
@@ -490,7 +487,8 @@ export class Dialogs {
             // Skizze ein-/ausblenden; die Wahl wird im Browser gemerkt
             const host = sheet.querySelector<HTMLElement>(".jp-method-anim")!;
             const toggle = sheet.querySelector<HTMLElement>("[data-togglesketch]")!;
-            const readShow = () => { try { return localStorage.getItem("jpadblox.methodSketch") != "0"; } catch (e) { return true; } };
+            // Skizze standardmäßig eingeklappt; nur wer sie einmal eingeblendet hat, sieht sie wieder
+            const readShow = () => { try { return localStorage.getItem("jpadblox.methodSketch") == "1"; } catch (e) { return false; } };
             const applySketch = (show: boolean) => {
                 sheet.classList.toggle("sketch-hidden", !show);
                 toggle.textContent = show ? "Skizze ausblenden" : "Skizze einblenden";
@@ -627,7 +625,8 @@ export class Dialogs {
     private sketchToggle(sheet: HTMLElement, key: string, create: () => HTMLElement) {
         const host = sheet.querySelector<HTMLElement>(".jp-method-anim")!;
         const toggle = sheet.querySelector<HTMLElement>("[data-togglesketch]")!;
-        const readShow = () => { try { return localStorage.getItem(key) != "0"; } catch (e) { return true; } };
+        // Skizze standardmäßig eingeklappt; nur wer sie einmal eingeblendet hat, sieht sie wieder
+        const readShow = () => { try { return localStorage.getItem(key) == "1"; } catch (e) { return false; } };
         const apply = (show: boolean) => {
             sheet.classList.toggle("sketch-hidden", !show);
             toggle.textContent = show ? "Skizze ausblenden" : "Skizze einblenden";
