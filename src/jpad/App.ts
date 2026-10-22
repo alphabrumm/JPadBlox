@@ -33,7 +33,7 @@ function isHelperMarker(m: monaco.editor.IMarker): boolean {
 type View = "code" | "lernpfad" | "output" | "variables" | "diagram" | "problems";
 type SideView = "lernpfad" | "output" | "variables" | "diagram" | "problems";
 type ThemeChoice = "auto" | "light" | "dark";
-type Skin = "default" | "candy" | "hacker";
+type Skin = "default" | "flat" | "hacker";
 
 /** Schriften der Spaß-Themes (nur online; ohne Netz greifen die Ersatzschriften). */
 function loadSkinFonts() {
@@ -41,8 +41,7 @@ function loadSkinFonts() {
     const link = document.createElement("link");
     link.id = "jp-skin-fonts";
     link.rel = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=M+PLUS+1+Code:wght@400;600"
-        + "&family=Chakra+Petch:wght@400;500;600&family=Share+Tech+Mono&display=swap";
+    link.href = "https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600&family=Share+Tech+Mono&display=swap";
     document.head.appendChild(link);
 }
 
@@ -1477,17 +1476,18 @@ export class App {
         try { return <ThemeChoice>(localStorage.getItem("jpad.theme") || "auto"); } catch (e) { return "auto"; }
     }
 
-    // ----- Spaß-Themes: Standard → Bonbon (Einhorn) → Hacker → Standard -----
+    // ----- Spaß-Themes: Standard → Flach (Einhorn) → Hacker → Standard -----
 
     getSkin(): Skin {
         try {
             const s = localStorage.getItem("jpadblox.skin");
-            return s == "candy" || s == "hacker" ? s : "default";
+            // früher „candy“ (Bonbon), jetzt das flache Theme
+            return s == "flat" || s == "candy" ? "flat" : s == "hacker" ? "hacker" : "default";
         } catch (e) { return "default"; }
     }
 
     nextSkin() {
-        const order: Skin[] = ["default", "candy", "hacker"];
+        const order: Skin[] = ["default", "flat", "hacker"];
         const next = order[(order.indexOf(this.getSkin()) + 1) % order.length];
         try { localStorage.setItem("jpadblox.skin", next); } catch (e) { }
         this.applyTheme(this.getThemeChoice());
@@ -1501,8 +1501,8 @@ export class App {
         if (!btn) return;
         const s = this.getSkin();
         const [iconName, label] =
-            s == "default" ? ["unicorn", "Bonbon-Theme: rosa und himmelblau"] :
-            s == "candy" ? ["hacker", "Hacker-Theme: dunkel, Neon, spitze Ecken"] :
+            s == "default" ? ["unicorn", "Flaches Theme: weiß und blau, klare Linien"] :
+            s == "flat" ? ["hacker", "Hacker-Theme: dunkel, Neon, spitze Ecken"] :
             ["skinReset", "Zurück zum normalen Aussehen"];
         btn.innerHTML = icon(iconName);
         btn.setAttribute("aria-label", label);
@@ -1512,7 +1512,7 @@ export class App {
 
     effectiveTheme(): "light" | "dark" {
         const skin = this.getSkin();
-        if (skin == "candy") return "light";
+        if (skin == "flat") return "light";
         if (skin == "hacker") return "dark";
         const c = this.getThemeChoice();
         if (c == "auto") return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
@@ -1539,7 +1539,7 @@ export class App {
         if (ide) new ThemeManager(ide).switchTheme(eff);
         if (this.el.variables) new ThemeManager(<HTMLDivElement>this.el.variables).switchTheme(eff);
         const meta = document.querySelectorAll('meta[name="theme-color"]');
-        meta.forEach(m => m.setAttribute("content", skin == "candy" ? "#FFE3F1" : skin == "hacker" ? "#020604" : eff == "dark" ? "#151922" : "#F3F5F9"));
+        meta.forEach(m => m.setAttribute("content", skin == "flat" ? "#FFFFFF" : skin == "hacker" ? "#020604" : eff == "dark" ? "#151922" : "#F3F5F9"));
     }
 
     getFontSize(): number {
