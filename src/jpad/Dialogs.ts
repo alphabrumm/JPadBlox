@@ -56,13 +56,17 @@ export class Dialogs {
             this.root.appendChild(layer);
             const sheet = <HTMLElement>layer.firstElementChild;
             const wide = matchMedia("(min-width: 700px)").matches;
-            // JPadBlox: Ist ein Lernpfad geladen, erscheint der Dialog links am Fensterrand und
-            // höchstens so breit, dass er den Lernpfad rechts nicht verdeckt.
-            if (wide && this.root.dataset.lernpfad) {
-                layer.classList.add("is-left");
-                const side = this.root.querySelector<HTMLElement>(".jp-pane-side")?.getBoundingClientRect();
-                // (Mit eingeblendeter Skizze darf der Dialog breiter werden, siehe CSS .is-method)
-                if (side && side.width > 0 && side.left > 380) sheet.style.setProperty("--sheet-cap", (side.left - 24) + "px");
+            // JPadBlox: Dialoge erscheinen waagrecht mittig über dem Editorbereich (nicht über dem ganzen
+            // Fenster) und ganz oben, mit etwas Abstand zum Fensterrand.
+            if (wide) {
+                layer.classList.add("is-editor");
+                const code = this.root.querySelector<HTMLElement>(".jp-pane-code")?.getBoundingClientRect();
+                if (code && code.width > 0) {
+                    layer.style.paddingLeft = Math.max(0, code.left) + "px";
+                    layer.style.paddingRight = Math.max(0, window.innerWidth - code.right) + "px";
+                    // höchstens so breit wie der Editor (mit eingeblendeter Skizze darf er breiter werden, siehe CSS .is-method)
+                    if (code.width > 380) sheet.style.setProperty("--sheet-cap", (code.width - 24) + "px");
+                }
             }
             if (wide) this.makeDraggable(sheet);
             requestAnimationFrame(() => layer.classList.add("is-open"));

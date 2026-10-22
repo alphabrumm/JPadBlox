@@ -52,8 +52,10 @@ Bedienung und Gestaltung.
   Unter dem Datentyp die Häkchen „Array anlegen“ und „nur Deklaration“ (beide zusammen: `Typ[] name;`).
 - **Baustein „new“** auf einer Zeile wie `Hund bello;` entfernt das Semikolon und ergänzt `= new Hund();`.
 - **Umbenennen** wählt das Symbol am Cursor bzw. in der Markierung gleich vor.
-- **Dialoge** (ab 700 px Breite) lassen sich an der Griffleiste oder Überschrift verschieben. Ist ein Lernpfad geladen,
-  erscheinen sie links am Fensterrand und höchstens so breit, dass der Lernpfad frei bleibt.
+- **Dialoge** (ab 700 px Breite) lassen sich an der Griffleiste oder Überschrift verschieben. Sie erscheinen
+  immer waagrecht mittig über dem Editorbereich (nicht über dem ganzen Fenster), ganz oben mit 12 px Abstand,
+  und höchstens so breit wie der Editor.
+- **Taste „+“** setzt genau ein Leerzeichen davor und eines danach (`a|` → `a + |`).
 - **Taste „=“** der Hilfsleiste setzt am Zeilenende gleich den Strichpunkt dahinter (` = |;`).
 - **Enter** vor `)`, `]`, `}` oder `;` springt hinter alle direkt folgenden Klammern/Strichpunkte und beginnt eine neue
   Zeile (Ausnahme `{|}`); vor einem schließenden `"` bzw. `'` springt es nur dahinter.
