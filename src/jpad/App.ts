@@ -31,6 +31,18 @@ function isHelperMarker(m: monaco.editor.IMarker): boolean {
 type View = "code" | "lernpfad" | "output" | "variables" | "diagram" | "problems";
 type SideView = "lernpfad" | "output" | "variables" | "diagram" | "problems";
 type ThemeChoice = "auto" | "light" | "dark";
+type Skin = "default" | "candy" | "hacker";
+
+/** Schriften der Spaß-Themes (nur online; ohne Netz greifen die Ersatzschriften). */
+function loadSkinFonts() {
+    if (document.getElementById("jp-skin-fonts")) return;
+    const link = document.createElement("link");
+    link.id = "jp-skin-fonts";
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=M+PLUS+1+Code:wght@400;600"
+        + "&family=Chakra+Petch:wght@400;500;600&family=Share+Tech+Mono&display=swap";
+    document.head.appendChild(link);
+}
 
 /** JPadBlox: Aufteilung der drei Spalten (siehe applyLayout) */
 type ViewMode = "normal" | "editorWide" | "editorFull" | "infoWide" | "infoFull";
@@ -232,6 +244,7 @@ export class App {
                 <span class="jp-topbar-sep" aria-hidden="true"></span>
                 <button class="jp-iconbtn jp-bulb" data-ref="bulbBtn" aria-label="Tipp: Hilfe zu den Buttons" data-tip="Tipp: So bekommst Du Hilfe zu jedem Button">${icon("lightbulb")}</button>
             </div>
+            <button class="jp-iconbtn jp-skinbtn" data-ref="skinBtn"></button>
             <div class="jp-toolgroup jp-run-tools">
                 <button class="jp-iconbtn jp-step jp-step-more" data-ref="stepOver" data-help="stepOver" data-tip="Methode überspringen: führt einen Methodenaufruf in einem Schritt aus" aria-label="Methode überspringen" title="Methode überspringen">${icon("stepOver")}</button>
                 <button class="jp-iconbtn jp-step jp-step-more jp-wide-only" data-ref="stepOut" data-help="stepOut" data-tip="Methode verlassen: läuft bis zum Ende der aktuellen Methode" aria-label="Methode verlassen" title="Methode verlassen">${icon("stepOut")}</button>
@@ -366,6 +379,8 @@ export class App {
         this.el.redo.addEventListener("click", () => this.editor.redo());
         this.el.formatBtn.addEventListener("click", () => this.formatCode());
         this.el.saveBtn.addEventListener("click", () => this.exportProject());
+        this.el.skinBtn.addEventListener("click", () => this.nextSkin());
+        this.renderSkinButton();
 
         // Kopfzeilen-Knöpfe sollen dem Editor den Fokus nicht wegnehmen (sonst klappt die Tastatur zu)
         this.root.querySelectorAll<HTMLElement>(".jp-topbar button.jp-iconbtn:not([data-ref=menuBtn]):not([data-ref=saveBtn])")
@@ -546,10 +561,10 @@ export class App {
         this.el.bulbBtn.style.marginLeft = Math.max(0, side.left - gapMid - 0.5) + "px";
         g.classList.add("is-aligned");
         g.style.left = (code.right - tools.width - barRect.left) + "px";
-        // Überschneidet sich die Gruppe mit dem Projektnamen oder den Ausführen-Knöpfen: normal einreihen
+        // Überschneidet sich die Gruppe mit dem Projektnamen oder den Knöpfen rechts davon: normal einreihen
         const gr = g.getBoundingClientRect();
         const proj = this.el.projectBtn.getBoundingClientRect();
-        const run = this.root.querySelector(".jp-run-tools")!.getBoundingClientRect();
+        const run = this.el.skinBtn.getBoundingClientRect();
         if (gr.left < proj.right + 4 || gr.right > run.left - 4) reset();
     }
 
@@ -1363,7 +1378,43 @@ export class App {
         try { return <ThemeChoice>(localStorage.getItem("jpad.theme") || "auto"); } catch (e) { return "auto"; }
     }
 
+    // ----- Spaß-Themes: Standard → Bonbon (Einhorn) → Hacker → Standard -----
+
+    getSkin(): Skin {
+        try {
+            const s = localStorage.getItem("jpadblox.skin");
+            return s == "candy" || s == "hacker" ? s : "default";
+        } catch (e) { return "default"; }
+    }
+
+    nextSkin() {
+        const order: Skin[] = ["default", "candy", "hacker"];
+        const next = order[(order.indexOf(this.getSkin()) + 1) % order.length];
+        try { localStorage.setItem("jpadblox.skin", next); } catch (e) { }
+        this.applyTheme(this.getThemeChoice());
+        this.renderSkinButton();
+        this.alignBulbSoon();
+    }
+
+    /** Das Symbol zeigt, was beim nächsten Tippen kommt. */
+    renderSkinButton() {
+        const btn = this.el.skinBtn;
+        if (!btn) return;
+        const s = this.getSkin();
+        const [iconName, label] =
+            s == "default" ? ["unicorn", "Bonbon-Theme: rosa und himmelblau"] :
+            s == "candy" ? ["hacker", "Hacker-Theme: dunkel, Neon, spitze Ecken"] :
+            ["skinReset", "Zurück zum normalen Aussehen"];
+        btn.innerHTML = icon(iconName);
+        btn.setAttribute("aria-label", label);
+        btn.title = label;
+        btn.dataset.tip = label;
+    }
+
     effectiveTheme(): "light" | "dark" {
+        const skin = this.getSkin();
+        if (skin == "candy") return "light";
+        if (skin == "hacker") return "dark";
         const c = this.getThemeChoice();
         if (c == "auto") return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
         return c;
@@ -1377,13 +1428,19 @@ export class App {
 
     applyTheme(c: ThemeChoice) {
         document.documentElement.dataset.theme = c;
+        const skin = this.getSkin();
+        if (skin == "default") delete document.documentElement.dataset.skin;
+        else {
+            document.documentElement.dataset.skin = skin;
+            loadSkinFonts();
+        }
         const eff = this.effectiveTheme();
         document.documentElement.dataset.effective = eff;
         const ide = this.root.querySelector<HTMLDivElement>(".jp-ide");
         if (ide) new ThemeManager(ide).switchTheme(eff);
         if (this.el.variables) new ThemeManager(<HTMLDivElement>this.el.variables).switchTheme(eff);
         const meta = document.querySelectorAll('meta[name="theme-color"]');
-        meta.forEach(m => m.setAttribute("content", eff == "dark" ? "#151922" : "#F3F5F9"));
+        meta.forEach(m => m.setAttribute("content", skin == "candy" ? "#FFE3F1" : skin == "hacker" ? "#020604" : eff == "dark" ? "#151922" : "#F3F5F9"));
     }
 
     getFontSize(): number {

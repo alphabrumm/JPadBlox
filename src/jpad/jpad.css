@@ -2227,3 +2227,173 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
 .jp-count-field[hidden] { display: none; }
 .jp-form .jp-type-row + .jp-field { margin-top: 14px; }
 .jp-menu-actions button[hidden] { display: none; }
+
+/* ==========================================================================
+   Spaß-Themes (Knopf mit Einhorn/Hacker rechts neben der Glühbirne, gemerkt in jpadblox.skin)
+   Gelb bleibt in beiden Themes die Farbe für „Programm läuft“ (Start-Knopf, aktuelle Zeile).
+   ========================================================================== */
+
+.jp-topbar .jp-skinbtn { width: 38px; color: var(--ink-2); }
+.jp-skinbtn .jp-icon { width: 22px; height: 22px; }
+html.phone .jp-topbar .jp-skinbtn { display: none; }
+
+/* ---------- Bonbon: rosa und himmelblau, weich und rund ---------- */
+
+:root[data-skin="candy"] {
+    --font-ui: "Fredoka", "Atkinson Hyperlegible", system-ui, -apple-system, sans-serif;
+    --font-code: "M PLUS 1 Code", "JetBrains Mono", ui-monospace, Menlo, monospace;
+
+    --bg: #FFE3F1;
+    --surface: #FFFFFF;
+    --surface-2: #FFEAF5;
+    --ink: #4A2350;
+    --ink-2: #9A6A9E;
+    --line: #F7C6E0;
+    --accent: #FF4FA3;
+    --accent-soft: #FFE0EF;
+    --accent-ink: #FFFFFF;
+    --marker: #FFE066;
+    --marker-ink: #5A3A00;
+    --marker-soft: rgba(255, 224, 102, 0.55);
+    --danger: #E8336E;
+    --danger-soft: #FFE1EA;
+    --warn: #C77800;
+    --ok: #1FA58A;
+    --shadow-lg: 0 18px 50px -12px rgba(255, 79, 163, 0.45);
+
+    --syn-keyword: #E0369A;
+    --syn-type: #1E9BD7;
+    --syn-string: #D9622B;
+    --syn-number: #13A08A;
+    --syn-comment: #C29BC6;
+    --syn-method: #7A5CFA;
+    --syn-field: #B07A00;
+    --syn-annotation: #B44FD6;
+    --syn-punct: #8E6893;
+
+    --radius-s: 12px;
+    --radius-m: 16px;
+    --radius-l: 26px;
+    color-scheme: light;
+}
+:root[data-skin="candy"] body,
+:root[data-skin="candy"] .jp-app {
+    background:
+        radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.7) 0 2px, transparent 3px) 0 0 / 46px 46px,
+        linear-gradient(135deg, #FFD3EA 0%, #FFE6F3 38%, #DDF2FF 72%, #BFE6FF 100%);
+}
+:root[data-skin="candy"] .jp-pane {
+    border: 2px solid #FFD0E7;
+    box-shadow: 0 6px 18px -8px rgba(255, 79, 163, 0.35), 0 0 0 4px rgba(255, 255, 255, 0.55);
+}
+:root[data-skin="candy"] .jp-pane-side { border-color: #C6E8FF; box-shadow: 0 6px 18px -8px rgba(30, 155, 215, 0.35), 0 0 0 4px rgba(255, 255, 255, 0.55); }
+:root[data-skin="candy"] .jp-topbar .jp-iconbtn { color: #D63D8C; }
+:root[data-skin="candy"] .jp-topbar .jp-iconbtn:disabled { color: #E7B3CF; }
+:root[data-skin="candy"] .jp-run { border-radius: 999px; box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.1), 0 4px 12px -4px rgba(255, 170, 0, 0.6); }
+:root[data-skin="candy"] .jp-stepbtn { border-radius: 999px; }
+:root[data-skin="candy"] .jp-segmented { background: linear-gradient(90deg, #FFE0EF, #DDF1FF); border-radius: 999px; }
+:root[data-skin="candy"] .jp-segmented button { border-radius: 999px; }
+:root[data-skin="candy"] .jp-segmented button[aria-selected="true"],
+:root[data-skin="candy"] .jp-segmented button[aria-pressed="true"] { color: var(--accent); box-shadow: 0 2px 8px -2px rgba(255, 79, 163, 0.45); }
+:root[data-skin="candy"] .jp-filetab.is-active { color: var(--accent); }
+:root[data-skin="candy"] .jp-keybar button,
+:root[data-skin="candy"] .jp-blockpanel button.jp-block { border-radius: 999px; }
+:root[data-skin="candy"] .jp-keybar { background: linear-gradient(90deg, #FFE3F1, #DDF2FF); }
+:root[data-skin="candy"] .jp-bottomnav { background: linear-gradient(90deg, #FFE3F1, #DDF2FF); border-top-color: #FFD0E7; }
+:root[data-skin="candy"] [data-group="klasse"] { --g: #FF4FA3; }
+:root[data-skin="candy"] [data-group="ablauf"] { --g: #1E9BD7; }
+:root[data-skin="candy"] [data-group="daten"]  { --g: #9B5CF6; }
+:root[data-skin="candy"] .jp-skinbtn { color: #9B5CF6; }
+:root[data-skin="candy"] ::selection { background: #FFC2E1; }
+
+/* ---------- Hacker: schwarz, Neon, feine Linien, spitze Ecken ---------- */
+
+:root[data-skin="hacker"] {
+    --font-ui: "Chakra Petch", "Share Tech Mono", ui-monospace, Menlo, monospace;
+    --font-code: "Share Tech Mono", "JetBrains Mono", ui-monospace, Menlo, monospace;
+
+    --bg: #020604;
+    --surface: #050C08;
+    --surface-2: #0A1710;
+    --ink: #D7FFE6;
+    --ink-2: #5FB386;
+    --line: #12462C;
+    --accent: #00FF9C;
+    --accent-soft: #04291A;
+    --accent-ink: #001A0E;
+    --marker: #F2FF3A;
+    --marker-ink: #121400;
+    --marker-soft: rgba(242, 255, 58, 0.18);
+    --danger: #FF2E88;
+    --danger-soft: #2A0716;
+    --warn: #FFB020;
+    --ok: #00FF9C;
+    --shadow-lg: 0 0 0 1px #00FF9C, 0 0 28px rgba(0, 255, 156, 0.25);
+
+    --syn-keyword: #FF2EC4;
+    --syn-type: #00E5FF;
+    --syn-string: #F2FF3A;
+    --syn-number: #FF9F1C;
+    --syn-comment: #2F7A52;
+    --syn-method: #7CFFCB;
+    --syn-field: #B8FF5A;
+    --syn-annotation: #C77DFF;
+    --syn-punct: #6FA88A;
+
+    --radius-s: 0px;
+    --radius-m: 0px;
+    --radius-l: 0px;
+    color-scheme: dark;
+}
+/* spitze Ecken überall – auch dort, wo Rundungen fest eingetragen sind */
+:root[data-skin="hacker"] *,
+:root[data-skin="hacker"] *::before,
+:root[data-skin="hacker"] *::after { border-radius: 0 !important; }
+:root[data-skin="hacker"] body,
+:root[data-skin="hacker"] .jp-app {
+    background:
+        repeating-linear-gradient(0deg, rgba(0, 255, 156, 0.035) 0 1px, transparent 1px 3px),
+        linear-gradient(90deg, rgba(0, 255, 156, 0.05) 1px, transparent 1px) 0 0 / 32px 32px,
+        linear-gradient(0deg, rgba(0, 255, 156, 0.05) 1px, transparent 1px) 0 0 / 32px 32px,
+        #020604;
+}
+:root[data-skin="hacker"] .jp-pane {
+    border: 1px solid #0E6B3E;
+    box-shadow: 0 0 0 1px rgba(0, 255, 156, 0.06), 0 0 18px -6px rgba(0, 255, 156, 0.35);
+}
+:root[data-skin="hacker"] .jp-pane-side { border-color: #0B5E6E; box-shadow: 0 0 18px -6px rgba(0, 229, 255, 0.35); }
+:root[data-skin="hacker"] .jp-topbar { border-bottom: 1px solid var(--line); }
+:root[data-skin="hacker"] .jp-project-name { letter-spacing: 0.04em; text-transform: uppercase; }
+:root[data-skin="hacker"] .jp-topbar .jp-iconbtn { color: var(--accent); }
+:root[data-skin="hacker"] .jp-topbar .jp-iconbtn:disabled { color: #1F5A3C; }
+:root[data-skin="hacker"] .jp-topbar .jp-iconbtn:not(:disabled):active { text-shadow: 0 0 8px var(--accent); filter: drop-shadow(0 0 6px var(--accent)); }
+:root[data-skin="hacker"] .jp-run { box-shadow: 0 0 0 1px var(--marker), 0 0 16px rgba(242, 255, 58, 0.45); }
+:root[data-skin="hacker"] .jp-stepbtn { border: 1px solid var(--accent); color: var(--accent); background: transparent; }
+:root[data-skin="hacker"] .jp-segmented { background: transparent; border: 1px solid var(--line); }
+:root[data-skin="hacker"] .jp-segmented button[aria-selected="true"],
+:root[data-skin="hacker"] .jp-segmented button[aria-pressed="true"] {
+    background: var(--accent-soft); color: var(--accent); box-shadow: inset 0 -2px 0 var(--accent);
+}
+:root[data-skin="hacker"] .jp-filetab.is-active { color: var(--accent); text-shadow: 0 0 8px rgba(0, 255, 156, 0.6); }
+:root[data-skin="hacker"] .jp-keybar { background: #020604; border-top: 1px solid var(--line); }
+:root[data-skin="hacker"] .jp-keybar button { background: transparent; border: 1px solid var(--line); box-shadow: none; color: var(--accent); }
+:root[data-skin="hacker"] .jp-keybar button:active,
+:root[data-skin="hacker"] .jp-keybar button.is-pressed { background: var(--accent); color: var(--accent-ink); }
+:root[data-skin="hacker"] .jp-bottomnav { background: #020604; border-top-color: var(--line); }
+:root[data-skin="hacker"] .jp-bottomnav button[aria-current="true"] { text-shadow: 0 0 8px var(--accent); }
+:root[data-skin="hacker"] :is(.jp-blockpanel, .jp-keybar) button.jp-block {
+    background: transparent; border: 1px solid color-mix(in srgb, var(--g) 55%, transparent); box-shadow: none; color: var(--g);
+}
+:root[data-skin="hacker"] :is(.jp-blockpanel, .jp-keybar) button.jp-block:active,
+:root[data-skin="hacker"] :is(.jp-blockpanel, .jp-keybar) button.jp-block.is-pressed { background: var(--g); color: #020604; box-shadow: 0 0 12px var(--g); }
+:root[data-skin="hacker"] [data-group="klasse"] { --g: #00FF9C; }
+:root[data-skin="hacker"] [data-group="ablauf"] { --g: #FF2EC4; }
+:root[data-skin="hacker"] [data-group="daten"]  { --g: #00E5FF; }
+:root[data-skin="hacker"] .jp-blockgroup h3 { letter-spacing: 0.12em; }
+:root[data-skin="hacker"] .jp-editor .cm-cursor { border-left: 9px solid rgba(0, 255, 156, 0.45); animation: jp-blink 1s steps(1) infinite; }
+@keyframes jp-blink { 50% { border-left-color: transparent; } }
+:root[data-skin="hacker"] .jp-editor .cm-content { text-shadow: 0 0 2px rgba(0, 255, 156, 0.25); }
+:root[data-skin="hacker"] .jp-skinbtn { color: var(--danger) !important; }
+:root[data-skin="hacker"] ::selection { background: rgba(0, 255, 156, 0.3); }
+:root[data-skin="hacker"] .jp-drawer { border-right: 1px solid var(--accent); }
+:root[data-skin="hacker"] .jp-tip, :root[data-skin="hacker"] .jp-dialog { border: 1px solid var(--accent); }

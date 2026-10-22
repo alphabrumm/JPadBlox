@@ -39,6 +39,10 @@ Bedienung und Gestaltung.
   eine ausführliche Hilfe mit Beispielen und „Achtung“-Hinweisen auf typische Denkfehler (Texte in `TipHelp.ts`). Die Glühbirne rechts neben dem Trennstrich der Kopfzeile weist darauf hin (auf dem iPhone ausgeblendet).
 - **Zwei Layouts**: nebeneinander (iPad quer, Laptop) oder mit Reitern Code/Ausgabe/Probleme (Handy, iPad hoch). Im iPad-Hochformat stehen die Bausteine in der Ansicht „Code“ links neben dem Editor.
 - **Hell, Dunkel oder automatisch** nach Systemeinstellung.
+- **Spaß-Themes** über den Knopf rechts neben der Glühbirne: Standard → Bonbon (rosa/himmelblau, rund, Schriften
+  Fredoka und M PLUS 1 Code) → Hacker (schwarz, Neon, feine Linien, spitze Ecken, Chakra Petch und Share Tech Mono)
+  → Standard. Das Symbol zeigt, was als Nächstes kommt; die Wahl wird gemerkt (`jpadblox.skin`). Die Schriften kommen
+  von Google Fonts und brauchen Internet, offline greifen Ersatzschriften.
 - **Ohne Login, ohne Server**: Projekte werden automatisch im Browser gespeichert und lassen sich als
   Datei sichern und öffnen (iPad: Teilen-Menü → „In Dateien sichern“, AirDrop, Teams, mebis …).
   Das Dateiformat ist das der Online-IDE, Projekte lassen sich also in beide Richtungen austauschen.
