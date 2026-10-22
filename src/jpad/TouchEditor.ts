@@ -5,7 +5,7 @@ import {
     highlightSpecialChars, dropCursor, gutter, GutterMarker, layer, RectangleMarker
 } from "@codemirror/view";
 import { RangeSet } from "@codemirror/state";
-import { defaultKeymap, history, historyKeymap, indentWithTab, undo, redo, undoDepth, redoDepth, toggleComment, insertBlankLine, deleteLine } from "@codemirror/commands";
+import { defaultKeymap, history, historyKeymap, indentWithTab, undo, redo, undoDepth, redoDepth, toggleComment, insertBlankLine, deleteLine, insertNewlineAndIndent } from "@codemirror/commands";
 import { java } from "@codemirror/lang-java";
 import { syntaxHighlighting, HighlightStyle, indentOnInput, bracketMatching, indentUnit } from "@codemirror/language";
 import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap, startCompletion, acceptCompletion, completionStatus, hasNextSnippetField, nextSnippetField, clearSnippet } from "@codemirror/autocomplete";
@@ -220,24 +220,42 @@ const lineMarkField = StateField.define<DecorationSet>({
 });
 
 /**
- * Enter innerhalb eines Methodenaufrufs bzw. einer Bedingung:
- * - Gibt es noch weitere Parameter-Felder (nach einer Vervollständigung), springt Enter dorthin.
- * - Stehen hinter dem Cursor nur noch schließende Klammern (ggf. mit Semikolon), springt Enter
- *   hinter diese Klammern, statt die Zeile mitten im Aufruf umzubrechen:
- *   h.laufe(5|)  → Enter →  h.laufe(5)|      if (x > 3|) → Enter → if (x > 3)|
+ * Enter-Taste (JPadBlox):
+ * - Gibt es noch weitere Platzhalter (nach einem Baustein oder einer Vervollständigung), springt Enter dorthin.
+ * - Steht rechts vom Cursor ein schließendes Anführungszeichen " bzw. Hochkomma ', springt der Cursor nur
+ *   dahinter:  println("Hallo|")  → Enter →  println("Hallo"|)
+ * - Steht rechts vom Cursor eine schließende Klammer ) ] } oder ein Semikolon, springt der Cursor hinter
+ *   alle direkt folgenden Klammern/Semikolons und beginnt dann eine neue Zeile – nichts wird umgebrochen:
+ *   h.laufe(5|);  → Enter →  h.laufe(5);⏎|
+ *   Ausnahme: {|} (gerade geöffneter Block) – dort öffnet Enter wie gewohnt den Block.
  */
 function enterInSnippet(view: EditorView): boolean {
     if (hasNextSnippetField(view.state)) return nextSnippetField(view);
     const sel = view.state.selection.main;
     if (!sel.empty) return false;
-    const line = view.state.doc.lineAt(sel.head);
-    const rest = view.state.sliceDoc(sel.head, line.to);
-    const m = rest.match(/^[)\]]+;?\s*$/);
-    if (!m) return false;
-    clearSnippet(view);
-    const target = sel.head + rest.replace(/\s*$/, "").length;
-    view.dispatch({ selection: { anchor: target }, scrollIntoView: true, userEvent: "select" });
-    return true;
+    const doc = view.state.doc;
+    const line = doc.lineAt(sel.head);
+    const ch = view.state.sliceDoc(sel.head, sel.head + 1);
+    const before = view.state.sliceDoc(line.from, sel.head);
+    if (ch == '"' || ch == "'") {
+        // schließend, wenn links davon eine ungerade Zahl (nicht maskierter) gleicher Zeichen steht
+        const n = (before.replace(/\\./g, "").match(new RegExp(ch, "g")) || []).length;
+        if (n % 2 == 1) {
+            clearSnippet(view);
+            view.dispatch({ selection: { anchor: sel.head + 1 }, scrollIntoView: true, userEvent: "select" });
+            return true;
+        }
+        return false;
+    }
+    if (/[)\]};]/.test(ch)) {
+        if (ch == "}" && before.endsWith("{")) return false;
+        let end = sel.head;
+        while (end < line.to && /[)\]};]/.test(view.state.sliceDoc(end, end + 1))) end++;
+        clearSnippet(view);
+        view.dispatch({ selection: { anchor: end }, userEvent: "select" });
+        return insertNewlineAndIndent(view);
+    }
+    return false;
 }
 
 export type EditorListener = {

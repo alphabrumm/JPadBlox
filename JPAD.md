@@ -54,6 +54,9 @@ Bedienung und Gestaltung.
 - **Umbenennen** wählt das Symbol am Cursor bzw. in der Markierung gleich vor.
 - **Dialoge** (ab 700 px Breite) lassen sich an der Griffleiste oder Überschrift verschieben. Ist ein Lernpfad geladen,
   erscheinen sie links am Fensterrand und höchstens so breit, dass der Lernpfad frei bleibt.
+- **Taste „=“** der Hilfsleiste setzt am Zeilenende gleich den Strichpunkt dahinter (` = |;`).
+- **Enter** vor `)`, `]`, `}` oder `;` springt hinter alle direkt folgenden Klammern/Strichpunkte und beginnt eine neue
+  Zeile (Ausnahme `{|}`); vor einem schließenden `"` bzw. `'` springt es nur dahinter.
 - **Haltepunkte**: Knopf in der Hilfsleiste (oder Tippen auf die Zeilennummer). Das Programm hält vor der Zeile an
   und kann dann Schritt für Schritt weiterlaufen.
 - **Kein Mouse-over nötig**: alle Funktionen sind per Tippen erreichbar.

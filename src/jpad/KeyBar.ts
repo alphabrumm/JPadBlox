@@ -14,7 +14,7 @@ const KEYS: Key[] = [
     { label: "{ }", insert: "{§}", tip: "Geschweifte Klammern { } einfügen – für Klassen-, Methoden- und Blockrümpfe", help: "braces" },
     { label: "( )", insert: "(§)", tip: "Runde Klammern ( ) einfügen – für Parameter und Bedingungen", help: "parens" },
     { label: ";", insert: ";", tip: "Strichpunkt ; – beendet eine Anweisung", help: "semicolon" },
-    { label: "=", insert: " = ", tip: "Zuweisung = – speichert einen Wert in einer Variablen", help: "assign" },
+    { label: "=", insert: " = ", tip: "Zuweisung = – speichert einen Wert in einer Variablen (am Zeilenende mit Strichpunkt dahinter)", help: "assign" },
     { label: "\" \"", insert: "\"§\"", tip: "Anführungszeichen \" \" einfügen – für Text (String)", help: "quotes" },
     { label: ".", insert: ".", tip: "Punkt . – ruft eine Methode oder ein Attribut eines Objekts auf", help: "dot" },
     { label: "[ ]", insert: "[§]", tip: "Eckige Klammern [ ] einfügen – für Arrays", help: "brackets" },
@@ -246,10 +246,17 @@ export class KeyBar {
         } else if (b.dataset.key != null) {
             const k = KEYS[parseInt(b.dataset.key)];
             if (k.action == "tab") this.editor.indentMore();
+            else if (k.label == "=" && this.restOfLineEmpty()) this.editor.insert(" = §;");   // meist folgt ein Semikolon
             else if (k.insert) this.editor.insert(k.insert);
         } else if (b.dataset.action) {
             this.runAction(b.dataset.action);
         }
+    }
+
+    /** Steht rechts vom Cursor in dieser Zeile nichts mehr? */
+    private restOfLineEmpty(): boolean {
+        const st = this.editor.view.state, sel = st.selection.main;
+        return st.sliceDoc(sel.to, st.doc.lineAt(sel.to).to).trim() == "";
     }
 
     private async runAction(action: string) {

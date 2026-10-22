@@ -235,6 +235,8 @@ body { overflow-anchor: none; }
 .uml-empty { min-height: 18px; }
 .uml-new { background: var(--next); margin: 0 -12px; padding: 0 12px; }
 .uml-say { font-size: calc((15px) * var(--fz, 1)); color: var(--ink-2); text-align: center; margin: 0; }
+ol.steps[start="4"] { counter-reset: s 3; }
+figure .shot[src$="hilfsleiste.jpg"] { border-radius: 8px; }
 
 </style>
 </head>
@@ -369,9 +371,17 @@ body { overflow-anchor: none; }
     <li><div>Tippe oben auf den Reiter <span class="ui">Hauptprogramm</span>.</div></li>
     <li><div>Tippe auf den Baustein <span class="ui">Variable</span>. Wähle unter <span class="ui">Eigene Klassen</span> den Datentyp <code>Hund</code> und gib den Namen <code>h1</code> ein.</div></li>
     <li><div>Unter <span class="ui">Verfügbare Konstruktoren</span> ist schon <code>new Hund()</code> ausgewählt. Die <span class="ui">Vorschau</span> zeigt <code>Hund h1 = new Hund();</code> Tippe auf <span class="ui">Einfügen</span>. Erst jetzt gibt es diesen Hund wirklich.</div></li>
-    <li><div>Gehe ans Ende der Zeile, beginne eine neue Zeile und tippe <code>h1.</code> (mit Punkt). JPad schlägt dir jetzt die Attribute des Hundes vor. Wähle <code>name</code> und schreibe weiter, bis dasteht: <code>h1.name = "Bello";</code></div></li>
-    <li><div>Genauso in zwei weiteren Zeilen: Bello ist <strong>3 Jahre</strong> alt und <strong>stubenrein</strong>.</div></li>
   </ol>
+  <p>Jetzt bekommt Bello seine Werte. Dafür hilft dir die <strong>Hilfsleiste</strong> unten am Bildschirm. Sie enthält Zeichen, die auf der iPad-Tastatur schwer zu finden sind, und Knöpfe zum Bearbeiten von Zeilen:</p>
+  <figure><img class="shot" src="img/hilfsleiste.jpg" width="1400" height="144" alt="Ausschnitt der Hilfsleiste von JPad: links Cursor nach links und rechts, Zeile einfügen (Zeilen-Symbol mit grünem Plus, markiert mit 2) und Zeile löschen, rechts Tab, geschweifte und runde Klammern, Strichpunkt, Gleichheitszeichen (markiert mit 1), Anführungszeichen, Punkt und eckige Klammern." loading="lazy">
+    <figcaption><b>①</b> Die Taste <span class="key">=</span> schreibt das Gleichheitszeichen und gleich den Strichpunkt dahinter. <b>②</b> Die Taste <span class="ui">Zeile einfügen</span> (drei Striche mit grünem Plus) fügt unter der aktuellen Zeile eine neue, leere Zeile ein.</figcaption></figure>
+  <ol class="steps" start="4">
+    <li><div>Tippe in der Hilfsleiste auf <span class="ui">Zeile einfügen</span> <b>②</b>. Unter <code>Hund h1 = new Hund();</code> entsteht eine leere Zeile, der Cursor steht schon darin.</div></li>
+    <li><div>Tippe <code>h1.</code> (mit Punkt). JPad schlägt dir jetzt die Attribute des Hundes vor. Wähle <code>name</code>.</div></li>
+    <li><div>Tippe auf die Taste <span class="key">=</span> <b>①</b>. JPad schreibt <code> = ;</code> und setzt den Cursor genau vor den Strichpunkt. Gib dort mit der Taste <span class="key">" "</span> den Namen <code>"Bello"</code> ein. Jetzt steht da: <code>h1.name = "Bello";</code></div></li>
+    <li><div>Wieder <span class="ui">Zeile einfügen</span> <b>②</b>, dann <code>h1.alter</code>, die Taste <span class="key">=</span> und <code>3</code>. Genauso <code>h1.istStubenrein</code> mit dem Wert <code>true</code>.</div></li>
+  </ol>
+  <div class="note"><span class="note-title">Tipp: Enter springt hinter den Strichpunkt</span><p>Steht der Cursor direkt vor einer schließenden Klammer oder einem Strichpunkt, springt die Enter-Taste der Tastatur dahinter und beginnt eine neue Zeile. Vor einem schließenden Anführungszeichen springt sie nur hinter das Zeichen. So musst du den Cursor kaum von Hand setzen.</p></div>
   <div class="code" data-file="Hauptprogramm.java" data-src="mainH1" data-nocopy></div>
   <div class="note"><span class="note-title">Der Punkt</span><p><code>h1.name</code> bedeutet: das Attribut <code>name</code> <em>des Hundes</em> <code>h1</code>. Texte stehen in Anführungszeichen, Zahlen und <code>true</code>/<code>false</code> nicht.</p></div>
   <h3>Hund h2: Cara</h3>
