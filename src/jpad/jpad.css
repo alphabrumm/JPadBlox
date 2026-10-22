@@ -2472,3 +2472,63 @@ html.phone .jp-topbar .jp-skinbtn { display: none; }
 .jp-welcome-tip { padding: 10px 12px; border-radius: var(--radius-s); background: var(--marker-soft); }
 .jp-welcome-warn { padding: 10px 12px; border-radius: var(--radius-s); background: var(--danger-soft); border-left: 4px solid var(--danger); }
 .jp-welcome-warn b:first-child { color: var(--danger); }
+
+/* ---------- Flach, Dunkelmodus: Navy statt Weiß, weiße Ränder und Symbole, Schriftfarben wie im Hacker-Theme ---------- */
+:root[data-skin="flat"][data-effective="dark"] {
+    --bg: #000080;
+    --surface: #000080;
+    --surface-2: #00006A;
+    --ink: #D7FFE6;
+    --ink-2: #A9C8FF;
+    --line: #FFFFFF;
+    --accent: #FFFFFF;
+    --accent-soft: rgba(255, 255, 255, 0.16);
+    --accent-ink: #000080;
+    --marker: #F2FF3A;
+    --marker-ink: #121400;
+    --marker-soft: rgba(242, 255, 58, 0.22);
+    --danger: #FF5CA8;
+    --danger-soft: #2A0A4A;
+    --warn: #FFB020;
+    --ok: #00FF9C;
+    --shadow-lg: 0 0 0 1px #FFFFFF, 0 14px 30px -12px rgba(0, 0, 0, 0.6);
+
+    --syn-keyword: #FF2EC4;
+    --syn-type: #00E5FF;
+    --syn-string: #F2FF3A;
+    --syn-number: #FF9F1C;
+    --syn-comment: #8FA6E8;
+    --syn-method: #7CFFCB;
+    --syn-field: #B8FF5A;
+    --syn-annotation: #C77DFF;
+    --syn-punct: #C9D6FF;
+    color-scheme: dark;
+}
+:root[data-skin="flat"][data-effective="dark"] body,
+:root[data-skin="flat"][data-effective="dark"] .jp-app {
+    background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px) 0 0 / 32px 32px,
+        linear-gradient(0deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px) 0 0 / 32px 32px,
+        #000080;
+}
+:root[data-skin="flat"][data-effective="dark"] .jp-pane,
+:root[data-skin="flat"][data-effective="dark"] .jp-pane-side { border: 1px solid #FFFFFF; box-shadow: none; }
+:root[data-skin="flat"][data-effective="dark"] .jp-topbar { border-bottom-color: #FFFFFF; }
+:root[data-skin="flat"][data-effective="dark"] .jp-topbar .jp-iconbtn,
+:root[data-skin="flat"][data-effective="dark"] .jp-skinbtn { color: #FFFFFF !important; }
+:root[data-skin="flat"][data-effective="dark"] .jp-topbar .jp-iconbtn:disabled { color: rgba(255, 255, 255, 0.35) !important; }
+:root[data-skin="flat"][data-effective="dark"] .jp-stepbtn { border-color: #FFFFFF; color: #FFFFFF; }
+:root[data-skin="flat"][data-effective="dark"] .jp-run { box-shadow: 0 0 0 1px #FFFFFF; }
+:root[data-skin="flat"][data-effective="dark"] .jp-keybar,
+:root[data-skin="flat"][data-effective="dark"] .jp-bottomnav { background: #000080; border-top-color: #FFFFFF; }
+:root[data-skin="flat"][data-effective="dark"] .jp-keybar button { border-color: #FFFFFF; color: #FFFFFF; }
+:root[data-skin="flat"][data-effective="dark"] .jp-keybar button:active,
+:root[data-skin="flat"][data-effective="dark"] .jp-keybar button.is-pressed { background: #FFFFFF; color: #000080; }
+:root[data-skin="flat"][data-effective="dark"] [data-group="klasse"] { --g: #00FF9C; }
+:root[data-skin="flat"][data-effective="dark"] [data-group="ablauf"] { --g: #FF2EC4; }
+:root[data-skin="flat"][data-effective="dark"] [data-group="daten"]  { --g: #00E5FF; }
+:root[data-skin="flat"][data-effective="dark"] :is(.jp-blockpanel, .jp-keybar) button.jp-block { border-color: #FFFFFF; }
+:root[data-skin="flat"][data-effective="dark"] .jp-editor .cm-cursor { border-left-color: rgba(255, 255, 255, 0.55); }
+:root[data-skin="flat"][data-effective="dark"] .jp-drawer { border-right-color: #FFFFFF; }
+:root[data-skin="flat"][data-effective="dark"] ::selection { background: rgba(255, 255, 255, 0.3); }
+:root[data-skin="flat"][data-effective="dark"] .jp-topbar .jp-bulb { color: var(--marker) !important; }

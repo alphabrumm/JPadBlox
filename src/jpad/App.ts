@@ -1512,7 +1512,6 @@ export class App {
 
     effectiveTheme(): "light" | "dark" {
         const skin = this.getSkin();
-        if (skin == "flat") return "light";
         if (skin == "hacker") return "dark";
         const c = this.getThemeChoice();
         if (c == "auto") return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
@@ -1539,7 +1538,7 @@ export class App {
         if (ide) new ThemeManager(ide).switchTheme(eff);
         if (this.el.variables) new ThemeManager(<HTMLDivElement>this.el.variables).switchTheme(eff);
         const meta = document.querySelectorAll('meta[name="theme-color"]');
-        meta.forEach(m => m.setAttribute("content", skin == "flat" ? "#FFFFFF" : skin == "hacker" ? "#020604" : eff == "dark" ? "#151922" : "#F3F5F9"));
+        meta.forEach(m => m.setAttribute("content", skin == "flat" ? (eff == "dark" ? "#000080" : "#FFFFFF") : skin == "hacker" ? "#020604" : eff == "dark" ? "#151922" : "#F3F5F9"));
     }
 
     getFontSize(): number {

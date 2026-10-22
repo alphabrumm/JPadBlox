@@ -59,7 +59,7 @@ Bedienung und Gestaltung.
 - **Zwei Layouts**: nebeneinander (iPad quer, Laptop) oder mit Reitern Code/Ausgabe/Probleme (Handy, iPad hoch). Im iPad-Hochformat stehen die Bausteine in der Ansicht „Code“ links neben dem Editor.
 - **Hell, Dunkel oder automatisch** nach Systemeinstellung.
 - **Themes** über den Knopf rechts neben der Glühbirne: Standard → Flach (Einhorn-Symbol; weiß und blau, feine Linien,
-  spitze Ecken) → Hacker (schwarz, Neon-Grün) → Standard. Beide nutzen Chakra Petch und Share Tech Mono (Google Fonts,
+  spitze Ecken; folgt Hell/Dunkel: dunkel mit Navy-Hintergrund, weißen Rändern und Hacker-Schriftfarben) → Hacker (schwarz, Neon-Grün) → Standard. Beide nutzen Chakra Petch und Share Tech Mono (Google Fonts,
   offline Ersatzschriften). Das Symbol zeigt, was als Nächstes kommt; die Wahl wird gemerkt (`jpadblox.skin`).
 - **Ohne Login, ohne Server**: Projekte werden automatisch im Browser gespeichert und lassen sich als
   Datei sichern und öffnen (iPad: Teilen-Menü → „In Dateien sichern“, AirDrop, Teams, mebis …).
