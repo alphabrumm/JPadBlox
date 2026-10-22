@@ -880,8 +880,11 @@ html.keyboard-open.editor-focused .jp-bottomnav { display: none; }
     font-size: 15px;
     font-weight: 700;
     color: var(--ink-2);
-    margin: 22px 0 8px;
+    margin: 34px 0 8px;
 }
+.jp-drawer h2:first-child { margin-top: 18px; }
+/* Abstand zwischen Gruppen innerhalb einer Kategorie */
+.jp-drawer .jp-menu-group { margin-top: 14px; }
 
 .jp-menu-actions { display: flex; flex-direction: column; gap: 2px; }
 
@@ -921,9 +924,9 @@ html.keyboard-open.editor-focused .jp-bottomnav { display: none; }
 
 .jp-projectitem-open > span { display: flex; flex-direction: column; min-width: 0; }
 .jp-projectitem.is-current .jp-icon { color: var(--accent); }
-.jp-projectitem-name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.jp-projectitem-name { font-weight: 700; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.25; overflow-wrap: anywhere; }
 .jp-projectitem-date { font-size: 13px; color: var(--ink-2); }
-.jp-projectitem-del { color: var(--ink-2); }
+.jp-projectitem-del, .jp-projectitem-dup { color: var(--ink-2); }
 
 .jp-setting-row {
     display: flex;

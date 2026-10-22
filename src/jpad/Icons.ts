@@ -38,6 +38,7 @@ const paths: Record<string, string> = {
     hacker: '<path d="M4.5 21v-1.5c0-2.6 1.7-4.6 4-5.4-1-1.3-1.5-2.9-1.5-4.6C7 6.2 9.2 3.5 12 3.5s5 2.7 5 6c0 1.7-.5 3.3-1.5 4.6 2.3.8 4 2.8 4 5.4V21"/><path d="M9 10.2c0-2.1 1.3-3.6 3-3.6s3 1.5 3 3.6c0 2-1.3 3.7-3 3.7s-3-1.7-3-3.7z"/><path d="M8.6 9.3h6.8M9.3 9.5h2.2v1.9H9.3zM12.5 9.5h2.2v1.9h-2.2z" fill="currentColor" stroke-width="1.2"/>',
     skinReset: '<path d="M4 12a8 8 0 1 0 2.6-5.9"/><path d="M4 4v5h5"/>',
     refactor: '<path d="M4 6h10M4 11h7M4 16h4"/><path d="M12.5 20.5v-2.8l6.3-6.3 2.8 2.8-6.3 6.3z"/><path d="M17.3 12.9l2.8 2.8"/>',
+    duplicate: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/><path d="M14 11v6M11 14h6"/>',
     lightbulb: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/>',
     variables: '<path d="M7 4C5 4 5 6 5 8s-1 3-2 4c1 1 2 2 2 4s0 4 2 4"/><path d="M17 4c2 0 2 2 2 4s1 3 2 4c-1 1-2 2-2 4s0 4-2 4"/><path d="M9.5 9l5 6M14.5 9l-5 6"/>',
     search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',

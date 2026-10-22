@@ -36,7 +36,9 @@ Bedienung und Gestaltung.
   des Compilers (`src/jpad/Refactor.ts`); heißt eine Datei wie die umbenannte Klasse, wird sie mit umbenannt.
 - **Erster Start**: Willkommen-Fenster (browserbasierte, touchfreundliche Baustein-IDE mit integrierbaren Lernpfaden)
   und automatisch der Demo-Lernpfad „Bello lernt Java“ (gemerkt in `jpadblox.welcomed`; wer schon Projekte hat, sieht es nicht).
-- **Demo-Projekt** im Menü: öffnet den Lernpfad `public/demo/index.html` („Bello lernt Java“: Oberfläche, Glühbirne,
+- **Menü**: Projekte (Neu/Öffnen/Sichern · Demo laden, Lernpfad einbetten/entfernen · Projektliste mit Duplizieren
+  und Löschen), Grafik (Eigene Sprites, Sprite Bibliothek), Darstellung, Ausführungstempo, Nachschlagen.
+- **Demo laden** im Menü: legt jedes Mal ein neues Projekt mit frischer Kopie vom Server an und öffnet den Lernpfad `public/demo/index.html` („Bello lernt Java“: Oberfläche, Glühbirne,
   Datentypen, Klasse Hund mit Bausteinen, Methode mit if–else, Objekt, Schritt, Haltepunkt, Objektdiagramm) wie einen
   Lernpfad-Link. Die Bilder in `public/demo/img` sind Screenshots von JPadBlox und werden beim Laden eingebettet.
 - **Autovervollständigung geordnet** (`src/jpad/CompletionOrder.ts`): ohne Punkt zuerst eigene Variablen, eigene

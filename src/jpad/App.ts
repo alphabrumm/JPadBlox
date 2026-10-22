@@ -334,12 +334,19 @@ export class App {
                     <button data-ref="newProjectBtn" data-tip="Neues, leeres Projekt anlegen">${icon("plus")}<span>Neues Projekt</span></button>
                     <button data-ref="openFileBtn" data-tip="Projekt aus einer Datei öffnen (z. B. aus ByCS Drive)">${icon("open")}<span>Projekt aus Datei öffnen</span></button>
                     <button data-ref="saveFileBtn" data-tip="Projekt als Datei sichern">${icon("save")}<span>Projekt als Datei sichern</span></button>
-                    <button data-ref="demoBtn" data-tip="Demo-Projekt mit Lernpfad: JPad kennenlernen und die Klasse Hund bauen">${icon("lernpfad")}<span>Demo-Projekt laden</span></button>
-                    <button data-ref="userSpritesBtn" data-tip="Eigene Bilder als Sprites zum Projekt hinzufügen">${icon("imagePlus")}<span>Eigene Sprites</span></button>
+                </div>
+                <div class="jp-menu-actions jp-menu-group">
+                    <button data-ref="demoBtn" data-tip="Neues Projekt mit einer frischen Kopie des Demo-Lernpfads: JPad kennenlernen und die Klasse Hund bauen">${icon("lernpfad")}<span>Demo laden</span></button>
                     <button data-ref="lernpfadAddBtn" data-tip="Eine HTML-Seite oder ein ZIP (index.html mit Bildern) als Lernpfad in dieses Projekt einbetten">${icon("lernpfad")}<span>Lernpfad einbetten</span></button>
                     <button data-ref="lernpfadRemoveBtn" data-tip="Den eingebetteten Lernpfad aus diesem Projekt entfernen">${icon("trash")}<span>Lernpfad entfernen</span></button>
                 </div>
-                <ul class="jp-projectlist" data-ref="projectList"></ul>
+                <ul class="jp-projectlist jp-menu-group" data-ref="projectList"></ul>
+
+                <h2>Grafik</h2>
+                <div class="jp-menu-actions">
+                    <button data-ref="userSpritesBtn" data-tip="Eigene Bilder als Sprites zum Projekt hinzufügen">${icon("imagePlus")}<span>Eigene Sprites</span></button>
+                    <button data-ref="spritesBtn" data-tip="Alle eingebauten Sprites mit ihren Nummern ansehen">${icon("image")}<span>Sprite Bibliothek</span></button>
+                </div>
 
                 <h2>Darstellung</h2>
                 <div class="jp-segmented" data-ref="themeSwitch">
@@ -366,7 +373,6 @@ export class App {
                 <div class="jp-menu-actions">
                     <button data-ref="colorsBtn" data-tip="Alle Farben der Klasse Color nachschlagen">${icon("palette")}<span>Color Handbuch</span></button>
                     <button data-ref="handbookBtn" data-tip="Klassen und Methoden der Online-IDE nachschlagen">${icon("book")}<span>Class Handbuch</span></button>
-                    <button data-ref="spritesBtn" data-tip="Alle eingebauten Sprites mit ihren Nummern ansehen">${icon("image")}<span>Sprite Bibliothek</span></button>
                 </div>
 
                 <h2>Über JPad</h2>
@@ -989,7 +995,8 @@ export class App {
         this.main.flush();
         this.closeDrawer();
         const url = new URL(location.href);
-        url.search = "?lernpfad=" + encodeURIComponent("demo/index.html");
+        // „neu“: immer ein neues Projekt mit frischer Kopie vom Server, nie das alte Demo-Projekt wiederverwenden
+        url.search = "?lernpfad=" + encodeURIComponent("demo/index.html") + "&neu=1";
         setTimeout(() => location.href = url.href, 150);
     }
 
@@ -1152,12 +1159,38 @@ export class App {
                     <span><span class="jp-projectitem-name">${escapeHtml(p.name)}</span>
                     <span class="jp-projectitem-date">geändert ${fmt.format(new Date(p.modified))}</span></span>
                 </button>
+                <button class="jp-iconbtn jp-projectitem-dup" aria-label="Projekt „${escapeHtml(p.name)}“ duplizieren" data-tip="Projekt duplizieren: legt eine Kopie an und öffnet sie">${icon("duplicate")}</button>
                 <button class="jp-iconbtn jp-projectitem-del" aria-label="Projekt „${escapeHtml(p.name)}“ löschen">${icon("trash")}</button>`;
             li.querySelector(".jp-projectitem-open")!.addEventListener("click", () => {
                 if (!isCurrent) this.switchToProject(p.id); else this.closeDrawer();
             });
+            li.querySelector(".jp-projectitem-dup")!.addEventListener("click", () => this.duplicateProject(p));
             li.querySelector(".jp-projectitem-del")!.addEventListener("click", () => this.deleteProject(p));
             ul.appendChild(li);
+        }
+    }
+
+    /** Legt eine Kopie des Projekts an (Code, eigene Sprites, Lernpfad samt Fortschritt) und öffnet sie. */
+    async duplicateProject(p: ProjectInfo) {
+        try {
+            if (p.id == this.project.id) this.main.flush();
+            const files = await this.store.readFiles(p.id);
+            if (!files) throw new Error("Das Projekt ließ sich nicht lesen.");
+            const copy = this.store.createInfo(p.name + " (Kopie)");
+            await this.store.writeFiles(copy.id, files);
+            const sprites = await this.store.readSpritesheet(p.id).catch(() => null);
+            if (sprites) await this.store.writeSpritesheet(copy.id, sprites);
+            const lernpfad = await this.store.readLernpfad(p.id).catch(() => null);
+            if (lernpfad) await this.store.writeLernpfad(copy.id, lernpfad);
+            try {
+                const state = localStorage.getItem("jpad.lernpfad." + p.id);
+                if (state) localStorage.setItem("jpad.lernpfad." + copy.id, state);
+            } catch (e) { }
+            this.closeDrawer();
+            this.toast(`„${copy.name}“ angelegt.`, "check");
+            this.switchToProject(copy.id);
+        } catch (e: any) {
+            this.dialogs.alert({ title: "Duplizieren nicht möglich", text: e?.message || String(e) });
         }
     }
 
@@ -1242,6 +1275,7 @@ export class App {
         const clean = () => {
             params.delete("projekt");
             params.delete("lernpfad");
+            params.delete("neu");
             const q = params.toString();
             try { history.replaceState(null, "", location.pathname + (q ? "?" + q : "") + location.hash); } catch (e) { }
         };
@@ -1249,7 +1283,8 @@ export class App {
             const abs = (u: string | null) => u ? new URL(u.trim(), location.href).href : null;
             const projekt = abs(raw.projekt), lernpfad = abs(raw.lernpfad);
             const source = [projekt, lernpfad].filter(s => s).join(" + ");
-            const existing = this.store.list().find(p => p.source == source);
+            const fresh = params.get("neu") != null;
+            const existing = fresh ? undefined : this.store.list().find(p => p.source == source);
             if (existing) {
                 this.store.setCurrentId(existing.id);
                 clean();
@@ -1260,7 +1295,8 @@ export class App {
             const { loadLinkedProject } = await import("./Lernpfad.js");
             const linked = await loadLinkedProject(projekt, lernpfad);
             const p = this.store.createInfo(linked.name);
-            this.store.update(p.id, { source });
+            // Frisch geladene Demo-Kopien merken sich keine Quelle: jede ist ein eigenständiges Projekt
+            if (!fresh) this.store.update(p.id, { source });
             await this.store.writeFiles(p.id, linked.files.length > 0 ? linked.files : STARTER_FILES);
             if (linked.spritesheetBase64) {
                 try { await this.store.writeSpritesheet(p.id, base64ToBytes(linked.spritesheetBase64)); }
