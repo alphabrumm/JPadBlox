@@ -215,10 +215,10 @@ button:focus-visible, input:focus-visible, a:focus-visible {
     :root[data-effective="dark"] .jp-bulb:hover { background: var(--marker-soft); filter: none; }
 }
 /* iPhone: zu wenig Platz in der Kopfzeile */
-html.phone .jp-bulbgroup { display: none; }
+html.phone .jp-topbar .jp-bulb, html.phone .jp-bulbgroup .jp-topbar-sep { display: none; }
 
-/* Glühbirne + Trennstrich: im Hochformat links neben den Kopier-Knöpfen,
-   im Querformat (per Skript) rechtsbündig über dem Code-Editor */
+/* Bearbeiten-Knöpfe + Trennstrich: im Hochformat einfach links neben der Glühbirne,
+   im Querformat (per Skript) rechtsbündig über dem Code-Editor; rechts daneben Glühbirne und Ausführen */
 .jp-topbar { position: relative; }
 .jp-bulbgroup { display: flex; align-items: center; flex: none; }
 .jp-bulbgroup.is-aligned { position: absolute; top: 50%; transform: translateY(-50%); }

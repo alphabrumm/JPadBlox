@@ -221,17 +221,17 @@ export class App {
             </button>
             <div class="jp-topbar-spacer"></div>
             <div class="jp-bulbgroup" data-ref="bulbGroup">
-                <button class="jp-iconbtn jp-bulb" data-ref="bulbBtn" aria-label="Tipp: Hilfe zu den Buttons" data-tip="Tipp: So bekommst Du Hilfe zu jedem Button">${icon("lightbulb")}</button>
+                <div class="jp-toolgroup jp-edit-tools" data-ref="editTools">
+                    <button class="jp-iconbtn" data-ref="copyAllBtn" data-tip="Code aller Dateien in die Zwischenablage kopieren" aria-label="Code aller Dateien kopieren" title="Code aller Dateien kopieren">${icon("copyAll")}</button>
+                    <button class="jp-iconbtn" data-ref="copyFileBtn" data-tip="Code der geöffneten Datei in die Zwischenablage kopieren" aria-label="Code dieser Datei kopieren" title="Code dieser Datei kopieren">${icon("copyFile")}</button>
+                    <button class="jp-iconbtn" data-ref="undo" data-tip="Rückgängig: letzte Änderung zurücknehmen" aria-label="Rückgängig" title="Rückgängig">${icon("undo")}</button>
+                    <button class="jp-iconbtn" data-ref="redo" data-tip="Wiederholen: zurückgenommene Änderung wiederherstellen" aria-label="Wiederholen" title="Wiederholen">${icon("redo")}</button>
+                    <button class="jp-iconbtn jp-wide-only" data-ref="formatBtn" data-tip="Code formatieren: Einrückungen und Abstände ordnen" aria-label="Code formatieren" title="Code formatieren">${icon("format")}</button>
+                    <button class="jp-iconbtn" data-ref="saveBtn" data-tip="Projekt als Datei sichern. Ein Punkt zeigt Änderungen, die noch nicht gesichert sind." aria-label="Projekt als Datei sichern" title="Projekt als Datei sichern">${icon("save")}<span class="jp-dot"></span></button>
+                </div>
                 <span class="jp-topbar-sep" aria-hidden="true"></span>
             </div>
-            <div class="jp-toolgroup jp-edit-tools" data-ref="editTools">
-                <button class="jp-iconbtn" data-ref="copyAllBtn" data-tip="Code aller Dateien in die Zwischenablage kopieren" aria-label="Code aller Dateien kopieren" title="Code aller Dateien kopieren">${icon("copyAll")}</button>
-                <button class="jp-iconbtn" data-ref="copyFileBtn" data-tip="Code der geöffneten Datei in die Zwischenablage kopieren" aria-label="Code dieser Datei kopieren" title="Code dieser Datei kopieren">${icon("copyFile")}</button>
-                <button class="jp-iconbtn" data-ref="undo" data-tip="Rückgängig: letzte Änderung zurücknehmen" aria-label="Rückgängig" title="Rückgängig">${icon("undo")}</button>
-                <button class="jp-iconbtn" data-ref="redo" data-tip="Wiederholen: zurückgenommene Änderung wiederherstellen" aria-label="Wiederholen" title="Wiederholen">${icon("redo")}</button>
-                <button class="jp-iconbtn jp-wide-only" data-ref="formatBtn" data-tip="Code formatieren: Einrückungen und Abstände ordnen" aria-label="Code formatieren" title="Code formatieren">${icon("format")}</button>
-                <button class="jp-iconbtn" data-ref="saveBtn" data-tip="Projekt als Datei sichern. Ein Punkt zeigt Änderungen, die noch nicht gesichert sind." aria-label="Projekt als Datei sichern" title="Projekt als Datei sichern">${icon("save")}<span class="jp-dot"></span></button>
-            </div>
+            <button class="jp-iconbtn jp-bulb" data-ref="bulbBtn" aria-label="Tipp: Hilfe zu den Buttons" data-tip="Tipp: So bekommst Du Hilfe zu jedem Button">${icon("lightbulb")}</button>
             <div class="jp-toolgroup jp-run-tools">
                 <button class="jp-iconbtn jp-step jp-step-more" data-ref="stepOver" data-help="stepOver" data-tip="Methode überspringen: führt einen Methodenaufruf in einem Schritt aus" aria-label="Methode überspringen" title="Methode überspringen">${icon("stepOver")}</button>
                 <button class="jp-iconbtn jp-step jp-step-more jp-wide-only" data-ref="stepOut" data-help="stepOut" data-tip="Methode verlassen: läuft bis zum Ende der aktuellen Methode" aria-label="Methode verlassen" title="Methode verlassen">${icon("stepOut")}</button>
@@ -518,9 +518,10 @@ export class App {
     }
 
     /**
-     * Querformat (Code und Ausgabe nebeneinander): Die Glühbirne steht rechtsbündig über dem
-     * Code-Editor, der Trennstrich rechts daneben genau mittig in der Lücke zur rechten Ansicht.
-     * Sonst (oder wenn der Platz nicht reicht) stehen beide einfach links neben den Kopier-Knöpfen.
+     * Querformat (Code und Ausgabe nebeneinander): Die Bearbeiten-Knöpfe (Kopieren, Rückgängig,
+     * Wiederholen, Formatieren, Sichern) stehen rechtsbündig über dem Code-Editor, der Trennstrich rechts
+     * daneben genau mittig in der Lücke zur rechten Ansicht. Rechts davon folgen Glühbirne und Ausführen-Knöpfe.
+     * Sonst (oder wenn der Platz nicht reicht) reihen sie sich einfach links neben der Glühbirne ein.
      */
     private alignBulb() {
         const g = this.el.bulbGroup, bar = g.parentElement!;
@@ -535,18 +536,19 @@ export class App {
         const code = this.root.querySelector(".jp-pane-code")!.getBoundingClientRect();
         const side = this.root.querySelector(".jp-pane-side")!.getBoundingClientRect();
         if (code.width == 0 || side.width == 0) return;
-        const bulb = this.el.bulbBtn.getBoundingClientRect();
+        const tools = this.el.editTools.getBoundingClientRect();
         const barRect = bar.getBoundingClientRect();
         const gapMid = (code.right + side.left) / 2;
         sep.style.marginLeft = Math.max(0, gapMid - code.right - 0.5) + "px";
         sep.style.marginRight = "0px";
         g.classList.add("is-aligned");
-        g.style.left = (code.right - bulb.width - barRect.left) + "px";
-        // Überschneidet sich die Gruppe mit dem Projektnamen oder den Knöpfen: normal einreihen
+        g.style.left = (code.right - tools.width - barRect.left) + "px";
+        // Überschneidet sich die Gruppe mit dem Projektnamen oder der Glühbirne: normal einreihen
         const gr = g.getBoundingClientRect();
         const proj = this.el.projectBtn.getBoundingClientRect();
-        const tools = this.el.editTools.getBoundingClientRect();
-        if (gr.left < proj.right + 4 || gr.right > tools.left - 4) reset();
+        const bulb = this.el.bulbBtn.getBoundingClientRect();
+        const next = bulb.width > 0 ? bulb : this.root.querySelector(".jp-run-tools")!.getBoundingClientRect();
+        if (gr.left < proj.right + 4 || gr.right > next.left - 4) reset();
     }
 
     /**
