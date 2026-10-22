@@ -394,8 +394,8 @@ export class Dialogs {
                 <p>Der Konstruktor ist die Methode, die beim Bauen eines neuen Objekts ausgeführt wird.</p>
                 <ul>
                     <li>Der Konstruktor hat <b><i>keinen</i></b> <b>Rückgabetyp</b></li>
-                    <li>Der Konstruktor hat den <i>gleichen Namen wie seine Klasse</i></li>
-                    <li>Der Konstruktor wird durch das <i>Schlüsselwort</i> <b><i>new</i></b> aufgerufen</li>
+                    <li>Der Konstruktor hat den <b>gleichen Namen wie seine Klasse</b></li>
+                    <li>Der Konstruktor wird durch das <b>Schlüsselwort</b> <b><i>new</i></b> aufgerufen</li>
                 </ul>
             </div>
             <div class="jp-choice-list">

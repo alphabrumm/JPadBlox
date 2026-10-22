@@ -2409,8 +2409,6 @@ html.phone .jp-topbar .jp-skinbtn { display: none; }
 .jp-ctor-text li { margin: 2px 0; }
 .jp-param-rows:empty { display: none; }
 
-/* Vorschlagsliste: höchstens 5 Einträge sichtbar (Rest scrollbar); Klappzeile für weitere/geerbte Symbole */
-.cm-tooltip-autocomplete > ul { max-height: calc(5 * var(--jp-completion-row, 36px)) !important; }
-.cm-tooltip-autocomplete > ul > li { min-height: var(--jp-completion-row, 36px); box-sizing: border-box; }
+/* Vorschlagsliste: Klappzeile für weitere/geerbte Symbole */
 .cm-tooltip-autocomplete > ul > li:has(.cm-completionIcon-jp-toggle) { font-family: var(--font-ui); font-weight: 700; color: var(--accent); border-top: 1px solid var(--line); }
 .cm-completionIcon-jp-toggle { display: none; }

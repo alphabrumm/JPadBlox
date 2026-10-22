@@ -310,7 +310,8 @@ export class TouchEditor {
                 activateOnTyping: true,
                 activateOnTypingDelay: 60,
                 icons: true,
-                maxRenderedOptions: 60,
+                // JPadBlox: alle Vorschläge zeichnen, damit man auch aufgeklappte Listen ganz durchscrollen kann
+                maxRenderedOptions: 2000,
                 defaultKeymap: true,
                 interactionDelay: 0,
                 aboveCursor: false,
