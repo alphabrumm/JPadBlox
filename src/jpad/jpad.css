@@ -1855,6 +1855,10 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
     html:not(.phone) .jp-app[data-layout="tabs"][data-view="code"]:not([data-cols="full"]) .jp-main { grid-template-columns: auto minmax(0, 1fr); }
     html:not(.phone) .jp-app[data-layout="tabs"][data-view="code"][data-bwide="true"]:not([data-cols="full"]) .jp-main { grid-template-columns: minmax(0, 30fr) minmax(0, 70fr); }
     html:not(.phone) .jp-app[data-layout="tabs"][data-bwide="false"] .jp-pane-blocks { width: max-content; max-width: 30vw; }
+    /* Bausteine stehen links: Hilfsleiste wie im Querformat (nur Zeichen, ohne Umschalter) */
+    html:not(.phone) .jp-app[data-layout="tabs"]:not([data-cols="full"]) .jp-keybar .jp-key-mode { display: none; }
+    html:not(.phone) .jp-app[data-layout="tabs"]:not([data-cols="full"]) .jp-keybar .jp-blocks-scroll { display: none; }
+    html:not(.phone) .jp-app[data-layout="tabs"]:not([data-cols="full"]) .jp-keybar .jp-keybar-scroll:not(.jp-blocks-scroll) { display: flex; }
 }
 .jp-app[data-layout="split"][data-cols="default"] .jp-main { grid-template-columns: auto minmax(0, 1fr) 20%; }
 .jp-app[data-layout="split"][data-cols="blocks"] .jp-main { grid-template-columns: minmax(0, 25fr) minmax(0, 55fr) minmax(0, 20fr); }
@@ -1911,7 +1915,7 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
     border-left: 4px solid var(--g);
     font-family: var(--font-code);
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 400;
     text-align: left;
     white-space: nowrap;
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
@@ -2025,7 +2029,7 @@ html.kb-simple.tablet .jp-keybar { position: absolute; bottom: 0; }
     color: var(--g);
     font-family: var(--font-ui);
     font-size: 15px;
-    font-weight: 700;
+    font-weight: 400;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
     padding: 0 12px;
     min-height: 38px;
