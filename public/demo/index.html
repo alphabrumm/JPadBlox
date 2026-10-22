@@ -226,6 +226,16 @@ figcaption { font-size: calc((15px) * var(--fz, 1)); color: var(--ink-2); margin
 .trail-inner { padding-right: 84px; }
 body { overflow-anchor: none; }
 
+/* Klassenkarte (wie das Klassendiagramm in JPad) */
+.umlwrap { margin: 16px 0 20px; display: grid; justify-items: center; gap: 8px; }
+.uml { min-width: 230px; border: 2px solid var(--ink); border-radius: 8px; background: var(--surface); font-family: var(--font-code); font-size: calc((16px) * var(--fz, 1)); overflow: hidden; }
+.uml-head { text-align: center; font-weight: 700; padding: 6px 12px; background: var(--surface-2); border-bottom: 2px solid var(--ink); color: var(--ty); }
+.uml-sec { padding: 6px 12px; line-height: 1.6; }
+.uml-sec + .uml-sec { border-top: 2px solid var(--ink); }
+.uml-empty { min-height: 18px; }
+.uml-new { background: var(--next); margin: 0 -12px; padding: 0 12px; }
+.uml-say { font-size: calc((15px) * var(--fz, 1)); color: var(--ink-2); text-align: center; margin: 0; }
+
 </style>
 </head>
 <body>
@@ -243,9 +253,10 @@ body { overflow-anchor: none; }
       <ul class="goals">
         <li>Die Oberfläche von JPad und die Glühbirne kennenlernen</li>
         <li>Die Grunddatentypen <code>String</code>, <code>Integer</code>, <code>Double</code> und <code>Boolean</code> auffrischen</li>
-        <li>Mit Bausteinen eine Klasse, ein Attribut und eine Methode bauen</li>
-        <li>Ein Objekt erzeugen, das Programm starten und Schritt für Schritt zusehen</li>
-        <li>Haltepunkte setzen und das Objektdiagramm lesen</li>
+        <li>Mit Bausteinen eine Klasse mit Attributen und einer Methode bauen</li>
+        <li>Hunde-Objekte erzeugen und ihre Methode aufrufen</li>
+        <li>Schritt für Schritt zusehen und Klassen- und Objektkarten lesen</li>
+        <li>Code aus dem Lernpfad übernehmen und eigenen Code für eine Abgabe kopieren</li>
       </ul>
     </div>
     <div class="hero-art" role="img" aria-label="Pixelbild: Ein brauner Hund mit roter Halskette sitzt auf einer Wiese unter einem Abendhimmel."><svg id="dogArt" viewBox="0 0 24 24" shape-rendering="crispEdges"></svg></div>
@@ -256,7 +267,7 @@ body { overflow-anchor: none; }
 <nav class="trail" aria-label="Stationen">
   <div class="wrap trail-inner">
     <div class="trail-stops" id="trailStops"></div>
-    <div class="trail-count" id="trailCount">0 / 10</div>
+    <div class="trail-count" id="trailCount">0 / 9</div>
   </div>
 </nav>
 
@@ -304,40 +315,78 @@ body { overflow-anchor: none; }
 
 <!-- ================= 3 ================= -->
 <section class="station" id="s3" data-station="3">
-  <div class="station-head"><div class="badge">3</div><div><small>Baustein „Klasse“</small><h2>Die Klasse Hund</h2></div></div>
-  <p>Eine <strong>Klasse</strong> ist ein Bauplan. Sie legt fest, welche Eigenschaften (<strong>Attribute</strong>) und Fähigkeiten (<strong>Methoden</strong>) alle Objekte dieser Art haben. Jeder Hund hat einen Namen und ein Alter. Das sind die ersten beiden Attribute:</p>
-  <div class="code" data-file="Attribute für die Klasse Hund" data-src="attrs"></div>
+  <div class="station-head"><div class="badge">3</div><div><small>Bausteine „Klasse“ und „Attribut“</small><h2>Ein Bauplan für viele Hunde</h2></div></div>
+  <p>Bello, Cara, Maja … Jeder Hund ist anders, aber alle haben dieselben Eigenschaften: einen <strong>Namen</strong>, ein <strong>Alter</strong> und die Angabe, ob sie <strong>stubenrein</strong> sind. Statt jeden Hund einzeln zu beschreiben, programmierst du einmal einen <strong>Bauplan</strong>. Nach diesem Bauplan kann JPad danach beliebig viele Hunde bauen.</p>
+  <p>So einen Bauplan nennt man <strong>Klasse</strong>. Man zeichnet ihn als <strong>Klassenkarte</strong>: oben der Name der Klasse, darunter ihre Eigenschaften, die <strong>Attribute</strong>, jeweils mit Datentyp.</p>
+  <div class="umlwrap">
+    <div class="uml" aria-label="Klassenkarte Hund mit den Attributen name vom Typ String, alter vom Typ Integer und istStubenrein vom Typ Boolean">
+      <div class="uml-head">Hund</div>
+      <div class="uml-sec">
+        <div>name: <span class="t-ty">String</span></div>
+        <div>alter: <span class="t-ty">Integer</span></div>
+        <div>istStubenrein: <span class="t-ty">Boolean</span></div>
+      </div>
+      <div class="uml-sec uml-empty"></div>
+    </div>
+    <p class="uml-say">Die Klassenkarte <code>Hund</code> mit drei Attributen. Das untere Fach ist noch leer, dort stehen später die Methoden.</p>
+  </div>
+  <p>Diese Klassenkarte baust du jetzt in JPad, ganz ohne Tippen: nur mit Bausteinen.</p>
+  <h3>Die Klasse anlegen</h3>
   <ol class="steps">
-    <li><div>Tippe oben auf <span class="ui">Kopieren</span>.</div></li>
     <li><div>Tippe in JPad links auf den Baustein <span class="ui">Klasse</span>.</div></li>
     <li><div>Gib als Namen <code>Hund</code> ein, mit großem H. Klassennamen beginnen immer mit einem Großbuchstaben.</div></li>
-    <li><div>Tippe auf <span class="ui">Klasse als Datei anlegen</span>. Oben erscheint ein neuer Reiter <span class="ui">Hund</span> mit dem Klassengerüst. Der Cursor blinkt schon in der leeren Zeile zwischen den geschweiften Klammern.</div></li>
-    <li><div>Halte den Finger in diese leere Zeile und wähle <span class="ui">Einsetzen</span>.</div></li>
+    <li><div>Tippe auf <span class="ui">Klasse als Datei anlegen</span>. Oben erscheint ein neuer Reiter <span class="ui">Hund</span> mit dem Klassengerüst. Der Cursor blinkt schon zwischen den geschweiften Klammern.</div></li>
   </ol>
   <figure><img class="shot" src="img/klasse-dialog.jpg" width="1180" height="820" alt="Der Dialog Neue Klasse in JPad: Name Hund, darunter die Knöpfe Klasse als Datei anlegen und Klasse hier einfügen, rechts eine Skizze zu Klassen und Objekten." loading="lazy">
     <figcaption>Der Baustein <span class="ui">Klasse</span> fragt nach dem Namen. Rechts erklärt eine kleine Skizze, was eine Klasse ist.</figcaption></figure>
-  <p>So sieht deine Datei <code>Hund</code> danach aus:</p>
+  <h3>Die drei Attribute einfügen</h3>
+  <ol class="steps">
+    <li><div>Tippe auf den Baustein <span class="ui">Attribut</span>. Wähle als Datentyp <code>String</code> und gib den Namen <code>name</code> ein. Unten zeigt dir die <span class="ui">Vorschau</span>, was eingefügt wird. Tippe auf <span class="ui">Einfügen</span>.</div></li>
+    <li><div>Noch einmal <span class="ui">Attribut</span>: Datentyp <code>Integer</code>, Name <code>alter</code>.</div></li>
+    <li><div>Und ein drittes Mal: Datentyp <code>Boolean</code>, Name <code>istStubenrein</code>. Ein Hund ist entweder stubenrein (<code>true</code>) oder nicht (<code>false</code>).</div></li>
+  </ol>
+  <p>JPad setzt jedes neue Attribut unter die anderen, egal wo der Cursor gerade steht. So sieht deine Datei <code>Hund</code> danach aus:</p>
   <div class="code" data-file="Hund.java" data-src="hund1" data-nocopy></div>
-  <div class="note"><span class="note-title">Gut zu wissen</span><p>JPad rückt den Code beim Einfügen von Bausteinen automatisch ein. Sieht dein Code trotzdem einmal unordentlich aus, tippe oben auf <span class="ui">Code formatieren</span>.</p></div>
+  <div class="task">
+    <div class="task-head">Kurz nachgedacht</div>
+    <div class="task-body">
+      <p><strong>a)</strong> Vergleiche den Code mit der Klassenkarte. Was steht im Code vorne, was auf der Karte hinten?</p>
+      <details class="reveal"><summary>Lösung anzeigen</summary><div class="answer">Im Code steht der <strong>Datentyp vorne</strong> und der Name dahinter: <code>String name;</code>. Auf der Klassenkarte ist es umgekehrt: <code>name: String</code>. Gemeint ist beide Male dasselbe.</div></details>
+      <p><strong>b)</strong> Warum heißt das Attribut <code>istStubenrein</code> und nicht einfach <code>stubenrein</code>?</p>
+      <details class="reveal"><summary>Lösung anzeigen</summary><div class="answer">Beides wäre erlaubt. Mit „ist…“ liest sich ein <code>Boolean</code> wie eine Ja-Nein-Frage: <em>Ist Bello stubenrein? – true.</em> Namen von Attributen beginnen immer mit einem Kleinbuchstaben, jedes weitere Wort mit einem Großbuchstaben.</div></details>
+    </div>
+  </div>
+  <div class="note"><span class="note-title">Vertippt?</span><p>Mit dem Stift oben in der Kopfzeile (<span class="ui">Umbenennen</span>) kannst du einen falschen Namen überall auf einmal korrigieren. Und mit <span class="ui">Rückgängig</span> nimmst du den letzten Schritt zurück.</p></div>
   <div class="done-row"><label class="done"><input type="checkbox" data-done="3"> Station erledigt</label></div>
 </section>
 
 <!-- ================= 4 ================= -->
 <section class="station" id="s4" data-station="4">
-  <div class="station-head"><div class="badge">4</div><div><small>Baustein „Attribut“</small><h2>Ist Bello stubenrein?</h2></div></div>
-  <p>Ob ein Hund allein daheim bleiben darf, hängt davon ab, ob er <strong>stubenrein</strong> ist. Dafür bekommt die Klasse ein drittes Attribut. Diesmal ohne Kopieren, mit dem Baustein:</p>
+  <div class="station-head"><div class="badge">4</div><div><small>Baustein „Variable“</small><h2>Bello und Cara werden gebaut</h2></div></div>
+  <p>Die Klasse ist nur der Bauplan. Damit es einen echten Hund gibt, musst du ein <strong>Objekt</strong> erzeugen. Das passiert im <span class="ui">Hauptprogramm</span>, dem Reiter ganz links. Dort startet dein Programm.</p>
+  <h3>Hund h1: Bello</h3>
   <ol class="steps">
-    <li><div>Tippe links auf den Baustein <span class="ui">Attribut</span>.</div></li>
-    <li><div>Wähle als Datentyp <code>Boolean</code>. Ein Hund ist entweder stubenrein (<code>true</code>) oder nicht (<code>false</code>).</div></li>
-    <li><div>Gib als Namen <code>istStubenrein</code> ein und tippe auf <span class="ui">Einfügen</span>.</div></li>
+    <li><div>Tippe oben auf den Reiter <span class="ui">Hauptprogramm</span>.</div></li>
+    <li><div>Tippe auf den Baustein <span class="ui">Variable</span>. Wähle unter <span class="ui">Eigene Klassen</span> den Datentyp <code>Hund</code> und gib den Namen <code>h1</code> ein.</div></li>
+    <li><div>Unter <span class="ui">Verfügbare Konstruktoren</span> ist schon <code>new Hund()</code> ausgewählt. Die <span class="ui">Vorschau</span> zeigt <code>Hund h1 = new Hund();</code> Tippe auf <span class="ui">Einfügen</span>. Erst jetzt gibt es diesen Hund wirklich.</div></li>
+    <li><div>Gehe ans Ende der Zeile, beginne eine neue Zeile und tippe <code>h1.</code> (mit Punkt). JPad schlägt dir jetzt die Attribute des Hundes vor. Wähle <code>name</code> und schreibe weiter, bis dasteht: <code>h1.name = "Bello";</code></div></li>
+    <li><div>Genauso in zwei weiteren Zeilen: Bello ist <strong>3 Jahre</strong> alt und <strong>stubenrein</strong>.</div></li>
   </ol>
-  <p>JPad setzt das neue Attribut unter die anderen Attribute, egal wo der Cursor gerade steht:</p>
-  <div class="code" data-file="Hund.java" data-src="hund2" data-mark="4-4" data-nocopy></div>
+  <div class="code" data-file="Hauptprogramm.java" data-src="mainH1" data-nocopy></div>
+  <div class="note"><span class="note-title">Der Punkt</span><p><code>h1.name</code> bedeutet: das Attribut <code>name</code> <em>des Hundes</em> <code>h1</code>. Texte stehen in Anführungszeichen, Zahlen und <code>true</code>/<code>false</code> nicht.</p></div>
+  <h3>Hund h2: Cara</h3>
   <div class="task">
-    <div class="task-head">Kurz nachgedacht</div>
+    <div class="task-head">Jetzt du</div>
     <div class="task-body">
-      <p>Warum heißt das Attribut <code>istStubenrein</code> und nicht einfach <code>stubenrein</code>?</p>
-      <details class="reveal"><summary>Lösung anzeigen</summary><div class="answer">Beides wäre erlaubt. Mit „ist…“ liest sich ein <code>Boolean</code> wie eine Ja-Nein-Frage: <em>Ist Bello stubenrein? – true.</em> Das macht den Code leichter lesbar. Namen von Attributen beginnen immer mit einem Kleinbuchstaben, jedes weitere Wort mit einem Großbuchstaben.</div></details>
+      <p>Lege darunter einen zweiten Hund <code>h2</code> an. Sie heißt <strong>Cara</strong>, ist schon <strong>16 Jahre</strong> alt und <strong>nicht mehr stubenrein</strong>.</p>
+      <details class="reveal"><summary>Lösung anzeigen</summary><div class="answer"><div class="code" data-file="Hauptprogramm.java" data-src="mainH2" data-nocopy></div><p>Beide Hunde wurden nach demselben Bauplan gebaut, haben aber eigene Werte.</p></div></details>
+    </div>
+  </div>
+  <div class="task">
+    <div class="task-head">Denkaufgabe</div>
+    <div class="task-body">
+      <p>Du möchtest auch den Welpen <strong>Maja</strong> anlegen. Sie ist erst ein <strong>halbes Jahr</strong> alt. Was müsstest du im Code ändern?</p>
+      <details class="reveal"><summary>Lösung anzeigen</summary><div class="answer"><p>Ein halbes Jahr ist <code>0.5</code>, also eine Kommazahl. In ein <code>Integer</code> passen aber nur ganze Zahlen. Das Attribut <code>alter</code> müsste deshalb in der Klasse <code>Hund</code> den Datentyp <code>Double</code> bekommen: <code>Double alter;</code></p><p>Dann ginge <code>h3.alter = 0.5;</code>, mit Punkt statt Komma. Die anderen Hunde dürften weiter <code>3</code> und <code>16</code> haben, denn ganze Zahlen passen auch in ein <code>Double</code>.</p></div></details>
     </div>
   </div>
   <div class="done-row"><label class="done"><input type="checkbox" data-done="4"> Station erledigt</label></div>
@@ -345,57 +394,76 @@ body { overflow-anchor: none; }
 
 <!-- ================= 5 ================= -->
 <section class="station" id="s5" data-station="5">
-  <div class="station-head"><div class="badge">5</div><div><small>Neu</small><h2>Was ist eine Methode?</h2></div></div>
+  <div class="station-head"><div class="badge">5</div><div><small>Wiederholung</small><h2>Was ist eine Methode?</h2></div></div>
   <p>Attribute beschreiben, was ein Hund <em>hat</em>. <strong>Methoden</strong> beschreiben, was ein Hund <em>kann</em>. Eine Methode ist ein Stück Code mit einem Namen. Ruft man sie auf, wird ihr Code ausgeführt.</p>
   <p>Eine Methode hat einen <strong>Kopf</strong> und einen <strong>Rumpf</strong> in geschweiften Klammern. Tippe auf die Teile des Methodenkopfs:</p>
   <div class="anatomy">
     <div class="anatomy-line" id="anatomy">
       <button class="part" type="button" data-p="ret">void</button>
-      <button class="part" type="button" data-p="name">kannAlleinDaheimSein</button>
+      <button class="part" type="button" data-p="name">kannAlleineBleiben</button>
       <button class="part" type="button" data-p="params">()</button>
       <span>{ … }</span>
     </div>
     <p class="anatomy-say" id="anatomySay">Tippe auf ein Teil.</p>
   </div>
-  <p>Unsere Methode soll prüfen, ob der Hund stubenrein ist, und das Ergebnis ausgeben. Dafür braucht sie eine <strong>Verzweigung</strong> mit <code>if</code> und <code>else</code>: <em>Wenn</em> die Bedingung wahr ist, läuft der erste Teil, <em>sonst</em> der zweite.</p>
-  <div class="code" data-file="So soll die Methode am Ende aussehen" data-src="method" data-nocopy></div>
+  <p>Unsere Hunde sollen sagen können, ob man sie alleine daheim lassen kann. Dafür bekommt die Klassenkarte im unteren Fach eine Methode:</p>
+  <div class="umlwrap">
+    <div class="uml" aria-label="Klassenkarte Hund mit den Attributen name, alter, istStubenrein und der Methode kannAlleineBleiben">
+      <div class="uml-head">Hund</div>
+      <div class="uml-sec">
+        <div>name: <span class="t-ty">String</span></div>
+        <div>alter: <span class="t-ty">Integer</span></div>
+        <div>istStubenrein: <span class="t-ty">Boolean</span></div>
+      </div>
+      <div class="uml-sec"><div class="uml-new"><span class="t-fn">kannAlleineBleiben</span>(): <span class="t-kw">void</span></div></div>
+    </div>
+  </div>
+  <div class="quiz" data-quiz="method"></div>
   <div class="done-row"><label class="done"><input type="checkbox" data-done="5"> Station erledigt</label></div>
 </section>
 
 <!-- ================= 6 ================= -->
 <section class="station" id="s6" data-station="6">
   <div class="station-head"><div class="badge">6</div><div><small>Bausteine „Methode“, „if – else“, „println“</small><h2>Die Methode bauen</h2></div></div>
-  <p>Jetzt baust du die Methode in der Klasse <code>Hund</code>, Baustein für Baustein. Achte darauf, dass der Reiter <span class="ui">Hund</span> geöffnet ist.</p>
+  <h3>Das Methodengerüst</h3>
   <ol class="steps">
+    <li><div>Die Methode gehört zum Bauplan. Wechsle deshalb oben in den Reiter <span class="ui">Hund</span>.</div></li>
     <li><div>Tippe auf den Baustein <span class="ui">Methode</span>. Es öffnet sich der Dialog „Baue Deine neue Methode“.</div></li>
-    <li><div>Gib als Namen <code>kannAlleinDaheimSein</code> ein. Bei der Frage nach der Rückgabe bleibt <code>void</code> stehen. Parameter brauchst du keine, lass das Feld „So heißt der Parameter“ also leer. Tippe auf <span class="ui">Einfügen</span>.</div></li>
-    <li><div>Die leere Methode steht jetzt am Ende der Klasse, der Cursor blinkt in ihrem Rumpf. Tippe auf den Baustein <span class="ui">if – else</span>.</div></li>
+    <li><div>Gib als Namen <code>kannAlleineBleiben</code> ein. Bei der Frage nach der Rückgabe bleibt <code>void</code> stehen, denn die Methode gibt nur etwas aus. Parameter brauchst du keine. Tippe auf <span class="ui">Einfügen</span>.</div></li>
+  </ol>
+  <figure><img class="shot" src="img/methode-dialog.jpg" width="1180" height="820" alt="Der Dialog Baue Deine neue Methode in JPad mit dem Namen kannAlleineBleiben und der Rückgabe void. Rechts eine animierte Skizze." loading="lazy">
+    <figcaption>Der Methoden-Dialog. Die Skizze rechts zeigt, wie Parameter hinein- und Rückgabewerte herauswandern. Du kannst sie oben ausblenden.</figcaption></figure>
+  <div class="task">
+    <div class="task-head">Hat alles geklappt?</div>
+    <div class="task-body">
+      <p>Unter den Attributen sollte jetzt, mit einer Leerzeile Abstand, das leere Methodengerüst stehen.</p>
+      <details class="reveal"><summary>So sieht es aus</summary><div class="answer"><div class="code" data-file="Hund.java" data-src="hund2" data-mark="6-8" data-nocopy></div></div></details>
+    </div>
+  </div>
+  <h3>Der Rumpf: eine Verzweigung</h3>
+  <p>Die Methode soll prüfen, ob der Hund stubenrein ist. <em>Wenn</em> ja, sagt sie, dass er alleine bleiben kann, <em>sonst</em> nicht. So eine Verzweigung baust du mit <code>if</code> und <code>else</code>. Schau dir zuerst an, wie der fertige Rumpf aussehen soll:</p>
+  <details class="reveal"><summary>Fertigen Code der Methode aufdecken</summary><div class="answer"><div class="code" data-file="Hund.java (Methode)" data-src="method" data-nocopy></div></div></details>
+  <p>Diesen Code baust du jetzt mit Bausteinen nach:</p>
+  <ol class="steps">
+    <li><div>Der Cursor blinkt im Rumpf der leeren Methode. Tippe auf den Baustein <span class="ui">if – else</span>.</div></li>
     <li><div>Das Wort <code>Bedingung</code> ist markiert. Tippe einfach los und ersetze es durch <code>istStubenrein == true</code>.</div></li>
     <li><div>Platziere jetzt mit Finger, Maus oder Tastatur den Cursor im Rumpf der if-Anweisung (also innerhalb der geschweiften Klammern).</div></li>
-    <li><div>Tippe auf den Baustein <span class="ui">println</span> und schreibe in die Klammern: <code>name + " darf allein daheim bleiben."</code></div></li>
+    <li><div>Tippe auf den Baustein <span class="ui">println</span> und schreibe in die Klammern: <code>name + " kann alleine bleiben."</code></div></li>
     <li><div>Platziere den Cursor genauso im Rumpf von <code>else</code>, also in der leeren Zeile zwischen <code>} else {</code> und <code>}</code>.</div></li>
-    <li><div>Noch einmal <span class="ui">println</span>, diesmal mit <code>name + " muss noch üben."</code></div></li>
+    <li><div>Noch einmal <span class="ui">println</span>, diesmal mit <code>name + " sollte nicht alleine bleiben."</code></div></li>
   </ol>
-  <figure><img class="shot" src="img/methode-dialog.jpg" width="1180" height="820" alt="Der Dialog Baue Deine neue Methode in JPad mit dem Namen kannAlleinDaheimSein, Rückgabe void und ohne Parameter. Rechts eine animierte Skizze." loading="lazy">
-    <figcaption>Der Methoden-Dialog. Die Skizze rechts zeigt, wie Parameter hinein- und Rückgabewerte herauswandern. Du kannst sie oben ausblenden.</figcaption></figure>
-  <p>Wenn alles geklappt hat, sieht deine Klasse so aus. Vergleiche genau, oder kopiere die Lösung, falls etwas schiefgegangen ist:</p>
-  <div class="code" data-file="Hund.java" data-src="hund3"></div>
   <div class="note warn"><span class="note-title">Rot unterstrichen?</span><p>JPad prüft deinen Code schon beim Schreiben. Eine rote Wellenlinie zeigt einen Fehler. Was nicht stimmt, siehst du rechts in der Ansicht <span class="ui">Probleme</span>. Tippst du dort auf einen Fehler, springt JPad an die richtige Stelle.</p></div>
-  <div class="done-row"><label class="done"><input type="checkbox" data-done="6"> Station erledigt</label></div>
-</section>
-
-<!-- ================= 7 ================= -->
-<section class="station" id="s7" data-station="7">
-  <div class="station-head"><div class="badge">7</div><div><small>Baustein „Variable“</small><h2>Bello wird gebaut</h2></div></div>
-  <p>Die Klasse ist nur der Bauplan. Damit es einen echten Hund gibt, musst du ein <strong>Objekt</strong> erzeugen. Das passiert im <span class="ui">Hauptprogramm</span>, dem Reiter ganz links.</p>
+  <h3>Die Methode aufrufen</h3>
   <ol class="steps">
-    <li><div>Tippe oben auf den Reiter <span class="ui">Hauptprogramm</span>.</div></li>
-    <li><div>Tippe auf den Baustein <span class="ui">Variable</span>. Wähle unter <span class="ui">Eigene Klassen</span> den Datentyp <code>Hund</code> und gib den Namen <code>bello</code> ein.</div></li>
-    <li><div>Unter <span class="ui">Verfügbare Konstruktoren</span> ist schon <code>new Hund()</code> ausgewählt. Die Klasse hat keinen eigenen Konstruktor, deshalb gibt es nur diesen Standardkonstruktor. Unten zeigt die <span class="ui">Vorschau</span>, was eingefügt wird: <code>Hund bello = new Hund();</code> Tippe auf <span class="ui">Einfügen</span>. Erst jetzt gibt es Bello wirklich.</div></li>
-    <li><div>Kopiere die folgenden Zeilen und setze sie in eine neue Zeile darunter ein. Sie füllen Bellos Attribute und rufen seine Methode auf.</div></li>
+    <li><div>Wechsle in den Reiter <span class="ui">Hauptprogramm</span> und gehe ans Ende.</div></li>
+    <li><div>Schreibe in eine neue Zeile <code>h1.</code> und wähle aus den Vorschlägen <code>kannAlleineBleiben()</code>. Schließe mit <code>;</code> ab.</div></li>
+    <li><div>Darunter dasselbe für <code>h2</code>.</div></li>
+    <li><div>Starte dein Programm mit <span class="key key-run" aria-label="Start">▶</span> oben rechts.</div></li>
   </ol>
-  <div class="code" data-file="Hauptprogramm.java (ab Zeile 2)" data-src="mainRest"></div>
-  <p>Starte dein Programm mit <span class="key key-run" aria-label="Start">▶</span> oben rechts.</p>
+  <div class="code" data-file="Hauptprogramm.java (Ende)" data-src="calls" data-nocopy></div>
+  <h3>Die Ausgabe</h3>
+  <p>Alles, was dein Programm mit <code>println</code> schreibt, erscheint in der Ansicht <span class="ui">Ausgabe</span> rechts. Jeder Hund antwortet mit seinem eigenen Namen, denn <code>name</code> ist jeweils das Attribut des Hundes, dessen Methode gerade läuft:</p>
+  <div class="code"><div class="code-head"><span class="fname">Ausgabe</span></div><pre><span class="ln" data-n="">Bello kann alleine bleiben.</span><span class="ln" data-n="">Cara sollte nicht alleine bleiben.</span></pre></div>
   <div class="note rule"><span class="note-title">Und wo ist jetzt der Lernpfad?</span>
     <p>Beim Start schaltet JPad die rechte Ansicht auf <span class="ui">Ausgabe</span>, damit du sofort siehst, was dein Programm schreibt. Der Lernpfad ist nicht weg, er liegt nur dahinter.</p>
     <ul>
@@ -403,91 +471,91 @@ body { overflow-anchor: none; }
       <li><strong>iPad hochkant:</strong> Tippe unten in der Leiste auf <span class="ui">Lernpfad</span>, und mit <span class="ui">Code</span> kommst du zurück zum Editor.</li>
     </ul>
   </div>
-  <p>In der Ausgabe sollte stehen:</p>
-  <div class="code"><div class="code-head"><span class="fname">Ausgabe</span></div><pre><span class="ln" data-n="">Bello darf allein daheim bleiben.</span></pre></div>
   <div class="task">
-    <div class="task-head">Experimente</div>
+    <div class="task-head">Experiment</div>
     <div class="task-body">
-      <p><strong>a)</strong> Ändere im Hauptprogramm <code>true</code> in <code>false</code> und starte noch einmal. Was gibt Bello jetzt aus?</p>
-      <details class="reveal"><summary>Lösung anzeigen</summary><div class="answer"><code>Bello muss noch üben.</code> Die Bedingung <code>istStubenrein == true</code> ist jetzt falsch, deshalb läuft der <code>else</code>-Teil.</div></details>
-      <p><strong>b)</strong> Lege einen zweiten Hund <code>wuffi</code> an, der 1 Jahr alt und nicht stubenrein ist, und lass auch ihn antworten.</p>
-      <details class="reveal"><summary>Lösung anzeigen</summary><div class="answer"><div class="code" data-file="Hauptprogramm.java (Ergänzung)" data-src="wuffi"></div><p>Beide Hunde wurden nach demselben Bauplan gebaut, haben aber eigene Werte. Deshalb antworten sie verschieden.</p></div></details>
+      <p>Cara bekommt Hilfe vom Hundetrainer. Setze im Hauptprogramm <code>h2.istStubenrein</code> auf <code>true</code> und starte noch einmal. Was sagt Cara jetzt?</p>
+      <details class="reveal"><summary>Lösung anzeigen</summary><div class="answer"><code>Cara kann alleine bleiben.</code> Die Bedingung <code>istStubenrein == true</code> ist jetzt auch für Cara wahr, deshalb läuft der <code>if</code>-Teil. Stell den Wert danach wieder auf <code>false</code>.</div></details>
     </div>
   </div>
+  <div class="done-row"><label class="done"><input type="checkbox" data-done="6"> Station erledigt</label></div>
+</section>
+
+<!-- ================= 7 ================= -->
+<section class="station" id="s7" data-station="7">
+  <div class="station-head"><div class="badge">7</div><div><small>Zuschauen</small><h2>Schritt für Schritt im Diagramm</h2></div></div>
+  <p>Mit <span class="key key-run" aria-label="Start">▶</span> läuft dein Programm in einem Rutsch durch. Mit dem Knopf <span class="ui">Schritt</span> kannst du ihm dagegen beim Arbeiten zusehen, Zeile für Zeile. Am besten siehst du das im <strong>Diagramm</strong>.</p>
+  <ol class="steps">
+    <li><div>Öffne rechts die Ansicht <span class="ui">Diagramm</span> und tippe oben auf <span class="ui">Objekte</span>.</div></li>
+    <li><div>Tippe oben auf <span class="ui">Schritt</span>. Das Programm startet und hält sofort vor der ersten Zeile an. Diese Zeile ist <strong>gelb</strong> markiert: Sie ist als Nächstes dran.</div></li>
+    <li><div>Tippe weiter auf <span class="ui">Schritt</span> und beobachte das Diagramm: Erst taucht eine Karte <code>h1 : Hund</code> auf, alle Attribute noch <code>null</code> (leer). Dann bekommt Bello nach und nach Name, Alter und <code>istStubenrein</code>. Danach entsteht Cara.</div></li>
+    <li><div>Bei <code>h1.kannAlleineBleiben();</code> springt JPad mit dem nächsten Schritt in den Reiter <span class="ui">Hund</span>, direkt in die Methode. Du siehst, welcher Teil der Verzweigung ausgeführt wird.</div></li>
+  </ol>
+  <figure><img class="shot" src="img/schritt.jpg" width="1180" height="820" alt="JPad im Schritt-Modus: Im Hauptprogramm ist eine Zeile gelb markiert, rechts zeigt das Objektdiagramm die Karte h1 : Hund." loading="lazy">
+    <figcaption>Die gelbe Zeile ist als Nächstes dran. Rechts wächst das Objektdiagramm mit jedem Schritt.</figcaption></figure>
+  <h3>Klassenkarte oder Objektkarte?</h3>
+  <p>Tippe im Diagramm oben abwechselnd auf <span class="ui">Klassen</span> und <span class="ui">Objekte</span>.</p>
+  <div class="vs">
+    <div class="note"><span class="note-title">Klassenkarte (Klassen)</span><p>Zeigt den <strong>Bauplan</strong>: <code>Hund</code> mit den Attributen, ihren <strong>Datentypen</strong> und der Methode. Es gibt sie genau <strong>einmal</strong>.</p></div>
+    <div class="note"><span class="note-title">Objektkarte (Objekte)</span><p>Zeigt einen <strong>gebauten Hund</strong>: oben unterstrichen <code>h1 : Hund</code>, darunter die aktuellen <strong>Werte</strong>, zum Beispiel <code>name = "Bello"</code>. Es gibt so viele Objektkarten, wie Hunde gebaut wurden.</p></div>
+  </div>
+  <figure><img class="shot" src="img/objektdiagramm.jpg" width="1180" height="820" alt="JPad angehalten. Rechts das Objektdiagramm mit den Karten h1 : Hund (Bello, 3, true) und h2 : Hund (Cara, 16, false)." loading="lazy">
+    <figcaption>Zwei Objektkarten, ein Bauplan: Bello und Cara im Objektdiagramm.</figcaption></figure>
+  <h3>Abkürzung: der Haltepunkt</h3>
+  <p>Bei langen Programmen dauert es, mit <span class="ui">Schritt</span> bis zur spannenden Stelle zu kommen. Tippe stattdessen auf die <strong>Zeilennummer</strong> einer Zeile: Links erscheint ein oranger Punkt, ein <strong>Haltepunkt</strong>. Startest du jetzt mit <span class="key key-run" aria-label="Start">▶</span>, läuft das Programm normal los und hält erst vor dieser Zeile an. Noch einmal auf die Nummer tippen entfernt den Haltepunkt.</p>
+  <div class="note"><span class="note-title">Die kleinen Schritt-Knöpfe</span><p>Solange das Programm angehalten ist, erscheinen neben <span class="ui">Schritt</span> zwei weitere Knöpfe: <span class="ui">Methode überspringen</span> führt einen Methodenaufruf in einem einzigen Schritt aus, <span class="ui">Methode verlassen</span> läuft bis zum Ende der aktuellen Methode. Mit <span class="key" aria-label="Stopp">■</span> beendest du das Programm. Und weißt du nicht mehr, welcher Knopf was macht? Finger drauflegen!</p></div>
   <div class="done-row"><label class="done"><input type="checkbox" data-done="7"> Station erledigt</label></div>
 </section>
 
 <!-- ================= 8 ================= -->
 <section class="station" id="s8" data-station="8">
-  <div class="station-head"><div class="badge">8</div><div><small>Zuschauen</small><h2>Schritt für Schritt</h2></div></div>
-  <p>Mit <span class="key key-run" aria-label="Start">▶</span> läuft dein Programm in einem Rutsch durch. Mit dem Knopf <span class="ui">Schritt</span> kannst du ihm dagegen beim Arbeiten zusehen, Zeile für Zeile.</p>
+  <div class="station-head"><div class="badge">8</div><div><small>Kopieren</small><h2>Code übernehmen und abgeben</h2></div></div>
+  <p>Bisher hast du alles selbst gebaut. Manchmal gibt dir ein Lernpfad aber auch fertigen Code mit. Dann steht über dem Code ein Knopf <span class="ui">Kopieren</span>, wie hier: ein dritter Hund, <code>h3</code>.</p>
+  <div class="code" data-file="Hauptprogramm.java (Ergänzung)" data-src="h3"></div>
   <ol class="steps">
-    <li><div>Wechsle rechts zur Ansicht <span class="ui">Variablen</span>.</div></li>
-    <li><div>Tippe oben auf <span class="ui">Schritt</span>. Das Programm startet und hält sofort vor der ersten Zeile an. Diese Zeile ist <strong>gelb</strong> markiert: Sie ist als Nächstes dran.</div></li>
-    <li><div>Tippe weiter auf <span class="ui">Schritt</span> und beobachte die Ansicht <span class="ui">Variablen</span>: Erst taucht <code>bello</code> auf, dann bekommt er nach und nach seinen Namen, sein Alter und <code>istStubenrein</code>.</div></li>
-    <li><div>Bei <code>bello.kannAlleinDaheimSein();</code> springt JPad mit dem nächsten Schritt in den Reiter <span class="ui">Hund</span>, direkt in die Methode. Du siehst, welcher Teil der Verzweigung ausgeführt wird.</div></li>
+    <li><div>Tippe oben am Code auf <span class="ui">Kopieren</span>. Der Knopf zeigt kurz „Kopiert“.</div></li>
+    <li><div>Wechsle in JPad in den Reiter <span class="ui">Hauptprogramm</span> und setze den Cursor in eine neue, leere Zeile am Ende.</div></li>
+    <li><div>Halte den Finger in diese Zeile und wähle <span class="ui">Einsetzen</span>. Auf einer Tastatur geht auch <span class="key">⌘</span> + <span class="key">V</span>.</div></li>
+    <li><div>Starte das Programm. Was sagt Rex?</div></li>
   </ol>
-  <figure><img class="shot" src="img/schritt.jpg" width="1180" height="820" alt="JPad im Schritt-Modus: Im Hauptprogramm ist Zeile 2 gelb markiert, rechts zeigt die Ansicht Variablen bello, alle Attribute sind noch null." loading="lazy">
-    <figcaption>Zeile 1 ist ausgeführt, die gelbe Zeile 2 ist als Nächstes dran. Bello gibt es schon, aber alle Attribute sind noch <code>null</code> (leer).</figcaption></figure>
-  <div class="note"><span class="note-title">Die kleinen Schritt-Knöpfe</span><p>Solange das Programm angehalten ist, erscheinen neben <span class="ui">Schritt</span> zwei weitere Knöpfe: <span class="ui">Methode überspringen</span> führt einen Methodenaufruf in einem einzigen Schritt aus, <span class="ui">Methode verlassen</span> läuft bis zum Ende der aktuellen Methode. Mit <span class="key" aria-label="Stopp">■</span> beendest du das Programm. Und weißt du nicht mehr, welcher Knopf was macht? Finger drauflegen!</p></div>
+  <details class="reveal"><summary>Lösung anzeigen</summary><div class="answer"><code>Rex kann alleine bleiben.</code></div></details>
+  <h3>Deinen Code kopieren, zum Beispiel für eine Abgabe</h3>
+  <p>Oft sollst du deinen Code auf einer Lernplattform abgeben, etwa in einer Aufgabe in mebis. Dafür hat JPad oben in der Kopfzeile, gleich nach dem Projektnamen, zwei Kopier-Knöpfe:</p>
+  <div class="vs">
+    <div class="note"><span class="note-title"><span class="key" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="10" width="11" height="11" rx="2"/><path d="M17 10V8a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/><path d="M13 6V4a1.5 1.5 0 0 0-1.5-1.5H4.5A1.5 1.5 0 0 0 3 4v7a1.5 1.5 0 0 0 1.5 1.5H6"/></svg></span> Code aller Dateien kopieren</span><p>Kopiert den Code <strong>aller Reiter</strong> auf einmal, hier also <code>Hauptprogramm</code> und <code>Hund</code>. Das brauchst du, wenn das ganze Projekt abgegeben werden soll.</p></div>
+    <div class="note"><span class="note-title"><span class="key" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2"/><path d="M11.5 13l-1.5 1.5 1.5 1.5M16.5 13l1.5 1.5-1.5 1.5"/></svg></span> Code dieser Datei kopieren</span><p>Kopiert nur den Code des <strong>gerade geöffneten Reiters</strong>, zum Beispiel nur die Klasse <code>Hund</code>.</p></div>
+  </div>
+  <p>Danach wechselst du zur Lernplattform, hältst den Finger in das Antwortfeld und wählst <span class="ui">Einsetzen</span>. Unsicher, welcher Knopf welcher ist? Finger drauflegen, JPad erklärt es dir.</p>
   <div class="done-row"><label class="done"><input type="checkbox" data-done="8"> Station erledigt</label></div>
 </section>
 
 <!-- ================= 9 ================= -->
 <section class="station" id="s9" data-station="9">
-  <div class="station-head"><div class="badge">9</div><div><small>Haltepunkt und Diagramm</small><h2>Bello im Objektdiagramm</h2></div></div>
-  <p>Bei langen Programmen dauert es, mit <span class="ui">Schritt</span> bis zur spannenden Stelle zu kommen. Dafür gibt es <strong>Haltepunkte</strong>: Das Programm läuft normal los und hält erst an der markierten Zeile an.</p>
-  <ol class="steps">
-    <li><div>Tippe im <span class="ui">Hauptprogramm</span> auf die Zeilennummer der Zeile <code>bello.kannAlleinDaheimSein();</code>. Links neben der Nummer erscheint ein oranger Punkt: Hier ist jetzt ein Haltepunkt. Alternativ setzt du den Cursor in die Zeile und tippst in der Hilfsleiste auf <span class="key" aria-label="Haltepunkt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.2 3h7.6L21 8.2v7.6L15.8 21H8.2L3 15.8V8.2z"/><path d="M9 12h6"/></svg></span>.</div></li>
-    <li><div>Öffne rechts die Ansicht <span class="ui">Diagramm</span> und tippe oben auf <span class="ui">Objekte</span>.</div></li>
-    <li><div>Starte mit <span class="key key-run" aria-label="Start">▶</span>. Das Programm hält vor der markierten Zeile an.</div></li>
-    <li><div>Im Objektdiagramm siehst du jetzt Bello als Karte: oben <code>bello : Hund</code>, darunter alle Attribute mit ihren Werten.</div></li>
-  </ol>
-  <figure><img class="shot" src="img/objektdiagramm.jpg" width="1180" height="820" alt="JPad am Haltepunkt angehalten. Rechts das Objektdiagramm mit der Karte bello : Hund und den Attributen name = Bello, alter = 3, istStubenrein = true." loading="lazy">
-    <figcaption>Am Haltepunkt angehalten: Das Objektdiagramm zeigt Bello mit allen Attributen.</figcaption></figure>
-  <div class="task">
-    <div class="task-head">Beobachte</div>
-    <div class="task-body">
-      <p><strong>a)</strong> Tippe im Diagramm oben auf <span class="ui">Klassen</span>. Was ist der Unterschied zur Ansicht <span class="ui">Objekte</span>?</p>
-      <details class="reveal"><summary>Lösung anzeigen</summary><div class="answer">Das Klassendiagramm zeigt den <strong>Bauplan</strong>: die Klasse <code>Hund</code> mit ihren Attributen, deren Datentypen und der Methode. Das Objektdiagramm zeigt die <strong>gebauten Objekte</strong> mit ihren aktuellen Werten. Von einer Klasse kann es viele Objekte geben.</div></details>
-      <p><strong>b)</strong> Hast du in Station 7 auch Wuffi angelegt? Setze den Haltepunkt ans Ende des Programms. Wie viele Karten zeigt das Objektdiagramm?</p>
-      <details class="reveal"><summary>Lösung anzeigen</summary><div class="answer">Zwei: <code>bello : Hund</code> und <code>wuffi : Hund</code>. Jedes <code>new</code> baut genau ein Objekt.</div></details>
-    </div>
-  </div>
-  <p>Einen Haltepunkt entfernst du, indem du noch einmal auf die Zeilennummer tippst.</p>
-  <div class="done-row"><label class="done"><input type="checkbox" data-done="9"> Station erledigt</label></div>
-</section>
-
-<!-- ================= 10 ================= -->
-<section class="station" id="s10" data-station="10">
-  <div class="station-head"><div class="badge">10</div><div><small>Abschluss</small><h2>Das Wichtigste in vier Fragen</h2></div></div>
+  <div class="station-head"><div class="badge">9</div><div><small>Abschluss</small><h2>Das Wichtigste in vier Fragen</h2></div></div>
   <div class="quiz" data-quiz="final"></div>
-  <div class="note"><span class="note-title">Noch zwei Helfer für später</span>
-    <ul>
-      <li><span class="ui">Umbenennen</span> (der Stift neben Rückgängig): Gefällt dir ein Name nicht mehr, ändert JPad ihn überall im Projekt auf einmal.</li>
-      <li><span class="ui">Projekt sichern</span> (der Pfeil nach unten): Speichert dein Projekt als Datei, zum Beispiel in deinem ByCS-Ordner. Ein Punkt am Pfeil zeigt, dass es noch ungesicherte Änderungen gibt.</li>
-    </ul>
+  <div class="note"><span class="note-title">Noch ein Tipp zum Schluss</span>
+    <p><span class="ui">Projekt sichern</span> (der Pfeil nach unten oben in der Kopfzeile) speichert dein Projekt als Datei, zum Beispiel in deinem ByCS-Ordner. Ein Punkt am Pfeil zeigt, dass es noch ungesicherte Änderungen gibt. JPad speichert sonst nur hier im Browser.</p>
   </div>
-  <div class="done-row"><label class="done"><input type="checkbox" data-done="10"> Station erledigt</label></div>
+  <div class="done-row"><label class="done"><input type="checkbox" data-done="9"> Station erledigt</label></div>
 </section>
 
 </main>
 
 <footer class="wrap footer">
-  <p>Demo-Lernpfad zu JPad. Deine Häkchen werden mit dem Projekt auf diesem Gerät gemerkt. Du kannst das Demo-Projekt jederzeit über das Menü neu laden.</p>
+  <p>Demo-Lernpfad zu JPad. Deine Häkchen werden mit dem Projekt auf diesem Gerät gemerkt. Über das Menü (<span class="ui">Demo laden</span>) bekommst du jederzeit eine frische Kopie.</p>
 </footer>
 
 <script>
 (() => {
   // ---------- Quelltexte ----------
   const SRC = {
-    attrs: 'String name;\nInteger alter;',
-    hund1: 'class Hund {\n   String name;\n   Integer alter;\n}',
-    hund2: 'class Hund {\n   String name;\n   Integer alter;\n   Boolean istStubenrein;\n}',
-    method: 'void kannAlleinDaheimSein() {\n   if (istStubenrein == true) {\n      println(name + " darf allein daheim bleiben.");\n   } else {\n      println(name + " muss noch üben.");\n   }\n}',
-    hund3: 'class Hund {\n   String name;\n   Integer alter;\n   Boolean istStubenrein;\n\n   void kannAlleinDaheimSein() {\n      if (istStubenrein == true) {\n         println(name + " darf allein daheim bleiben.");\n      } else {\n         println(name + " muss noch üben.");\n      }\n   }\n}',
-    mainRest: 'bello.name = "Bello";\nbello.alter = 3;\nbello.istStubenrein = true;\nbello.kannAlleinDaheimSein();',
-    wuffi: 'Hund wuffi = new Hund();\nwuffi.name = "Wuffi";\nwuffi.alter = 1;\nwuffi.istStubenrein = false;\nwuffi.kannAlleinDaheimSein();'
+    hund1: 'class Hund {\n   String name;\n   Integer alter;\n   Boolean istStubenrein;\n}',
+    hund2: 'class Hund {\n   String name;\n   Integer alter;\n   Boolean istStubenrein;\n\n   void kannAlleineBleiben() {\n      \n   }\n}',
+    method: 'void kannAlleineBleiben() {\n   if (istStubenrein == true) {\n      println(name + " kann alleine bleiben.");\n   } else {\n      println(name + " sollte nicht alleine bleiben.");\n   }\n}',
+    mainH1: 'Hund h1 = new Hund();\nh1.name = "Bello";\nh1.alter = 3;\nh1.istStubenrein = true;',
+    mainH2: 'Hund h2 = new Hund();\nh2.name = "Cara";\nh2.alter = 16;\nh2.istStubenrein = false;',
+    calls: 'h1.kannAlleineBleiben();\nh2.kannAlleineBleiben();',
+    h3: 'Hund h3 = new Hund();\nh3.name = "Rex";\nh3.alter = 5;\nh3.istStubenrein = true;\nh3.kannAlleineBleiben();'
   };
 
   // ---------- Hervorhebung wie in JPad ----------
@@ -582,7 +650,7 @@ body { overflow-anchor: none; }
   // ---------- Methodenkopf zerlegen ----------
   const PARTS = {
     ret: "<b>Rückgabetyp:</b> <code>void</code> bedeutet „leer“: Die Methode tut etwas (sie gibt einen Satz aus), liefert aber keinen Wert zurück.",
-    name: "<b>Methodenname:</b> <code>kannAlleinDaheimSein</code>. Er beginnt mit einem Kleinbuchstaben und sagt, was die Methode tut. Aufgerufen wird sie mit <code>bello.kannAlleinDaheimSein();</code>",
+    name: "<b>Methodenname:</b> <code>kannAlleineBleiben</code>. Er beginnt mit einem Kleinbuchstaben und sagt, was die Methode tut. Aufgerufen wird sie mit <code>h1.kannAlleineBleiben();</code>",
     params: "<b>Parameterliste:</b> Die runden Klammern sind leer, die Methode braucht also keine zusätzlichen Angaben. Alles, was sie wissen muss, steht schon in den Attributen des Hundes."
   };
   const anatomy = document.getElementById("anatomy"), anatomySay = document.getElementById("anatomySay");
@@ -606,15 +674,21 @@ body { overflow-anchor: none; }
       { q: "Welcher Wert passt <strong>nicht</strong> in eine Variable vom Typ <code>Integer</code>?",
         o: [["<code>7</code>", false, "7 ist eine ganze Zahl und passt."], ["<code>-2</code>", false, "Auch negative ganze Zahlen passen in einen Integer."], ["<code>2.5</code>", true, "Richtig. 2.5 hat Nachkommastellen, dafür braucht man Double."], ["<code>0</code>", false, "0 ist eine ganze Zahl und passt."]] }
     ],
+    method: [
+      { q: "Was bedeutet <code>void</code> im Kopf einer Methode?",
+        o: [["Die Methode hat keine Parameter.", false, "Ob es Parameter gibt, steht in den runden Klammern."], ["Die Methode gibt keinen Wert zurück.", true, "Richtig. kannAlleineBleiben() schreibt etwas in die Ausgabe, liefert aber keinen Wert zurück."], ["Die Methode ist leer.", false, "Auch eine void-Methode kann viele Anweisungen enthalten."]] },
+      { q: "Wie ruft man die Methode für den Hund <code>h1</code> auf?",
+        o: [["<code>kannAlleineBleiben(h1);</code>", false, "Der Hund steht vorne, mit Punkt verbunden."], ["<code>h1.kannAlleineBleiben();</code>", true, "Richtig: Objekt, Punkt, Methodenname, runde Klammern, Semikolon."], ["<code>Hund.kannAlleineBleiben();</code>", false, "Hund ist der Bauplan. Aufgerufen wird die Methode an einem bestimmten Hund."]] }
+    ],
     final: [
       { q: "Was ist der Unterschied zwischen einer Klasse und einem Objekt?",
         o: [["Es gibt keinen, das sind zwei Wörter für dasselbe.", false, "Die Klasse ist der Bauplan, das Objekt das gebaute Ding."], ["Die Klasse ist der Bauplan, ein Objekt wird mit new danach gebaut.", true, "Richtig. Nach dem Bauplan Hund kannst du beliebig viele Hunde bauen."], ["Ein Objekt ist der Bauplan für Klassen.", false, "Andersherum: Die Klasse ist der Bauplan."]] },
-      { q: "Was bedeutet <code>void</code> im Kopf einer Methode?",
-        o: [["Die Methode hat keine Parameter.", false, "Ob es Parameter gibt, steht in den runden Klammern."], ["Die Methode gibt keinen Wert zurück.", true, "Richtig. kannAlleinDaheimSein() gibt etwas aus, liefert aber keinen Wert zurück."], ["Die Methode ist leer.", false, "Auch eine void-Methode kann viele Anweisungen enthalten."]] },
+      { q: "Welcher Datentyp passt für ein Alter von 0.5 Jahren?",
+        o: [["<code>Integer</code>", false, "Integer kann nur ganze Zahlen speichern."], ["<code>Double</code>", true, "Richtig. Kommazahlen sind Double, geschrieben mit Punkt."], ["<code>String</code>", false, "Dann wäre es nur Text, und man könnte nicht damit rechnen."]] },
+      { q: "Was zeigt eine <strong>Objektkarte</strong> im Diagramm?",
+        o: [["Die Datentypen der Attribute", false, "Die Datentypen stehen auf der Klassenkarte."], ["Einen gebauten Hund mit seinen aktuellen Werten", true, "Richtig, zum Beispiel h1 : Hund mit name = \"Bello\"."], ["Alle Methoden der Klassenbibliothek", false, "Die Objektkarte zeigt nur das eine Objekt."]] },
       { q: "Wie bekommst du schnell heraus, was ein Knopf in JPad tut?",
-        o: [["In der Anleitung nachlesen", false, "Geht schneller: Finger drauflegen."], ["Den Finger eine halbe Sekunde auf den Knopf legen", true, "Richtig. Daran erinnert dich die Glühbirne."], ["Einfach ausprobieren und hoffen", false, "Mit Finger-Auflegen bekommst du die Hilfe, ohne den Knopf auszulösen."]] },
-      { q: "Wozu ist ein Haltepunkt gut?",
-        o: [["Er beendet das Programm an dieser Stelle.", false, "Das Programm hält nur an. Mit Schritt oder ▶ geht es weiter."], ["Das Programm hält vor dieser Zeile an, und du kannst Variablen und Objekte ansehen.", true, "Richtig. So kommst du schnell an die spannende Stelle."], ["Er markiert Zeilen mit Fehlern.", false, "Fehler zeigt JPad mit roten Wellenlinien und in der Ansicht Probleme."]] }
+        o: [["In der Anleitung nachlesen", false, "Geht schneller: Finger drauflegen."], ["Den Finger eine halbe Sekunde auf den Knopf legen", true, "Richtig. Daran erinnert dich die Glühbirne."], ["Einfach ausprobieren und hoffen", false, "Mit Finger-Auflegen bekommst du die Hilfe, ohne den Knopf auszulösen."]] }
     ]
   };
   document.querySelectorAll("[data-quiz]").forEach(box => {
@@ -637,8 +711,8 @@ body { overflow-anchor: none; }
 
   // ---------- Schriftgröße ----------
   // Alle Schriftgrößen werden mit --fz multipliziert (siehe CSS); vor allem zum Verkleinern auf kleinen Geräten.
-  const FS_KEY = "jpad-demo-fz", STEPS = [0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.25, 1.4];
-  let zi = 4;
+  const FS_KEY = "jpad-demo-fz2", STEPS = [0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.25, 1.4];
+  let zi = 2;   // Standard 80 %
   try { const z = parseFloat(localStorage.getItem(FS_KEY)); if (STEPS.includes(z)) zi = STEPS.indexOf(z); } catch (e) { }
   const fsBtns = document.querySelectorAll(".fs-btn");
   function applyZoom() {
