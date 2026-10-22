@@ -2438,8 +2438,13 @@ html.phone .jp-topbar .jp-skinbtn { display: none; }
 
 /* Willkommen beim ersten Start */
 .jp-welcome { max-width: 520px; }
-.jp-welcome-mark { width: 52px; height: 52px; border-radius: 14px; background: var(--marker); color: var(--marker-ink); display: grid; place-items: center; font-weight: 800; font-size: 28px; margin-bottom: 10px; }
+.jp-welcome-head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.jp-welcome-head .jp-sheet-title { margin: 0; }
+.jp-welcome-mark { flex: none; width: 40px; height: 40px; border-radius: 11px; background: var(--marker); color: var(--marker-ink); display: grid; place-items: center; font-weight: 800; font-size: 22px; }
+.jp-sheet:has(.jp-welcome) { max-height: calc(100% - 24px); overflow-y: auto; }
 .jp-welcome p { margin: 0 0 10px; line-height: 1.5; }
 .jp-welcome ul { margin: 0 0 12px; padding-left: 20px; line-height: 1.45; }
-.jp-welcome li { margin: 6px 0; }
+.jp-welcome li { margin: 4px 0; }
 .jp-welcome-tip { padding: 10px 12px; border-radius: var(--radius-s); background: var(--marker-soft); }
+.jp-welcome-warn { padding: 10px 12px; border-radius: var(--radius-s); background: var(--danger-soft); border-left: 4px solid var(--danger); }
+.jp-welcome-warn b:first-child { color: var(--danger); }

@@ -640,8 +640,7 @@ export class Dialogs {
     welcome(): Promise<void> {
         return this.open(`
             <div class="jp-welcome">
-                <div class="jp-welcome-mark" aria-hidden="true">J</div>
-                <h2 class="jp-sheet-title">Willkommen bei JPad!</h2>
+                <div class="jp-welcome-head"><div class="jp-welcome-mark" aria-hidden="true">J</div><h2 class="jp-sheet-title">Willkommen bei JPad!</h2></div>
                 <p>JPad ist eine <b>Entwicklungsumgebung zum Java-Lernen</b>, die direkt im Browser läuft – ohne Installation und ohne Anmeldung.</p>
                 <ul>
                     <li><b>Für Finger gemacht:</b> große Knöpfe, eine Hilfsleiste mit allen Klammern und Zeichen, kein Mauszeiger nötig.</li>
@@ -650,6 +649,7 @@ export class Dialogs {
                 </ul>
                 <p>Rechts startet gerade der Lernpfad <b>„Bello lernt Java“</b>. Er führt dich durch die Oberfläche und deine erste eigene Klasse.</p>
                 <p class="jp-welcome-tip"><span aria-hidden="true">💡</span> Weißt du nicht, was ein Knopf tut? Lege eine halbe Sekunde den Finger darauf.</p>
+                <p class="jp-welcome-warn"><b>Achtung:</b> JPad speichert deine Projekte nur hier im Browser. Löschst du deine Browserdaten (Verlauf, Website-Daten), sind deine Projekte weg. <b>Sichere deine Projekte deshalb regelmäßig als Datei</b> – mit dem Pfeil nach unten oben in der Kopfzeile.</p>
             </div>
             <div class="jp-sheet-buttons"><button class="jp-btn jp-btn-primary" data-cancel>Los geht's</button></div>`, () => { });
     }
