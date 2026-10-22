@@ -21,6 +21,29 @@ export type ActionItem = { id: string, label: string, icon: string, danger?: boo
  * Dialoge als Bottom-Sheets (Handy) bzw. zentrierte Karten (Tablet).
  * Ersetzen prompt()/confirm(), die auf dem iPad unpassend aussehen.
  */
+/** Konstruktor eines Datentyps für den Variablen-Dialog */
+export type VarCtor = { params: { type: string, name: string }[] };
+export type VariableResult = {
+    type: string, name: string, array: boolean, count?: number,
+    declOnly: boolean, value?: string, ctor?: VarCtor
+};
+
+/** Einfaches Syntax-Highlighting für die Vorschau einer Java-Zeile (Farben wie im Editor) */
+export function highlightJava(code: string): string {
+    const KW = new Set(["new", "true", "false", "null", "this", "class", "void", "return", "if", "else", "while", "for"]);
+    const re = /("(?:[^"\\]|\\.)*"?|'(?:[^'\\]|\\.)*'?)|(\b\d+(?:\.\d+)?\b)|([A-Za-z_ÄÖÜäöüß][\wÄÖÜäöüß]*)|(\s+)|([^\sA-Za-z_\d"']+)/g;
+    let out = "", m: RegExpExecArray | null;
+    while ((m = re.exec(code))) {
+        if (m[1]) out += `<span class="pv-str">${escapeHtml(m[1])}</span>`;
+        else if (m[2]) out += `<span class="pv-num">${m[2]}</span>`;
+        else if (m[3]) {
+            const w = m[3];
+            out += KW.has(w) ? `<span class="pv-kw">${w}</span>` : /^[A-ZÄÖÜ]/.test(w) ? `<span class="pv-ty">${w}</span>` : w;
+        } else out += escapeHtml(m[0]);
+    }
+    return out;
+}
+
 export class Dialogs {
 
     constructor(private root: HTMLElement) { }
@@ -204,6 +227,109 @@ export class Dialogs {
                 const msg = o.validate(select.value, input.value);
                 if (msg) { error.textContent = msg; input.focus(); return; }
                 close({ id: select.value, name: input.value.trim() });
+            });
+        });
+    }
+
+    /**
+     * JPadBlox: Baustein „Variable“. Datentyp wählen, Namen eingeben und
+     * - bei Grundtypen einen Wert, der zugewiesen wird (leer = nur Deklaration),
+     * - bei anderen Datentypen einen der verfügbaren Konstruktoren (oder „nur Deklaration“),
+     * - oder per Häkchen ein Array anlegen.
+     * Über den Knöpfen steht die Vorschau der Anweisung, die eingefügt wird (build liefert sie).
+     */
+    variable(o: {
+        groups: { label: string, items: string[] }[],
+        basicTypes: string[],
+        constructors: (type: string) => VarCtor[],
+        build: (r: VariableResult) => string,
+        validate: (name: string) => string | null
+    }): Promise<VariableResult | null> {
+        const options = o.groups.filter(g => g.items.length > 0).map(g =>
+            `<optgroup label="${escapeHtml(g.label)}">${g.items.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("")}</optgroup>`
+        ).join("");
+        const PLACEHOLDER: Record<string, string> = { String: "z. B. Bello", Integer: "z. B. 3", Double: "z. B. 12.5", Boolean: "true oder false", Character: "z. B. A" };
+        return this.open(`
+            <h2 class="jp-sheet-title">Variable anlegen</h2>
+            <form class="jp-form">
+                <div class="jp-type-row">
+                    <label class="jp-field">
+                        <span>Datentyp</span>
+                        <select class="jp-select" data-ref="type">${options}</select>
+                    </label>
+                    <label class="jp-array-check"><input type="checkbox" data-isarray><span>Array anlegen</span></label>
+                    <label class="jp-array-check" data-declonly-wrap hidden><input type="checkbox" data-declonly><span>nur Deklaration</span></label>
+                </div>
+                <label class="jp-field">
+                    <span>So soll Deine Variable heißen:</span>
+                    <input type="text" data-ident autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off" enterkeyhint="next">
+                </label>
+                <label class="jp-field" data-value-field>
+                    <span>Wert, der zugewiesen wird</span>
+                    <input type="text" data-value autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="off" enterkeyhint="done">
+                </label>
+                <label class="jp-field" data-ctor-field hidden>
+                    <span>Verfügbare Konstruktoren</span>
+                    <select class="jp-select" data-ctor></select>
+                </label>
+                <label class="jp-field jp-count-field" hidden>
+                    <span>Wie viele Elemente sollen maximal Platz haben?</span>
+                    <input type="text" data-count inputmode="numeric" pattern="[0-9]*" autocomplete="off" enterkeyhint="done">
+                </label>
+                <div class="jp-preview" aria-live="polite"><span class="jp-preview-label">Vorschau</span><code data-preview></code></div>
+                <p class="jp-field-error" aria-live="polite"></p>
+                <div class="jp-sheet-buttons">
+                    <button type="button" class="jp-btn" data-cancel>Abbrechen</button>
+                    <button type="submit" class="jp-btn jp-btn-primary">Einfügen</button>
+                </div>
+            </form>`, (sheet, close) => {
+            const q = <T extends HTMLElement>(s: string) => sheet.querySelector<T>(s)!;
+            const type = q<HTMLSelectElement>("[data-ref=type]"), name = q<HTMLInputElement>("[data-ident]");
+            const isArray = q<HTMLInputElement>("[data-isarray]"), declOnly = q<HTMLInputElement>("[data-declonly]");
+            const declWrap = q<HTMLElement>("[data-declonly-wrap]"), valueField = q<HTMLElement>("[data-value-field]");
+            const value = q<HTMLInputElement>("[data-value]"), ctorField = q<HTMLElement>("[data-ctor-field]");
+            const ctor = q<HTMLSelectElement>("[data-ctor]"), countField = q<HTMLElement>(".jp-count-field");
+            const count = q<HTMLInputElement>("[data-count]"), preview = q<HTMLElement>("[data-preview]");
+            const error = q<HTMLElement>(".jp-field-error");
+            let ctors: VarCtor[] = [];
+            const current = (): VariableResult => {
+                const basic = o.basicTypes.includes(type.value);
+                const c = parseInt(count.value.trim());
+                return {
+                    type: type.value, name: name.value.trim(), array: isArray.checked,
+                    count: isFinite(c) && c > 0 ? c : undefined,
+                    declOnly: !isArray.checked && !basic && declOnly.checked,
+                    value: !isArray.checked && basic ? value.value : undefined,
+                    ctor: !isArray.checked && !basic && !declOnly.checked ? ctors[ctor.selectedIndex] : undefined
+                };
+            };
+            const refresh = () => {
+                const basic = o.basicTypes.includes(type.value);
+                declWrap.hidden = basic || isArray.checked;
+                valueField.hidden = !basic || isArray.checked;
+                ctorField.hidden = basic || isArray.checked || declOnly.checked;
+                countField.hidden = !isArray.checked;
+                value.placeholder = PLACEHOLDER[type.value] ?? "";
+                preview.innerHTML = highlightJava(o.build(current()));
+                error.textContent = "";
+            };
+            const fillCtors = () => {
+                ctors = o.basicTypes.includes(type.value) ? [] : o.constructors(type.value);
+                ctor.innerHTML = ctors.map((c, i) => `<option value="${i}">${escapeHtml(`new ${type.value}(${c.params.map(p => p.type + " " + p.name).join(", ")})`)}</option>`).join("");
+            };
+            type.addEventListener("change", () => { fillCtors(); refresh(); });
+            for (const el of [isArray, declOnly, ctor]) el.addEventListener("change", refresh);
+            for (const el of [name, value, count]) el.addEventListener("input", refresh);
+            fillCtors();
+            refresh();
+            setTimeout(() => name.focus(), 60);
+            sheet.querySelector("form")!.addEventListener("submit", (e) => {
+                e.preventDefault();
+                const msg = o.validate(name.value);
+                if (msg) { error.textContent = msg; name.focus(); return; }
+                const r = current();
+                if (r.array && !r.count) { error.textContent = "Bitte eine ganze Zahl größer als 0 eingeben."; count.focus(); return; }
+                close(r);
             });
         });
     }

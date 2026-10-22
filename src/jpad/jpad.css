@@ -2412,3 +2412,14 @@ html.phone .jp-topbar .jp-skinbtn { display: none; }
 /* Vorschlagsliste: Klappzeile für weitere/geerbte Symbole */
 .cm-tooltip-autocomplete > ul > li:has(.cm-completionIcon-jp-toggle) { font-family: var(--font-ui); font-weight: 700; color: var(--accent); border-top: 1px solid var(--line); }
 .cm-completionIcon-jp-toggle { display: none; }
+
+/* Variablen-Dialog: Vorschau der Anweisung */
+.jp-preview { margin-top: 14px; padding: 10px 12px; border-radius: var(--radius-s); background: var(--surface-2); border: 1px solid var(--line); display: grid; gap: 4px; }
+.jp-preview-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-2); }
+.jp-preview code { font-family: var(--font-code); font-size: 15px; color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; }
+.jp-preview .pv-kw { color: var(--syn-keyword); font-weight: 600; }
+.jp-preview .pv-ty { color: var(--syn-type); }
+.jp-preview .pv-str { color: var(--syn-string); }
+.jp-preview .pv-num { color: var(--syn-number); }
+.jp-preview .pv-ph { color: var(--ink-2); font-style: italic; }
+.jp-type-row { flex-wrap: wrap; }

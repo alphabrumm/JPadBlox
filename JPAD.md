@@ -41,6 +41,10 @@ Bedienung und Gestaltung.
   Methoden, eigene Klassen, Grundtypen (String, Integer, Double, Boolean, Character) und print/println; alles Übrige
   hinter der Klappzeile „Weitere Vorschläge“. Nach einem Punkt erst Attribute, dann Methoden der Klasse selbst,
   Geerbtes hinter „Geerbte Symbole“. „insert constructor“ wird nie angeboten.
+- **Baustein „Variable“**: Bei Grundtypen gibt es ein Feld „Wert, der zugewiesen wird“ (leer = nur Deklaration;
+  Text bekommt Anführungszeichen, 12,5 wird zu 12.5), bei anderen Datentypen die Auswahl „Verfügbare Konstruktoren“
+  (eigene Klasse ohne Konstruktor: nur der Standardkonstruktor) und das Häkchen „nur Deklaration“. Über den Knöpfen
+  steht die Vorschau der Anweisung mit Syntaxfarben; Konstruktorparameter werden als Platzhalter eingefügt.
 - **Haltepunkte**: Knopf in der Hilfsleiste (oder Tippen auf die Zeilennummer). Das Programm hält vor der Zeile an
   und kann dann Schritt für Schritt weiterlaufen.
 - **Kein Mouse-over nötig**: alle Funktionen sind per Tippen erreichbar.

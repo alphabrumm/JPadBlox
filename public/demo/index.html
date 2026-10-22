@@ -356,7 +356,7 @@ figcaption { font-size: 15px; color: var(--ink-2); margin-top: 8px; }
     <li><div>Gib als Namen <code>kannAlleinDaheimSein</code> ein. Bei der Frage nach der Rückgabe bleibt <code>void</code> stehen. Parameter brauchst du keine, lass das Feld „So heißt der Parameter“ also leer. Tippe auf <span class="ui">Einfügen</span>.</div></li>
     <li><div>Die leere Methode steht jetzt am Ende der Klasse, der Cursor blinkt in ihrem Rumpf. Tippe auf den Baustein <span class="ui">if – else</span>.</div></li>
     <li><div>Das Wort <code>Bedingung</code> ist markiert. Tippe einfach los und ersetze es durch <code>istStubenrein == true</code>.</div></li>
-    <li><div>Platziere jetzt mit Finger, Maus oder Tastatur den Cursor im Rumpf der if-Schleife (also innerhalb der geschweiften Klammern).</div></li>
+    <li><div>Platziere jetzt mit Finger, Maus oder Tastatur den Cursor im Rumpf der if-Anweisung (also innerhalb der geschweiften Klammern).</div></li>
     <li><div>Tippe auf den Baustein <span class="ui">println</span> und schreibe in die Klammern: <code>name + " darf allein daheim bleiben."</code></div></li>
     <li><div>Platziere den Cursor genauso im Rumpf von <code>else</code>, also in der leeren Zeile zwischen <code>} else {</code> und <code>}</code>.</div></li>
     <li><div>Noch einmal <span class="ui">println</span>, diesmal mit <code>name + " muss noch üben."</code></div></li>
@@ -371,13 +371,12 @@ figcaption { font-size: 15px; color: var(--ink-2); margin-top: 8px; }
 
 <!-- ================= 7 ================= -->
 <section class="station" id="s7" data-station="7">
-  <div class="station-head"><div class="badge">7</div><div><small>Baustein „Variable“ und „new“</small><h2>Bello wird gebaut</h2></div></div>
+  <div class="station-head"><div class="badge">7</div><div><small>Baustein „Variable“</small><h2>Bello wird gebaut</h2></div></div>
   <p>Die Klasse ist nur der Bauplan. Damit es einen echten Hund gibt, musst du ein <strong>Objekt</strong> erzeugen. Das passiert im <span class="ui">Hauptprogramm</span>, dem Reiter ganz links.</p>
   <ol class="steps">
     <li><div>Tippe oben auf den Reiter <span class="ui">Hauptprogramm</span>.</div></li>
-    <li><div>Tippe auf den Baustein <span class="ui">Variable</span>. Wähle unter <span class="ui">Eigene Klassen</span> den Datentyp <code>Hund</code> und gib den Namen <code>bello</code> ein. JPad schreibt <code>Hund bello;</code></div></li>
-    <li><div>Tippe in der Hilfsleiste einmal auf <span class="key" aria-label="Cursor nach links"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></span>. Jetzt steht der Cursor vor dem Semikolon.</div></li>
-    <li><div>Tippe auf den Baustein <span class="ui">new</span>. Daraus wird <code>Hund bello = new Hund();</code> Erst jetzt gibt es Bello wirklich.</div></li>
+    <li><div>Tippe auf den Baustein <span class="ui">Variable</span>. Wähle unter <span class="ui">Eigene Klassen</span> den Datentyp <code>Hund</code> und gib den Namen <code>bello</code> ein.</div></li>
+    <li><div>Unter <span class="ui">Verfügbare Konstruktoren</span> ist schon <code>new Hund()</code> ausgewählt. Die Klasse hat keinen eigenen Konstruktor, deshalb gibt es nur diesen Standardkonstruktor. Unten zeigt die <span class="ui">Vorschau</span>, was eingefügt wird: <code>Hund bello = new Hund();</code> Tippe auf <span class="ui">Einfügen</span>. Erst jetzt gibt es Bello wirklich.</div></li>
     <li><div>Kopiere die folgenden Zeilen und setze sie in eine neue Zeile darunter ein. Sie füllen Bellos Attribute und rufen seine Methode auf.</div></li>
   </ol>
   <div class="code" data-file="Hauptprogramm.java (ab Zeile 2)" data-src="mainRest"></div>

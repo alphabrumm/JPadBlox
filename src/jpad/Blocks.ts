@@ -4,7 +4,7 @@ import { snippet } from "@codemirror/autocomplete";
 import { insertNewlineAndIndent } from "@codemirror/commands";
 import { getIndentation, indentString, indentUnit } from "@codemirror/language";
 import apiText from "./api/online-ide-api.txt?raw";
-import type { Dialogs } from "./Dialogs.js";
+import type { Dialogs, VarCtor, VariableResult } from "./Dialogs.js";
 
 /**
  * JPadBlox: Code-Bausteine zum Antippen.
@@ -147,6 +147,8 @@ export type BlockContext = {
     dialogs: Dialogs;
     /** Klassen, Interfaces und Enums aller Dateien des geöffneten Projekts */
     projectTypes: () => string[];
+    /** Konstruktoren eines Datentyps (Standardkonstruktor, wenn die Klasse keinen eigenen hat) */
+    constructors: (type: string) => VarCtor[];
     /** Code der geöffneten Datei formatieren */
     format: () => Promise<void>;
     /** Neue Datei (Reiter) mit Inhalt anlegen und öffnen; Cursor an die Stelle cursor */
@@ -778,7 +780,58 @@ const JAVA_KEYWORDS = new Set(("abstract assert boolean break byte case catch ch
     "final finally float for goto if implements import instanceof int interface long native new package private protected public " +
     "return short static super switch synchronized this throw throws transient try void volatile while true false null var").split(" "));
 
+/** Wert für die Vorschau/den Code: Text bekommt Anführungszeichen, 12,5 wird zu 12.5 */
+function formatValue(type: string, v: string): string {
+    const t = v.trim();
+    if (type == "String" && !t.startsWith('"')) return '"' + t.replace(/"/g, '\\"') + '"';
+    if (type == "Character" && t.length == 1) return "'" + t + "'";
+    if (type == "Double" && /^-?\d+,\d+$/.test(t)) return t.replace(",", ".");
+    return t;
+}
+
+/** Anweisung des Variablen-Bausteins; snippetMode: Parameter des Konstruktors als Platzhalter */
+function variableText(r: VariableResult, snippetMode: boolean): string {
+    const esc = (s: string) => snippetMode ? escapeForSnippet(s) : s;
+    const name = r.name || "…";
+    if (r.array) return esc(`${r.type}[] ${name} = new ${r.type}[${r.count ?? "…"}];`);
+    if (r.value !== undefined) {
+        const v = r.value.trim();
+        return esc(v == "" ? `${r.type} ${name};` : `${r.type} ${name} = ${formatValue(r.type, v)};`);
+    }
+    if (r.declOnly || !r.ctor) return esc(`${r.type} ${name};`);
+    const args = r.ctor.params.map(p => snippetMode ? "${" + p.name + "}" : p.name).join(", ");
+    return esc(`${r.type} ${name} = new ${r.type}(`) + args + esc(");");
+}
+
+async function insertVariable(ctx: BlockContext): Promise<boolean> {
+    const own = ctx.projectTypes().filter(t => !BASIC_TYPES.includes(t));
+    const lib = libraryTypes().filter(t => !own.includes(t));
+    const r = await ctx.dialogs.variable({
+        groups: [
+            { label: "Grundtypen", items: BASIC_TYPES },
+            { label: "Eigene Klassen", items: own },
+            { label: "Klassenbibliothek", items: lib },
+        ],
+        basicTypes: BASIC_TYPES.concat(["Character"]),
+        constructors: (t) => ctx.constructors(t),
+        build: (x) => variableText(x, false),
+        validate: validateName
+    });
+    if (!r) return false;
+    const view = ctx.view;
+    const pos = prepareOwnLine(view);
+    const tpl = variableText(r, true);
+    if (/\$\{/.test(tpl)) {
+        snippet(tpl)(view, null, pos, pos);
+    } else {
+        const text = variableText(r, false);
+        view.dispatch({ changes: { from: pos, to: pos, insert: text }, selection: EditorSelection.cursor(pos + text.length), scrollIntoView: true, userEvent: "input" });
+    }
+    return true;
+}
+
 async function insertDeclaration(ctx: BlockContext, kind: "attribut" | "variable" | "array"): Promise<boolean> {
+    if (kind == "variable") return insertVariable(ctx);
     const own = ctx.projectTypes().filter(t => !BASIC_TYPES.includes(t));
     const lib = libraryTypes().filter(t => !own.includes(t));
     const result = await ctx.dialogs.declaration({
@@ -789,7 +842,7 @@ async function insertDeclaration(ctx: BlockContext, kind: "attribut" | "variable
             { label: "Klassenbibliothek", items: lib },
         ],
         // Safari am iPad schlägt bei Feldern mit „Name“ im Text eigene Kontaktdaten vor (zerschießt das Layout)
-        nameLabel: kind == "attribut" ? "So soll Dein Attribut heißen:" : "So soll Deine Variable heißen:",
+        nameLabel: kind == "attribut" ? "So soll Dein Attribut heißen:" : kind == "array" ? "So soll Dein Array heißen:" : "So soll Deine Variable heißen:",
         countLabel: kind == "array" ? "Wie viele Elemente sollen Platz haben?" : undefined,
         arrayOption: kind != "array",
         confirm: "Einfügen",
@@ -808,17 +861,7 @@ async function insertDeclaration(ctx: BlockContext, kind: "attribut" | "variable
         });
         return true;
     }
-    const text = `${result.type} ${result.name.trim()};`;
-    if (kind == "variable") {
-        const pos = prepareOwnLine(ctx.view);
-        ctx.view.dispatch({
-            changes: { from: pos, to: pos, insert: text },
-            selection: EditorSelection.cursor(pos + text.length),
-            scrollIntoView: true, userEvent: "input"
-        });
-    } else {
-        insertAttribute(ctx.view, text);
-    }
+    insertAttribute(ctx.view, `${result.type} ${result.name.trim()};`);
     return true;
 }
 

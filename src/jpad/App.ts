@@ -13,6 +13,7 @@ import { DiagramView } from "./Diagram.js";
 import { TouchTips } from "./TouchTips.js";
 import { ThemeManager } from "../client/main/gui/ThemeManager.js";
 import { GUIFile } from "../client/workspace/File.js";
+import { TokenType } from "../compiler/java/TokenType.js";
 import { JavaLanguage } from "../compiler/java/JavaLanguage.js";
 import { SchedulerState } from "../compiler/common/interpreter/SchedulerState.js";
 import { WorkspaceExporter } from "../client/workspace/WorkspaceImporterExporter.js";
@@ -156,6 +157,7 @@ export class App {
             view: this.editor.view,
             dialogs: this.dialogs,
             projectTypes: () => this.projectTypes(),
+            constructors: (type) => this.constructorsOf(type),
             format: () => this.formatAfterBlock(),
             constructorSuggestion: (offset) => this.bridge.constructorSuggestion(offset),
             createFile: (name, text, cursor) => {
@@ -915,6 +917,27 @@ export class App {
                 this.markModified();
             }
         }
+    }
+
+    /**
+     * JPadBlox: Konstruktoren eines Datentyps für den Variablen-Baustein. Eigene Klassen: die im Quelltext
+     * notierten; hat die Klasse keinen, nur der Standardkonstruktor. Klassenbibliothek: alle nicht privaten.
+     */
+    constructorsOf(typeName: string): { params: { type: string, name: string }[] }[] {
+        const result: { params: { type: string, name: string }[] }[] = [];
+        try {
+            const compiler: any = this.main.getCompiler();
+            const t: any = compiler?.moduleManager?.typestore?.getType(typeName) ?? compiler?.getType?.(typeName);
+            const own = t?.module?.file instanceof GUIFile;
+            for (const m of t?.getOwnMethods?.() ?? []) {
+                if (!m.isConstructor || m.visibility == TokenType.keywordPrivate) continue;
+                if (own && !(m.identifierRange?.startLineNumber >= 1)) continue;
+                const params = (m.parameters ?? []).map((p: any) => ({ type: String(p.type?.toString?.() ?? p.type?.identifier ?? "?"), name: p.identifier }));
+                if (!result.some(r => JSON.stringify(r.params) == JSON.stringify(params))) result.push({ params });
+            }
+        } catch (e) { console.warn(e); }
+        if (result.length == 0) result.push({ params: [] });
+        return result;
     }
 
     /** JPadBlox: Namen aller Klassen, Interfaces und Enums des geöffneten Projekts */
