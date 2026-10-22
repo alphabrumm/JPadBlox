@@ -26,6 +26,11 @@ Bedienung und Gestaltung.
   Projektdatei mit (Feld `lernpfadHtml`, die Online-IDE ignoriert es) und erscheint als erster Reiter der
   Seitenleiste. Projekte ohne Lernpfad zeigen den Reiter nicht. Der Lernpfad läuft in einem abgeschotteten iframe
   (kein Zugriff auf JPad); sein localStorage (z. B. Fortschritt) wird per postMessage je Projekt in JPad gespeichert.
+- **Lernpfad per Link**: `jpad.pandapy.de/?lernpfad=<Adresse>` (HTML, ZIP oder Projektdatei) bzw. `?projekt=<Adresse>`
+  (Projektdatei, auch kombinierbar). Die Adresse darf relativ zu JPad sein (z. B. `?lernpfad=lernpfade/schaf.json`).
+  Beim ersten Aufruf entsteht ein neues Projekt; derselbe Link öffnet später dieses Projekt mit dem Stand des Schülers.
+  Fremde Server müssen das Laden erlauben (CORS, z. B. GitHub Pages); sonst wird eine HTML-Seite direkt von ihrer
+  Adresse angezeigt (nur online). Projekte mit Lernpfad starten mit schmaler Bausteinleiste und breiter Ansicht rechts.
 - **Haltepunkte**: Knopf in der Hilfsleiste (oder Tippen auf die Zeilennummer). Das Programm hält vor der Zeile an
   und kann dann Schritt für Schritt weiterlaufen.
 - **Kein Mouse-over nötig**: alle Funktionen sind per Tippen erreichbar.

@@ -19,6 +19,8 @@ export type ProjectInfo = {
     modified: number;
     /** Zeitpunkt des letzten Sicherns als Datei (0 = noch nie) */
     exported: number;
+    /** Projekt kam über einen Link (?projekt=…/?lernpfad=…): derselbe Link öffnet es wieder */
+    source?: string;
 };
 
 export type ProjectFile = { name: string, text: string };
