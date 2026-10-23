@@ -2431,6 +2431,98 @@ html.phone .jp-topbar .jp-skinbtn { display: none; }
 :root[data-skin="hacker"] .jp-drawer { border-right: 1px solid var(--accent); }
 :root[data-skin="hacker"] .jp-tip, :root[data-skin="hacker"] .jp-dialog { border: 1px solid var(--accent); }
 
+/* ---------- Pink-Hacker: wie Hacker, nur ist alles Grüne pink (und Ablauf/Schlüsselwörter dafür grün) ---------- */
+
+:root[data-skin="pink"] {
+    --font-ui: "Chakra Petch", "Share Tech Mono", ui-monospace, Menlo, monospace;
+    --font-code: "Share Tech Mono", "JetBrains Mono", ui-monospace, Menlo, monospace;
+
+    --bg: #060204;
+    --surface: #0C050A;
+    --surface-2: #170A13;
+    --ink: #FFD7F2;
+    --ink-2: #B35F9C;
+    --line: #46123A;
+    --accent: #FF2EC4;
+    --accent-soft: #290420;
+    --accent-ink: #1A0012;
+    --marker: #F2FF3A;
+    --marker-ink: #121400;
+    --marker-soft: rgba(242, 255, 58, 0.18);
+    --danger: #FF2E88;
+    --danger-soft: #2A0716;
+    --warn: #FFB020;
+    --ok: #FF2EC4;
+    --shadow-lg: 0 0 0 1px #FF2EC4, 0 0 28px rgba(255, 46, 196, 0.25);
+
+    --syn-keyword: #00FF9C;
+    --syn-type: #00E5FF;
+    --syn-string: #F2FF3A;
+    --syn-number: #FF9F1C;
+    --syn-comment: #7A2F62;
+    --syn-method: #FF7CDB;
+    --syn-field: #FFA0E8;
+    --syn-annotation: #C77DFF;
+    --syn-punct: #A86F96;
+
+    --radius-s: 0px;
+    --radius-m: 0px;
+    --radius-l: 0px;
+    color-scheme: dark;
+}
+/* spitze Ecken überall – auch dort, wo Rundungen fest eingetragen sind */
+:root[data-skin="pink"] *,
+:root[data-skin="pink"] *::before,
+:root[data-skin="pink"] *::after { border-radius: 0 !important; }
+:root[data-skin="pink"] body,
+:root[data-skin="pink"] .jp-app {
+    background:
+        repeating-linear-gradient(0deg, rgba(255, 46, 196, 0.035) 0 1px, transparent 1px 3px),
+        linear-gradient(90deg, rgba(255, 46, 196, 0.05) 1px, transparent 1px) 0 0 / 32px 32px,
+        linear-gradient(0deg, rgba(255, 46, 196, 0.05) 1px, transparent 1px) 0 0 / 32px 32px,
+        #060204;
+}
+:root[data-skin="pink"] .jp-pane {
+    border: 1px solid #6B0E52;
+    box-shadow: 0 0 0 1px rgba(255, 46, 196, 0.06), 0 0 18px -6px rgba(255, 46, 196, 0.35);
+}
+:root[data-skin="pink"] .jp-pane-side { border-color: #0B5E6E; box-shadow: 0 0 18px -6px rgba(0, 229, 255, 0.35); }
+:root[data-skin="pink"] .jp-topbar { border-bottom: 1px solid var(--line); }
+:root[data-skin="pink"] .jp-project-name { letter-spacing: 0.04em; text-transform: uppercase; }
+:root[data-skin="pink"] .jp-topbar .jp-iconbtn { color: var(--accent); }
+:root[data-skin="pink"] .jp-topbar .jp-iconbtn:disabled { color: #5A1F48; }
+:root[data-skin="pink"] .jp-topbar .jp-iconbtn:not(:disabled):active { text-shadow: 0 0 8px var(--accent); filter: drop-shadow(0 0 6px var(--accent)); }
+:root[data-skin="pink"] .jp-run { box-shadow: 0 0 0 1px var(--marker), 0 0 16px rgba(242, 255, 58, 0.45); }
+:root[data-skin="pink"] .jp-stepbtn { border: 1px solid var(--accent); color: var(--accent); background: transparent; }
+:root[data-skin="pink"] .jp-segmented { background: transparent; border: 1px solid var(--line); }
+:root[data-skin="pink"] .jp-segmented button[aria-selected="true"],
+:root[data-skin="pink"] .jp-segmented button[aria-pressed="true"] {
+    background: var(--accent-soft); color: var(--accent); box-shadow: inset 0 -2px 0 var(--accent);
+}
+:root[data-skin="pink"] .jp-filetab.is-active { color: var(--accent); text-shadow: 0 0 8px rgba(255, 46, 196, 0.6); }
+:root[data-skin="pink"] .jp-keybar { background: #060204; border-top: 1px solid var(--line); }
+:root[data-skin="pink"] .jp-keybar button { background: transparent; border: 1px solid var(--line); box-shadow: none; color: var(--accent); }
+:root[data-skin="pink"] .jp-keybar button:active,
+:root[data-skin="pink"] .jp-keybar button.is-pressed { background: var(--accent); color: var(--accent-ink); }
+:root[data-skin="pink"] .jp-bottomnav { background: #060204; border-top-color: var(--line); }
+:root[data-skin="pink"] .jp-bottomnav button[aria-current="true"] { text-shadow: 0 0 8px var(--accent); }
+:root[data-skin="pink"] :is(.jp-blockpanel, .jp-keybar) button.jp-block {
+    background: transparent; border: 1px solid color-mix(in srgb, var(--g) 55%, transparent); box-shadow: none; color: var(--g);
+}
+:root[data-skin="pink"] :is(.jp-blockpanel, .jp-keybar) button.jp-block:active,
+:root[data-skin="pink"] :is(.jp-blockpanel, .jp-keybar) button.jp-block.is-pressed { background: var(--g); color: #060204; box-shadow: 0 0 12px var(--g); }
+:root[data-skin="pink"] [data-group="klasse"] { --g: #FF2EC4; }
+:root[data-skin="pink"] [data-group="ablauf"] { --g: #00FF9C; }
+:root[data-skin="pink"] [data-group="daten"]  { --g: #00E5FF; }
+:root[data-skin="pink"] .jp-blockgroup h3 { letter-spacing: 0.12em; }
+:root[data-skin="pink"] .jp-editor .cm-cursor { border-left: 9px solid rgba(255, 46, 196, 0.45); animation: jp-blink 1s steps(1) infinite; }
+:root[data-skin="pink"] .jp-editor .cm-content { text-shadow: 0 0 2px rgba(255, 46, 196, 0.25); }
+:root[data-skin="pink"] .jp-skinbtn { color: var(--danger) !important; }
+:root[data-skin="pink"] ::selection { background: rgba(255, 46, 196, 0.3); }
+:root[data-skin="pink"] .jp-drawer { border-right: 1px solid var(--accent); }
+:root[data-skin="pink"] .jp-tip, :root[data-skin="pink"] .jp-dialog { border: 1px solid var(--accent); }
+
+
 /* Umbenennen-Dialog */
 .jp-rename-hint { font-size: 13px; margin: 2px 0 0; color: var(--ink-2); }
 .jp-rename-hint code { font-family: var(--font-code); font-size: 0.95em; }
@@ -2577,6 +2669,7 @@ html.phone .jp-topbar .jp-skinbtn { display: none; }
 
 /* Objektkarten behalten auch in den Themes mit spitzen Ecken ihre runden Ecken (Unterschied zur Klassenkarte) */
 :root[data-skin="hacker"] .jp-uml-card.is-object,
+:root[data-skin="pink"] .jp-uml-card.is-object,
 :root[data-skin="flat"] .jp-uml-card.is-object { border-radius: 14px !important; }
 
 /* JPadBlox: Dialog „{get,set}“ – Tabelle Attribut | get | set */
@@ -2719,22 +2812,29 @@ html.phone .jp-topbar .jp-foldgroup { display: none; }
 .jp-app[data-compact="true"] .jp-side-switch .jp-lernpfad-tab { width: 48px; }
 .jp-app[data-compact="true"] .jp-side-switch button[aria-selected="true"]::after { background: var(--accent); opacity: 1; height: 5px; }
 
-/* Kompakte Ansicht: Bausteinleiste mit Kurzzeichen statt Namen (deutlich schmaler) */
+/* Kompakte Ansicht oder ganz schmale Bausteinleiste: Kurzzeichen statt Namen (deutlich schmaler) */
 .jp-block-ico { display: none; }
 .jp-block-ico[data-ico]::before { content: attr(data-ico); }
-.jp-app[data-compact="true"] .jp-blockpanel .jp-block-label { display: none; }
-.jp-app[data-compact="true"] .jp-blockpanel .jp-block-ico { display: inline-flex; align-items: center; justify-content: center; }
-.jp-app[data-compact="true"] .jp-blockpanel .jp-block-ico svg { width: 20px; height: 20px; }
-.jp-app[data-compact="true"] .jp-blockpanel { padding: 4px 5px 10px; }
-.jp-app[data-compact="true"] .jp-blockpanel button.jp-block {
+:is(.jp-app[data-compact="true"], .jp-app[data-btiny="true"]) .jp-blockpanel .jp-block-label { display: none; }
+:is(.jp-app[data-compact="true"], .jp-app[data-btiny="true"]) .jp-blockpanel .jp-block-ico { display: inline-flex; align-items: center; justify-content: center; }
+:is(.jp-app[data-compact="true"], .jp-app[data-btiny="true"]) .jp-blockpanel .jp-block-ico svg { width: 20px; height: 20px; }
+:is(.jp-app[data-compact="true"], .jp-app[data-btiny="true"]) .jp-blockpanel { padding: 4px 5px 10px; }
+:is(.jp-app[data-compact="true"], .jp-app[data-btiny="true"]) .jp-blockpanel button.jp-block {
     min-width: 44px; width: 100%; padding: 0 4px 0 2px; text-align: center; justify-content: center;
     display: flex; align-items: center; font-weight: 700; font-size: 15px; letter-spacing: -0.02em;
 }
-.jp-app[data-compact="true"][data-bwide="false"] .jp-pane-blocks { width: max-content; }
+:is(.jp-app[data-compact="true"], .jp-app[data-btiny="true"])[data-bwide="false"] .jp-pane-blocks { width: max-content; }
 /* Gruppenüberschriften als farbige Striche, „Mehr…“ nur als Pfeil */
-.jp-app[data-compact="true"] .jp-blockpanel .jp-blockgroup h3 { font-size: 0; height: 4px; width: 26px; margin: 8px auto 6px; border-radius: 2px; background: var(--g); }
-.jp-app[data-compact="true"] .jp-blockpanel .jp-more-label { display: none; }
-.jp-app[data-compact="true"] .jp-blockpanel .jp-more-toggle { justify-content: center; }
+:is(.jp-app[data-compact="true"], .jp-app[data-btiny="true"]) .jp-blockpanel .jp-blockgroup h3 { font-size: 0; height: 4px; width: 26px; margin: 8px auto 6px; border-radius: 2px; background: var(--g); }
+:is(.jp-app[data-compact="true"], .jp-app[data-btiny="true"]) .jp-blockpanel .jp-more-label { display: none; }
+:is(.jp-app[data-compact="true"], .jp-app[data-btiny="true"]) .jp-blockpanel .jp-more-toggle { justify-content: center; }
+/* Ganz schmale Bausteinleiste: Kopf „Bausteine“ weg, oben der gelbe Pfeil zurück zur normalen Breite */
+.jp-blocks-restore { display: none; }
+.jp-app[data-btiny="true"] .jp-pane-blocks .jp-panehead { display: none; }
+.jp-app[data-btiny="true"] .jp-pane-blocks .jp-blocks-restore {
+    display: inline-grid; flex: none; align-self: center; width: 40px; height: 30px; margin: 8px 0 0; border-radius: 10px;
+}
+.jp-blocks-restore .jp-icon { width: 20px; height: 20px; }
 
 /* JPadBlox: Eingabe des JCodes */
 .jp-jcode-input {

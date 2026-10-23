@@ -151,3 +151,7 @@ GNU GPL v3, wie die Online-IDE.
   flacher (42 px, Symbol und Text nebeneinander). Auf dem Handy wird sie beim Tippen weiter ausgeblendet.
 - **Theme-Knopf auf schmalen Bildschirmen** (Handy oder < 520 px Breite): oben im Menü links neben dem Schließen-Knopf
   statt in der Kopfzeile.
+- **Bausteinleiste in drei Breiten** (auch ohne Kompaktmodus): normal → (Vergrößern) breit → (Verkleinern) ganz schmal
+  mit Kurzzeichen; oben steht dann ein gelber Doppelpfeil (Stil wie ▶ des Themes) zurück zur normalen Breite. Gemerkt.
+- **Pink-Hacker-Theme** (nach Hacker, vor Standard): wie Hacker, alles Grüne pink (#FF2EC4); Ablauf-Bausteine und
+  Schlüsselwörter dafür grün (#00FF9C).

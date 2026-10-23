@@ -3,6 +3,7 @@
 const paths: Record<string, string> = {
     menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
     jcode: '<g transform="translate(-0.6 5) scale(0.82)"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1"/><path d="M3 7v10a2 2 0 0 0 2 2h13l3-8H7l-3 8"/></g><rect x="12.5" y="1.5" width="10" height="6" rx="2" stroke-width="1.7"/><circle cx="15" cy="4.5" r=".95" fill="currentColor" stroke="none"/><circle cx="17.5" cy="4.5" r=".95" fill="currentColor" stroke="none"/><circle cx="20" cy="4.5" r=".95" fill="currentColor" stroke="none"/>',
+    foldRight: '<path d="M6 7l5 5-5 5"/><path d="M13 7l5 5-5 5"/>',
     foldUp: '<path d="M7 12l5-5 5 5"/><path d="M7 18l5-5 5 5"/>',
     foldDown: '<path d="M8 10l4 4 4-4"/>',
     play: '<path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke-linejoin="round"/>',

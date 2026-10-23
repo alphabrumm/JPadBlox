@@ -34,7 +34,7 @@ function isHelperMarker(m: monaco.editor.IMarker): boolean {
 type View = "code" | "lernpfad" | "output" | "variables" | "diagram" | "problems";
 type SideView = "lernpfad" | "output" | "variables" | "diagram" | "problems";
 type ThemeChoice = "auto" | "light" | "dark";
-type Skin = "default" | "flat" | "hacker";
+type Skin = "default" | "flat" | "hacker" | "pink";
 
 /** Schriften der Spaß-Themes (nur online; ohne Netz greifen die Ersatzschriften). */
 function loadSkinFonts() {
@@ -294,6 +294,7 @@ export class App {
                     <span class="jp-panehead-title">Bausteine</span>
                     <button class="jp-iconbtn jp-layoutbtn" data-ref="blocksLayoutBtn"></button>
                 </div>
+                <button class="jp-run jo_active jp-blocks-restore" data-ref="blocksRestoreBtn" data-tip="Bausteinleiste wieder in normaler Breite (mit Namen) anzeigen" aria-label="Bausteinleiste normal breit">${icon("foldRight")}</button>
                 <div class="jp-blockpanel" data-ref="blockPanel">${blockPanelHtml()}</div>
             </section>
             <section class="jp-pane jp-pane-code" aria-label="Quelltext">
@@ -529,10 +530,12 @@ export class App {
             this.root.dataset.wide = String(mq.matches);
             this.root.dataset.cols = cols;
             this.root.dataset.bwide = String(v.blocksWide && m != "infoWide");
+            // JPadBlox: ganz schmale Bausteinleiste (nur Kurzzeichen)
+            this.root.dataset.btiny = String(this.blocksTiny() && this.root.dataset.bwide != "true");
             this.root.dataset.layout = mq.matches && m != "editorFull" ? "split" : "tabs";
 
             setBtn(this.el.blocksLayoutBtn, v.blocksWide ? "shrink" : "expand",
-                v.blocksWide ? "Bausteinleiste schmal anzeigen" : "Bausteinleiste breit anzeigen");
+                v.blocksWide ? "Bausteinleiste ganz schmal anzeigen (nur Symbole)" : "Bausteinleiste breit anzeigen");
 
             const editorOpen = m == "editorWide" || m == "editorFull";
             setBtn(this.el.layoutBtn, editorOpen ? "shrink" : "expand",
@@ -554,9 +557,14 @@ export class App {
         };
         const DEFAULT: ViewState = { mode: "normal", blocksWide: false };
         // Bei doppelt breiter Ansicht rechts: Bausteine breit, Ansicht rechts wieder schmal
-        layoutButton(this.el.blocksLayoutBtn, v => v.mode == "infoWide"
-            ? { mode: "normal", blocksWide: true }
-            : { ...v, blocksWide: !v.blocksWide });
+        // Bausteinleiste: normal → breit → ganz schmal (nur Symbole); der gelbe Pfeil oben führt zurück zu normal
+        layoutButton(this.el.blocksLayoutBtn, v => {
+            if (v.mode == "infoWide") { this.setBlocksTiny(false); return { mode: "normal", blocksWide: true }; }
+            if (v.blocksWide) { this.setBlocksTiny(true); return { ...v, blocksWide: false }; }
+            this.setBlocksTiny(false);
+            return { ...v, blocksWide: true };
+        });
+        layoutButton(this.el.blocksRestoreBtn, v => { this.setBlocksTiny(false); return { ...v, blocksWide: false }; });
         layoutButton(this.el.layoutBtn, v => {
             if (v.mode == "editorWide" || v.mode == "editorFull") return v.before ?? DEFAULT;
             return { mode: "editorWide", blocksWide: v.blocksWide, before: { mode: v.mode, blocksWide: v.blocksWide } };
@@ -1565,18 +1573,18 @@ export class App {
         try { return <ThemeChoice>(localStorage.getItem("jpad.theme") || "auto"); } catch (e) { return "auto"; }
     }
 
-    // ----- Spaß-Themes: Standard → Flach (Einhorn) → Hacker → Standard -----
+    // ----- Spaß-Themes: Standard → Flach (Einhorn) → Hacker → Pink-Hacker → Standard -----
 
     getSkin(): Skin {
         try {
             const s = localStorage.getItem("jpadblox.skin");
             // früher „candy“ (Bonbon), jetzt das flache Theme
-            return s == "flat" || s == "candy" ? "flat" : s == "hacker" ? "hacker" : "default";
+            return s == "flat" || s == "candy" ? "flat" : s == "hacker" || s == "pink" ? s : "default";
         } catch (e) { return "default"; }
     }
 
     nextSkin() {
-        const order: Skin[] = ["default", "flat", "hacker"];
+        const order: Skin[] = ["default", "flat", "hacker", "pink"];
         const next = order[(order.indexOf(this.getSkin()) + 1) % order.length];
         try { localStorage.setItem("jpadblox.skin", next); } catch (e) { }
         this.applyTheme(this.getThemeChoice());
@@ -1585,6 +1593,16 @@ export class App {
     }
 
     /** Das Symbol zeigt, was beim nächsten Tippen kommt. */
+    // ------------------------------------------------ Ganz schmale Bausteinleiste
+
+    private blocksTiny(): boolean {
+        try { return localStorage.getItem("jpadblox.blocksTiny") == "1"; } catch (e) { return false; }
+    }
+
+    private setBlocksTiny(on: boolean) {
+        try { localStorage.setItem("jpadblox.blocksTiny", on ? "1" : "0"); } catch (e) { }
+    }
+
     // ------------------------------------------------ Kompakte Ansicht (Kopfzeilen zugeklappt)
 
     private loadCompact(): boolean {
@@ -1614,6 +1632,7 @@ export class App {
         const [iconName, label] =
             s == "default" ? ["unicorn", "Flaches Theme: weiß und blau, klare Linien"] :
             s == "flat" ? ["hacker", "Hacker-Theme: dunkel, Neon, spitze Ecken"] :
+            s == "hacker" ? ["hacker", "Pink-Hacker-Theme: wie Hacker, aber in Pink"] :
             ["skinReset", "Zurück zum normalen Aussehen"];
         for (const btn of [this.el.skinBtn, this.el.drawerSkinBtn]) {
             if (!btn) continue;
@@ -1626,7 +1645,7 @@ export class App {
 
     effectiveTheme(): "light" | "dark" {
         const skin = this.getSkin();
-        if (skin == "hacker") return "dark";
+        if (skin == "hacker" || skin == "pink") return "dark";
         const c = this.getThemeChoice();
         if (c == "auto") return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
         return c;
@@ -1652,7 +1671,7 @@ export class App {
         if (ide) new ThemeManager(ide).switchTheme(eff);
         if (this.el.variables) new ThemeManager(<HTMLDivElement>this.el.variables).switchTheme(eff);
         const meta = document.querySelectorAll('meta[name="theme-color"]');
-        meta.forEach(m => m.setAttribute("content", skin == "flat" ? (eff == "dark" ? "#000080" : "#FFFFFF") : skin == "hacker" ? "#020604" : eff == "dark" ? "#151922" : "#F3F5F9"));
+        meta.forEach(m => m.setAttribute("content", skin == "flat" ? (eff == "dark" ? "#000080" : "#FFFFFF") : skin == "hacker" ? "#020604" : skin == "pink" ? "#060204" : eff == "dark" ? "#151922" : "#F3F5F9"));
     }
 
     getFontSize(): number {
