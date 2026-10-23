@@ -145,7 +145,11 @@ export class App {
         this.editor = new TouchEditor(this.el.editorHost, this.bridge, {
             onCursorActivity: () => this.updateSignatureSoon(),
             onDocChanged: () => this.markModified(),
-            onFocusChanged: (focused) => this.keyBar.setEditorFocused(focused),
+            onFocusChanged: (focused) => {
+                this.keyBar.setEditorFocused(focused);
+                // Tastatur doch zugeklappt (oder anderswo getippt): geparkten Editor wieder normal ausblenden
+                if (!focused && this.root.dataset.kbhold == "true") this.unparkEditor();
+            },
             onHistoryChanged: (canUndo, canRedo) => {
                 this.el.undo.toggleAttribute("disabled", !canUndo);
                 this.el.redo.toggleAttribute("disabled", !canRedo);
@@ -438,8 +442,12 @@ export class App {
             .forEach(b => b.addEventListener("pointerdown", e => e.preventDefault()));
 
         // ----- Ansichten -----
-        this.root.querySelectorAll<HTMLElement>(".jp-bottomnav [data-view]").forEach(b =>
-            b.addEventListener("click", () => this.setView(<View>b.dataset.view)));
+        this.root.querySelectorAll<HTMLElement>(".jp-bottomnav [data-view]").forEach(b => {
+            b.addEventListener("click", () => this.setView(<View>b.dataset.view));
+            // Fokus im Editor lassen (sonst klappt die Bildschirmtastatur beim Ansichtswechsel zu)
+            for (const ev of ["pointerdown", "mousedown"]) b.addEventListener(ev, e => e.preventDefault());
+            b.addEventListener("touchend", e => { e.preventDefault(); b.click(); }, { passive: false });
+        });
         this.root.querySelectorAll<HTMLElement>(".jp-side-switch [data-side]").forEach(b =>
             b.addEventListener("click", () => this.setSideView(<any>b.dataset.side)));
 
@@ -827,9 +835,29 @@ export class App {
             b.setAttribute("aria-current", String(b.dataset.view == view)));
         this.root.querySelectorAll<HTMLElement>(".jp-side-switch [data-side]").forEach(b =>
             b.setAttribute("aria-selected", String(b.dataset.side == this.sideView)));
-        if (view != "code") this.editor?.view.contentDOM.blur();
+        /*
+         * JPadBlox: Reiter-Layout (iPad hochkant) mit offener Bildschirmtastatur: Beim Wechsel zu Lernpfad, Ausgabe …
+         * bleibt die Tastatur offen. Dafür behält der (unsichtbar „geparkte“) Editor den Fokus und nimmt solange
+         * keine Eingaben an. Zurück im Code geht es an derselben Stelle weiter.
+         */
+        const hold = view != "code" && this.root.dataset.layout == "tabs" && !!this.editor?.view.hasFocus
+            && document.documentElement.classList.contains("keyboard-open");
+        if (hold) {
+            this.root.dataset.kbhold = "true";
+            this.editor.setParked(true);
+        } else if (view == "code" && this.root.dataset.kbhold == "true") {
+            this.unparkEditor();
+        } else if (view != "code") {
+            this.unparkEditor();
+            this.editor?.view.contentDOM.blur();
+        }
         // Grafikbereich der Online-IDE über Größenänderung informieren
         setTimeout(() => jQuery('.jo_graphics').trigger('sizeChanged'), 50);
+    }
+
+    private unparkEditor() {
+        delete this.root.dataset.kbhold;
+        this.editor?.setParked(false);
     }
 
     setSideView(side: SideView) {

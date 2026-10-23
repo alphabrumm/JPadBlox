@@ -155,3 +155,7 @@ GNU GPL v3, wie die Online-IDE.
   mit Kurzzeichen; oben steht dann ein gelber Doppelpfeil (Stil wie ▶ des Themes) zurück zur normalen Breite. Gemerkt.
 - **Pink-Hacker-Theme** (nach Hacker, vor Standard): wie Hacker, alles Grüne pink (#FF2EC4); Ablauf-Bausteine und
   Schlüsselwörter dafür grün (#00FF9C).
+- **Tastatur bleibt offen beim Ansichtswechsel** (Reiter-Layout, z. B. iPad hochkant): Wechselt man bei offener
+  Bildschirmtastatur von Code zu Lernpfad/Ausgabe/…, wird der Editor nur unsichtbar „geparkt“ (behält den Fokus,
+  nimmt solange keine Eingaben an, data-kbhold). Die Ansicht endet über der Tastatur, zurück im Code geht es an derselben
+  Stelle weiter. Die untere Navigation nimmt dem Editor beim Antippen den Fokus nicht mehr.

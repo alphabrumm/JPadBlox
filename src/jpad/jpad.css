@@ -2852,3 +2852,10 @@ html.phone .jp-drawer-head .jp-drawer-skin { display: inline-grid; }
     .jp-topbar .jp-skinbtn { display: none; }
     .jp-drawer-head .jp-drawer-skin { display: inline-grid; }
 }
+
+/* JPadBlox: Ansichtswechsel bei offener Tastatur (iPad hochkant): Der Editor bleibt unsichtbar „geparkt“ und
+   behält den Fokus, damit die Tastatur nicht zuklappt; die Ansicht endet über der Tastatur. */
+.jp-app[data-kbhold="true"][data-layout="tabs"]:not([data-view="code"]) .jp-pane-code {
+    display: flex; position: absolute; left: 0; top: 0; width: 2px; height: 2px; opacity: 0; overflow: hidden; pointer-events: none; z-index: -1;
+}
+html.tablet .jp-app[data-kbhold="true"][data-layout="tabs"]:not([data-view="code"]) { bottom: var(--keyboard-offset); }

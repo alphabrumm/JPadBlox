@@ -276,6 +276,15 @@ export class TouchEditor {
 
     private fontSizeCompartment = new Compartment();
     private readOnlyCompartment = new Compartment();
+    /** JPadBlox: Editor ist „geparkt“ (unsichtbar, behält aber den Fokus, damit die Bildschirmtastatur offen bleibt) */
+    private parked = false;
+
+    /** Parken: keine Eingaben annehmen, solange der Editor nicht zu sehen ist */
+    setParked(on: boolean) {
+        if (this.parked == on) return;
+        this.parked = on;
+        this.view.dispatch({ effects: this.readOnlyCompartment.reconfigure(EditorState.readOnly.of(on || !!this.file?.readOnly)) });
+    }
     private extensions: Extension[];
 
     constructor(parent: HTMLElement, private bridge: LanguageBridge, private listener: EditorListener, fontSize: number) {
@@ -411,7 +420,7 @@ export class TouchEditor {
         this.file = file;
         this.applyingFromModel = true;
         this.view.setState(state);
-        this.view.dispatch({ effects: this.readOnlyCompartment.reconfigure(EditorState.readOnly.of(!!file.readOnly)) });
+        this.view.dispatch({ effects: this.readOnlyCompartment.reconfigure(EditorState.readOnly.of(!!file.readOnly || this.parked)) });
         this.applyingFromModel = false;
         this.updateDiagnostics();
         this.listener.onHistoryChanged?.(undoDepth(this.view.state) > 0, redoDepth(this.view.state) > 0);
