@@ -147,3 +147,7 @@ GNU GPL v3, wie die Online-IDE.
   learn/jcode.php ohne Parameter zeigt der Lehrkraft alle Codes mit Links (doppelte Codes rot).
   Geöffnet wird wie ?lernpfad=learn/…: beim ersten Mal neues Projekt, danach das eigene Projekt mit Stand.
   Der Vollbild-Knopf wurde wieder entfernt (Safari verlässt das Vollbild, sobald die Tastatur erscheint).
+- **Hochformat mit Tastatur** (iPad): Die Ansichtsleiste Code/Lernpfad/Ausgabe/… bleibt über der Hilfsleiste sichtbar,
+  flacher (42 px, Symbol und Text nebeneinander). Auf dem Handy wird sie beim Tippen weiter ausgeblendet.
+- **Theme-Knopf auf schmalen Bildschirmen** (Handy oder < 520 px Breite): oben im Menü links neben dem Schließen-Knopf
+  statt in der Kopfzeile.

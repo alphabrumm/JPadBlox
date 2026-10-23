@@ -341,6 +341,7 @@ export class App {
         <aside class="jp-drawer" data-ref="drawer" aria-label="Menü" inert>
             <div class="jp-drawer-head">
                 <div class="jp-brand"><span class="jp-brand-mark">J</span>JPad</div>
+                <button class="jp-iconbtn jp-skinbtn jp-drawer-skin" data-ref="drawerSkinBtn"></button>
                 <button class="jp-iconbtn" data-ref="drawerClose" data-tip="Menü schließen" aria-label="Menü schließen">${icon("close")}</button>
             </div>
             <div class="jp-drawer-body">
@@ -421,6 +422,8 @@ export class App {
         this.el.formatBtn.addEventListener("click", () => this.formatCode());
         this.el.saveBtn.addEventListener("click", () => this.exportProject());
         this.el.skinBtn.addEventListener("click", () => this.nextSkin());
+        // Auf sehr schmalen Bildschirmen (iPhone) steht der Theme-Knopf oben im Menü statt in der Kopfzeile
+        this.el.drawerSkinBtn.addEventListener("click", () => this.nextSkin());
         this.el.collapseBtn.addEventListener("pointerdown", e => e.preventDefault());
         this.el.collapseBtn.addEventListener("click", () => this.setCompact(this.root.dataset.compact != "true"));
         this.setCompact(this.loadCompact());
@@ -1607,17 +1610,18 @@ export class App {
     }
 
     renderSkinButton() {
-        const btn = this.el.skinBtn;
-        if (!btn) return;
         const s = this.getSkin();
         const [iconName, label] =
             s == "default" ? ["unicorn", "Flaches Theme: weiß und blau, klare Linien"] :
             s == "flat" ? ["hacker", "Hacker-Theme: dunkel, Neon, spitze Ecken"] :
             ["skinReset", "Zurück zum normalen Aussehen"];
-        btn.innerHTML = icon(iconName);
-        btn.setAttribute("aria-label", label);
-        btn.title = label;
-        btn.dataset.tip = label;
+        for (const btn of [this.el.skinBtn, this.el.drawerSkinBtn]) {
+            if (!btn) continue;
+            btn.innerHTML = icon(iconName);
+            btn.setAttribute("aria-label", label);
+            btn.title = label;
+            btn.dataset.tip = label;
+        }
     }
 
     effectiveTheme(): "light" | "dark" {

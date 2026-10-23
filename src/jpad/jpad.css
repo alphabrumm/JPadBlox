@@ -755,8 +755,13 @@ li[aria-selected] .cm-completionDetail { color: inherit; opacity: 0.85; }
 .jp-bottomnav button[aria-current="true"] { color: var(--accent); font-weight: 700; }
 .jp-bottomnav .jp-badge { position: absolute; top: 6px; left: calc(50% + 6px); }
 
-/* Mit offener Tastatur zählt jeder Pixel: Navigation ausblenden */
-html.keyboard-open.editor-focused .jp-bottomnav { display: none; }
+/* Mit offener Tastatur: auf dem Handy zählt jeder Pixel (Navigation ausblenden), auf dem iPad bleibt sie
+   sichtbar, aber flacher (Symbol und Text nebeneinander) */
+html.phone.keyboard-open.editor-focused .jp-bottomnav { display: none; }
+html:not(.phone).keyboard-open .jp-app[data-layout="tabs"] .jp-bottomnav,
+html.tablet:not(.phone).keyboard-open .jp-app[data-layout="tabs"][data-view] .jp-bottomnav { height: 42px; padding-bottom: 0; }
+html:not(.phone).keyboard-open .jp-bottomnav button { flex-direction: row; gap: 6px; }
+html:not(.phone).keyboard-open .jp-bottomnav .jp-badge { top: 4px; }
 
 /* ---------- Tastatur-Hilfsleiste ---------- */
 
@@ -2739,3 +2744,11 @@ html.phone .jp-topbar .jp-foldgroup { display: none; }
 }
 .jp-jcode-input:focus { border-color: var(--accent); outline: none; }
 .jp-jcode-input::placeholder { color: var(--ink-2); opacity: .4; letter-spacing: 0.3em; }
+
+/* Theme-Knopf: auf sehr schmalen Bildschirmen oben im Menü (links neben dem Schließen-Knopf) statt in der Kopfzeile */
+.jp-drawer-head .jp-drawer-skin { display: none; margin-left: auto; margin-right: 10px; }
+html.phone .jp-drawer-head .jp-drawer-skin { display: inline-grid; }
+@media (max-width: 520px) {
+    .jp-topbar .jp-skinbtn { display: none; }
+    .jp-drawer-head .jp-drawer-skin { display: inline-grid; }
+}
