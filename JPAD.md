@@ -159,3 +159,7 @@ GNU GPL v3, wie die Online-IDE.
   Bildschirmtastatur von Code zu Lernpfad/Ausgabe/…, wird der Editor nur unsichtbar „geparkt“ (behält den Fokus,
   nimmt solange keine Eingaben an, data-kbhold). Die Ansicht endet über der Tastatur, zurück im Code geht es an derselben
   Stelle weiter. Die untere Navigation nimmt dem Editor beim Antippen den Fokus nicht mehr.
+- **Bausteinleiste nur noch normal ↔ zugeklappt**: Im Kopf „Bausteine“ ein gelber Pfeil « (zuklappen, nur Symbole),
+  zugeklappt oben ein gelber Pfeil » (aufklappen). Geht auch im Hochformat. Die ganz breite Leiste ist abgeschaltet
+  (Code bleibt, Schalter BLOCKS_WIDE_ENABLED in App.ts).
+- **Variablen-Dialog** 20 % breiter (504 statt 420 px), damit „String“ im Datentyp-Feld ganz zu sehen ist.

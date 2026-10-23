@@ -2859,3 +2859,14 @@ html.phone .jp-drawer-head .jp-drawer-skin { display: inline-grid; }
     display: flex; position: absolute; left: 0; top: 0; width: 2px; height: 2px; opacity: 0; overflow: hidden; pointer-events: none; z-index: -1;
 }
 html.tablet .jp-app[data-kbhold="true"][data-layout="tabs"]:not([data-view="code"]) { bottom: var(--keyboard-offset); }
+
+/* Bausteinleiste: nur noch normal ↔ zugeklappt, beides mit gelbem Pfeil (der alte Vergrößern-Knopf ist ausgeblendet) */
+.jp-pane-blocks .jp-panehead [data-ref="blocksLayoutBtn"] { display: none; }
+.jp-blocks-fold { flex: none; width: 36px; height: 28px; margin: 0 8px 0 4px; border-radius: 10px; }
+.jp-blocks-fold .jp-icon { width: 18px; height: 18px; }
+.jp-pane-blocks .jp-panehead { padding-right: 0; }
+
+/* Variablen-Dialog 20 % breiter, damit „String“ im Datentyp-Feld nicht abgeschnitten wird */
+@media (min-width: 700px) {
+    .jp-sheet.is-variable { max-width: min(504px, var(--sheet-cap, 9999px)); }
+}

@@ -46,6 +46,12 @@ function loadSkinFonts() {
     document.head.appendChild(link);
 }
 
+/**
+ * JPadBlox: ganz breite Bausteinleiste (Knopf „Vergrößern“ im Kopf „Bausteine“). Derzeit abgeschaltet: Die Leiste
+ * hat nur noch zwei Breiten, normal (Namen) und zugeklappt (Symbole), umgeschaltet mit dem gelben Pfeil.
+ */
+const BLOCKS_WIDE_ENABLED = false;
+
 /** JPadBlox: Aufteilung der drei Spalten (siehe applyLayout) */
 type ViewMode = "normal" | "editorWide" | "editorFull" | "infoWide" | "infoFull";
 type ViewState = { mode: ViewMode, blocksWide: boolean, before?: { mode: ViewMode, blocksWide: boolean } };
@@ -297,6 +303,7 @@ export class App {
                 <div class="jp-panehead">
                     <span class="jp-panehead-title">Bausteine</span>
                     <button class="jp-iconbtn jp-layoutbtn" data-ref="blocksLayoutBtn"></button>
+                    <button class="jp-run jo_active jp-blocks-fold" data-ref="blocksFoldBtn" data-tip="Bausteinleiste zuklappen: Symbole statt Namen, mehr Platz für den Code" aria-label="Bausteinleiste zuklappen">${icon("foldLeft")}</button>
                 </div>
                 <button class="jp-run jo_active jp-blocks-restore" data-ref="blocksRestoreBtn" data-tip="Bausteinleiste wieder in normaler Breite (mit Namen) anzeigen" aria-label="Bausteinleiste normal breit">${icon("foldRight")}</button>
                 <div class="jp-blockpanel" data-ref="blockPanel">${blockPanelHtml()}</div>
@@ -527,7 +534,9 @@ export class App {
             btn.hidden = !show;
         };
         const applyLayout = () => {
-            const v = this.getViewState();
+            const stored = this.getViewState();
+            // JPadBlox: Die ganz breite Bausteinleiste ist abgeschaltet (Code bleibt, siehe BLOCKS_WIDE_ENABLED)
+            const v: ViewState = { ...stored, blocksWide: BLOCKS_WIDE_ENABLED && stored.blocksWide };
             const m = v.mode;
             const cols =
                 m == "editorFull" ? "full" :
@@ -573,6 +582,8 @@ export class App {
             return { ...v, blocksWide: true };
         });
         layoutButton(this.el.blocksRestoreBtn, v => { this.setBlocksTiny(false); return { ...v, blocksWide: false }; });
+        // Gelber Pfeil im Kopf „Bausteine“: Leiste zuklappen (nur Symbole)
+        layoutButton(this.el.blocksFoldBtn, v => { this.setBlocksTiny(true); return { ...v, blocksWide: false }; });
         layoutButton(this.el.layoutBtn, v => {
             if (v.mode == "editorWide" || v.mode == "editorFull") return v.before ?? DEFAULT;
             return { mode: "editorWide", blocksWide: v.blocksWide, before: { mode: v.mode, blocksWide: v.blocksWide } };

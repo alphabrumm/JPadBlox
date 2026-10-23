@@ -373,6 +373,7 @@ export class Dialogs {
                     <button type="submit" class="jp-btn jp-btn-primary">Einfügen</button>
                 </div>
             </form>`, (sheet, close) => {
+            sheet.classList.add("is-variable");
             const q = <T extends HTMLElement>(s: string) => sheet.querySelector<T>(s)!;
             const type = q<HTMLSelectElement>("[data-ref=type]"), name = q<HTMLInputElement>("[data-ident]");
             const isArray = q<HTMLInputElement>("[data-isarray]"), declOnly = q<HTMLInputElement>("[data-declonly]");
