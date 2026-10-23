@@ -165,3 +165,5 @@ GNU GPL v3, wie die Online-IDE.
 - **Variablen-Dialog** 20 % breiter (504 statt 420 px), damit „String“ im Datentyp-Feld ganz zu sehen ist.
 - **Kurzzeichen auch aufgeklappt**: In der aufgeklappten Bausteinleiste steht das Kurzzeichen links neben dem Namen
   (linksbündig, feste Spalte 26 px); die Leiste ist dadurch 147 statt 119 px breit.
+- Aufgeklappt steht rechts neben dem Kurzzeichen bei `//` „Kommentar“, bei if, new und for „…“ (nur Anzeige per CSS,
+  Name des Knopfs und Hilfsleiste unverändert).

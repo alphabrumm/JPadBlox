@@ -2880,3 +2880,6 @@ html.tablet .jp-app[data-kbhold="true"][data-layout="tabs"]:not([data-view="code
     font-family: var(--font-code); font-size: 12.5px; font-weight: 700; letter-spacing: -0.03em; opacity: .9;
 }
 .jp-app:not([data-compact="true"]):not([data-btiny="true"]) .jp-blockpanel .jp-block-ico svg { width: 18px; height: 18px; }
+/* Anderer Text, wo der Name nur das Kurzzeichen wiederholt (// → Kommentar; if, new, for → …) – der Name bleibt Text des Knopfs */
+.jp-app:not([data-compact="true"]):not([data-btiny="true"]) .jp-blockpanel .jp-block-label[data-alt] { font-size: 0; }
+.jp-app:not([data-compact="true"]):not([data-btiny="true"]) .jp-blockpanel .jp-block-label[data-alt]::before { content: attr(data-alt); font-size: 15px; }
