@@ -141,3 +141,6 @@ GNU GPL v3, wie die Online-IDE.
 - **Vollbild-Knopf** (gleicher Stil, direkt rechts neben „Kopfzeilen zuklappen“; beide zusammen mittig zwischen Glühbirne
   und Theme-Knopf): Fullscreen-API (`requestFullscreen`, mit webkit-Varianten), nochmal tippen beendet das Vollbild.
   Nur sichtbar, wenn der Browser Vollbild für Seiten erlaubt (Safari auf dem iPad ja, auf dem iPhone nicht).
+- **Kompakte Bausteinleiste**: Im zugeklappten Modus zeigt die senkrechte Bausteinleiste statt der Namen Kurzzeichen
+  (Symbole für Klasse, Attribut, Konstruktor, extends, while, return; sonst kurze Code-Zeichen wie m(), g/s, ±, x=, ›↵),
+  Gruppenüberschriften als farbige Striche. Breite der Leiste 118 → 64 px (11-Zoll-iPad), Name bleibt Tooltip/aria-label.

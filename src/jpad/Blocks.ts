@@ -1017,8 +1017,45 @@ export function blockTip(b: Block): string {
     return b.tip;
 }
 
+/**
+ * Kurzzeichen der Bausteine für die kompakte Ansicht (Kopfzeilen zugeklappt): Dann zeigt die senkrechte
+ * Bausteinleiste statt der Namen nur diese Zeichen und wird deutlich schmaler.
+ * svg: Strich-Symbol (24 × 24), sonst kurzer Text in Code-Schrift.
+ */
+const ICON = (p: string) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const BLOCK_ICONS: Record<string, { svg?: string, text?: string }> = {
+    "Klasse": { svg: ICON('<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 9.5h16"/>') },
+    "Attribut": { svg: ICON('<rect x="4" y="4" width="16" height="16" rx="2" stroke-opacity=".4"/><path d="M4 9.5h16" stroke-opacity=".4"/><path d="M7.5 14.5h9" stroke-width="3"/>') },
+    "Konstruktor": { svg: ICON('<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 8.5v7M8.5 12h7" stroke-width="2.5"/>') },
+    "Methode": { text: "m()" },
+    "{get,set}": { text: "g/s" },
+    "public?": { text: "±" },
+    "//": { text: "//" },
+    "extends": { svg: ICON('<path d="M12 21V10"/><path d="M6 10l6-6 6 6z"/>') },
+    "super": { text: "sup" },
+    "if": { text: "if" },
+    "else if": { text: "↳if" },
+    "else": { text: "↳" },
+    "while": { svg: ICON('<path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/>') },
+    "for": { text: "for" },
+    "for-each": { text: "for:" },
+    "do – while": { text: "do" },
+    "return": { svg: ICON('<path d="M10 4H5v16h5"/><path d="M8 12h11"/><path d="M15 8l4 4-4 4"/>') },
+    "break": { text: "brk" },
+    "Variable": { text: "x=" },
+    "println": { text: "›↵" },
+    "print": { text: "›_" },
+    "new": { text: "new" },
+    "Array": { text: "[ ]" },
+    "ArrayList": { text: "[…]" },
+};
+
 function chipHtml(b: Block, i: number): string {
-    return `<button class="jp-block" data-block="${i}" data-group="${b.group}"${b.help ? ` data-help="${b.help}"` : ""} data-tip="${blockTip(b).replace(/"/g, "&quot;")}">${b.label.replace(/</g, "&lt;")}</button>`;
+    const ic = BLOCK_ICONS[b.label];
+    // Das Kurzzeichen als Text steht in data-ico (per CSS angezeigt), damit der Text des Knopfs der Name bleibt
+    const ico = !ic ? "" : ic.svg ? `<span class="jp-block-ico" aria-hidden="true">${ic.svg}</span>`
+        : `<span class="jp-block-ico" aria-hidden="true" data-ico="${ic.text!.replace(/"/g, "&quot;")}"></span>`;
+    return `<button class="jp-block" data-block="${i}" data-group="${b.group}"${b.help ? ` data-help="${b.help}"` : ""} aria-label="${b.label.replace(/"/g, "&quot;")}" data-tip="${blockTip(b).replace(/"/g, "&quot;")}"><span class="jp-block-label">${b.label.replace(/</g, "&lt;")}</span>${ico}</button>`;
 }
 
 /** Senkrechte Bausteinleiste (linke Spalte im Querformat), nach Gruppen geordnet; ganz unten „Mehr…“ (eingeklappt) */
@@ -1032,7 +1069,7 @@ export function blockPanelHtml(): string {
         </section>`).join("") + `
         <section class="jp-blockgroup jp-blockgroup-more" data-open="${moreOpen()}">
             <button class="jp-more-toggle" type="button" aria-expanded="${moreOpen()}" data-tip="Weitere Bausteine ein- oder ausklappen">
-                <span class="jp-more-chevron" aria-hidden="true">›</span>Mehr…
+                <span class="jp-more-chevron" aria-hidden="true">›</span><span class="jp-more-label">Mehr…</span>
             </button>
             <div class="jp-blockgroup-items">${items(b => !!b.more)}</div>
         </section>`;

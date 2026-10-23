@@ -2714,3 +2714,20 @@ html.phone .jp-topbar .jp-foldgroup { display: none; }
 }
 .jp-app[data-compact="true"] .jp-side-switch .jp-lernpfad-tab { width: 48px; }
 .jp-app[data-compact="true"] .jp-side-switch button[aria-selected="true"]::after { background: var(--accent); opacity: 1; height: 5px; }
+
+/* Kompakte Ansicht: Bausteinleiste mit Kurzzeichen statt Namen (deutlich schmaler) */
+.jp-block-ico { display: none; }
+.jp-block-ico[data-ico]::before { content: attr(data-ico); }
+.jp-app[data-compact="true"] .jp-blockpanel .jp-block-label { display: none; }
+.jp-app[data-compact="true"] .jp-blockpanel .jp-block-ico { display: inline-flex; align-items: center; justify-content: center; }
+.jp-app[data-compact="true"] .jp-blockpanel .jp-block-ico svg { width: 20px; height: 20px; }
+.jp-app[data-compact="true"] .jp-blockpanel { padding: 4px 5px 10px; }
+.jp-app[data-compact="true"] .jp-blockpanel button.jp-block {
+    min-width: 44px; width: 100%; padding: 0 4px 0 2px; text-align: center; justify-content: center;
+    display: flex; align-items: center; font-weight: 700; font-size: 15px; letter-spacing: -0.02em;
+}
+.jp-app[data-compact="true"][data-bwide="false"] .jp-pane-blocks { width: max-content; }
+/* Gruppenüberschriften als farbige Striche, „Mehr…“ nur als Pfeil */
+.jp-app[data-compact="true"] .jp-blockpanel .jp-blockgroup h3 { font-size: 0; height: 4px; width: 26px; margin: 8px auto 6px; border-radius: 2px; background: var(--g); }
+.jp-app[data-compact="true"] .jp-blockpanel .jp-more-label { display: none; }
+.jp-app[data-compact="true"] .jp-blockpanel .jp-more-toggle { justify-content: center; }
