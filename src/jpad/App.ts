@@ -348,7 +348,7 @@ export class App {
                 <div class="jp-menu-actions">
                     <button data-ref="newProjectBtn" data-tip="Neues, leeres Projekt anlegen">${icon("plus")}<span>Neues Projekt</span></button>
                     <button data-ref="openFileBtn" data-tip="Projekt aus einer Datei öffnen (z. B. aus ByCS Drive)">${icon("open")}<span>Projekt aus Datei öffnen</span></button>
-                    <button data-ref="jcodeBtn" data-tip="Lernprojekt mit dem kurzen Code öffnen, den deine Lehrkraft dir gibt (z. B. H88HF)">${icon("lernpfad")}<span>Projekt über JCode öffnen</span></button>
+                    <button data-ref="jcodeBtn" data-tip="Lernprojekt mit dem kurzen Code öffnen, den deine Lehrkraft dir gibt (z. B. H88HF)">${icon("jcode")}<span>Projekt über JCode öffnen</span></button>
                     <button data-ref="saveFileBtn" data-tip="Projekt als Datei sichern">${icon("save")}<span>Projekt als Datei sichern</span></button>
                 </div>
                 <div class="jp-menu-actions jp-menu-group">
