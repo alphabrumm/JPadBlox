@@ -163,3 +163,5 @@ GNU GPL v3, wie die Online-IDE.
   zugeklappt oben ein gelber Pfeil » (aufklappen). Geht auch im Hochformat. Die ganz breite Leiste ist abgeschaltet
   (Code bleibt, Schalter BLOCKS_WIDE_ENABLED in App.ts).
 - **Variablen-Dialog** 20 % breiter (504 statt 420 px), damit „String“ im Datentyp-Feld ganz zu sehen ist.
+- **Kurzzeichen auch aufgeklappt**: In der aufgeklappten Bausteinleiste steht das Kurzzeichen links neben dem Namen
+  (linksbündig, feste Spalte 26 px); die Leiste ist dadurch 147 statt 119 px breit.

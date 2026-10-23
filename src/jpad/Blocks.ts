@@ -1055,7 +1055,7 @@ function chipHtml(b: Block, i: number): string {
     // Das Kurzzeichen als Text steht in data-ico (per CSS angezeigt), damit der Text des Knopfs der Name bleibt
     const ico = !ic ? "" : ic.svg ? `<span class="jp-block-ico" aria-hidden="true">${ic.svg}</span>`
         : `<span class="jp-block-ico" aria-hidden="true" data-ico="${ic.text!.replace(/"/g, "&quot;")}"></span>`;
-    return `<button class="jp-block" data-block="${i}" data-group="${b.group}"${b.help ? ` data-help="${b.help}"` : ""} aria-label="${b.label.replace(/"/g, "&quot;")}" data-tip="${blockTip(b).replace(/"/g, "&quot;")}"><span class="jp-block-label">${b.label.replace(/</g, "&lt;")}</span>${ico}</button>`;
+    return `<button class="jp-block" data-block="${i}" data-group="${b.group}"${b.help ? ` data-help="${b.help}"` : ""} aria-label="${b.label.replace(/"/g, "&quot;")}" data-tip="${blockTip(b).replace(/"/g, "&quot;")}">${ico}<span class="jp-block-label">${b.label.replace(/</g, "&lt;")}</span></button>`;
 }
 
 /** Senkrechte Bausteinleiste (linke Spalte im Querformat), nach Gruppen geordnet; ganz unten „Mehr…“ (eingeklappt) */
