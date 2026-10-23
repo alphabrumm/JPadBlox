@@ -274,7 +274,10 @@ export class App {
                 <span class="jp-topbar-sep" aria-hidden="true"></span>
                 <button class="jp-iconbtn jp-bulb" data-ref="bulbBtn" aria-label="Tipp: Hilfe zu den Buttons" data-tip="Tipp: So bekommst Du Hilfe zu jedem Button">${icon("lightbulb")}</button>
             </div>
-            <button class="jp-run jo_active jp-collapsebtn" data-ref="collapseBtn"></button>
+            <div class="jp-foldgroup" data-ref="foldGroup">
+                <button class="jp-run jo_active jp-foldbtn jp-collapsebtn" data-ref="collapseBtn"></button>
+                <button class="jp-run jo_active jp-foldbtn jp-fullbtn" data-ref="fullscreenBtn" hidden></button>
+            </div>
             <button class="jp-iconbtn jp-skinbtn" data-ref="skinBtn"></button>
             <div class="jp-toolgroup jp-run-tools">
                 <button class="jp-iconbtn jp-step jp-step-more" data-ref="stepOver" data-help="stepOver" data-tip="Methode überspringen: führt einen Methodenaufruf in einem Schritt aus" aria-label="Methode überspringen" title="Methode überspringen">${icon("stepOver")}</button>
@@ -421,6 +424,7 @@ export class App {
         this.el.collapseBtn.addEventListener("pointerdown", e => e.preventDefault());
         this.el.collapseBtn.addEventListener("click", () => this.setCompact(this.root.dataset.compact != "true"));
         this.setCompact(this.loadCompact());
+        this.setupFullscreen();
         this.el.refactorBtn.addEventListener("click", () => this.renameDialog());
         this.el.demoBtn.addEventListener("click", () => this.openDemo());
         this.renderSkinButton();
@@ -585,7 +589,7 @@ export class App {
     private alignBulb() {
         const g = this.el.bulbGroup, bar = g.parentElement!;
         const sep = g.querySelector<HTMLElement>(".jp-topbar-sep")!;
-        const fold = this.el.collapseBtn;
+        const fold = this.el.foldGroup;
         const reset = () => {
             g.classList.remove("is-aligned");
             g.style.left = "";
@@ -1582,6 +1586,39 @@ export class App {
         b.dataset.tip = label;
         this.alignBulbSoon();
         requestAnimationFrame(() => this.editor?.view.requestMeasure());
+    }
+
+    // ------------------------------------------------ Vollbild (Safari auf dem iPad, Desktop-Browser)
+
+    /** Vollbild-Knopf neben dem Zuklapp-Knopf; nur sichtbar, wenn der Browser Vollbild für Seiten erlaubt (nicht iPhone) */
+    private setupFullscreen() {
+        const d: any = document, el: any = document.documentElement, btn = this.el.fullscreenBtn;
+        const enabled = !!(d.fullscreenEnabled || d.webkitFullscreenEnabled) && !!(el.requestFullscreen || el.webkitRequestFullscreen);
+        btn.hidden = !enabled;
+        if (!enabled) return;
+        const isFull = () => !!(d.fullscreenElement || d.webkitFullscreenElement);
+        const render = () => {
+            const on = isFull();
+            const label = on ? "Vollbild beenden" : "Vollbild: Safari-Leisten ausblenden, JPad nutzt den ganzen Bildschirm";
+            btn.innerHTML = icon(on ? "shrink" : "expand");
+            btn.setAttribute("aria-label", label);
+            btn.setAttribute("aria-pressed", String(on));
+            btn.title = label;
+            btn.dataset.tip = label;
+            this.alignBulbSoon();
+        };
+        btn.addEventListener("pointerdown", e => e.preventDefault());
+        btn.addEventListener("click", async () => {
+            try {
+                if (isFull()) await (d.exitFullscreen ? d.exitFullscreen() : d.webkitExitFullscreen());
+                else await (el.requestFullscreen ? el.requestFullscreen() : el.webkitRequestFullscreen());
+            } catch (e) {
+                this.toast("Der Browser erlaubt hier kein Vollbild.", "info");
+            }
+        });
+        document.addEventListener("fullscreenchange", render);
+        document.addEventListener("webkitfullscreenchange", render);
+        render();
     }
 
     renderSkinButton() {

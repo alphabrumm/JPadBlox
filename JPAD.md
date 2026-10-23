@@ -138,3 +138,6 @@ GNU GPL v3, wie die Online-IDE.
   Dateireiter als Striche (aktiver in Akzentfarbe, Fehler rot umrandet), „+“ und Vergrößern ausgeblendet,
   Kopf „Bausteine“ ausgeblendet, Umschalter der rechten Ansicht als Striche. Alle Striche bleiben antippbar.
   Auf dem 11-Zoll-iPad (1194 × 834) wird der Editor ca. 10 % höher, die Bausteinleiste ca. 13 %.
+- **Vollbild-Knopf** (gleicher Stil, direkt rechts neben „Kopfzeilen zuklappen“; beide zusammen mittig zwischen Glühbirne
+  und Theme-Knopf): Fullscreen-API (`requestFullscreen`, mit webkit-Varianten), nochmal tippen beendet das Vollbild.
+  Nur sichtbar, wenn der Browser Vollbild für Seiten erlaubt (Safari auf dem iPad ja, auf dem iPhone nicht).
