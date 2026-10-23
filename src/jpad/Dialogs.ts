@@ -565,6 +565,56 @@ export class Dialogs {
         });
     }
 
+    /**
+     * JPadBlox: „Projekt über JCode öffnen“ – großes Eingabefeld für den Code. Beim Bestätigen wird der Code
+     * aufgelöst (resolve); passt er nicht, bleibt der Dialog mit einer Meldung offen. Liefert den Pfad oder null.
+     */
+    jcode(o: {
+        length: number,
+        normalize: (s: string) => string,
+        check: (code: string) => string | null,
+        resolve: (code: string) => Promise<{ path?: string, error?: string }>
+    }): Promise<string | null> {
+        return this.open(`
+            <h2 class="jp-sheet-title">Projekt über JCode öffnen</h2>
+            <p class="jp-sheet-text">Gib den Code ein, den du von deiner Lehrkraft bekommen hast. Groß- und Kleinschreibung ist egal.</p>
+            <form class="jp-form">
+                <input type="text" class="jp-jcode-input" maxlength="${o.length + 2}" placeholder="${"•".repeat(o.length)}" aria-label="JCode"
+                    autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="characters" enterkeyhint="go">
+                <p class="jp-field-error" aria-live="polite"></p>
+                <div class="jp-sheet-buttons">
+                    <button type="button" class="jp-btn" data-cancel>Abbrechen</button>
+                    <button type="submit" class="jp-btn jp-btn-primary">Öffnen</button>
+                </div>
+            </form>`, (sheet, close) => {
+            const input = sheet.querySelector("input")!;
+            const error = sheet.querySelector<HTMLElement>(".jp-field-error")!;
+            const submit = sheet.querySelector<HTMLButtonElement>("button[type=submit]")!;
+            setTimeout(() => input.focus(), 60);
+            input.addEventListener("input", () => {
+                const pos = input.selectionStart;
+                input.value = input.value.toUpperCase();
+                input.setSelectionRange(pos, pos);
+                error.textContent = "";
+            });
+            sheet.querySelector("form")!.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const code = o.normalize(input.value);
+                const msg = o.check(code);
+                if (msg) { error.textContent = msg; input.focus(); return; }
+                submit.disabled = true;
+                submit.textContent = "Suche …";
+                const r = await o.resolve(code);
+                submit.disabled = false;
+                submit.textContent = "Öffnen";
+                if (r.path) { close(r.path); return; }
+                error.textContent = r.error ?? "Zu diesem Code gibt es kein Projekt.";
+                input.focus();
+                input.select();
+            });
+        });
+    }
+
     /** JPadBlox: Auswahl mehrerer Einträge (Häkchen). Liefert die ids der gewählten Einträge oder null. */
     choose(o: { title: string, text: string, items: { id: string, label: string, note?: string, checked?: boolean }[], confirm: string }): Promise<string[] | null> {
         return this.open(`

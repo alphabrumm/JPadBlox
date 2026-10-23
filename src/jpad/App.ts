@@ -276,7 +276,6 @@ export class App {
             </div>
             <div class="jp-foldgroup" data-ref="foldGroup">
                 <button class="jp-run jo_active jp-foldbtn jp-collapsebtn" data-ref="collapseBtn"></button>
-                <button class="jp-run jo_active jp-foldbtn jp-fullbtn" data-ref="fullscreenBtn" hidden></button>
             </div>
             <button class="jp-iconbtn jp-skinbtn" data-ref="skinBtn"></button>
             <div class="jp-toolgroup jp-run-tools">
@@ -349,6 +348,7 @@ export class App {
                 <div class="jp-menu-actions">
                     <button data-ref="newProjectBtn" data-tip="Neues, leeres Projekt anlegen">${icon("plus")}<span>Neues Projekt</span></button>
                     <button data-ref="openFileBtn" data-tip="Projekt aus einer Datei öffnen (z. B. aus ByCS Drive)">${icon("open")}<span>Projekt aus Datei öffnen</span></button>
+                    <button data-ref="jcodeBtn" data-tip="Lernprojekt mit dem kurzen Code öffnen, den deine Lehrkraft dir gibt (z. B. H88HF)">${icon("lernpfad")}<span>Projekt über JCode öffnen</span></button>
                     <button data-ref="saveFileBtn" data-tip="Projekt als Datei sichern">${icon("save")}<span>Projekt als Datei sichern</span></button>
                 </div>
                 <div class="jp-menu-actions jp-menu-group">
@@ -424,9 +424,9 @@ export class App {
         this.el.collapseBtn.addEventListener("pointerdown", e => e.preventDefault());
         this.el.collapseBtn.addEventListener("click", () => this.setCompact(this.root.dataset.compact != "true"));
         this.setCompact(this.loadCompact());
-        this.setupFullscreen();
         this.el.refactorBtn.addEventListener("click", () => this.renameDialog());
         this.el.demoBtn.addEventListener("click", () => this.openDemo());
+        this.el.jcodeBtn.addEventListener("click", () => this.openJCode());
         this.renderSkinButton();
 
         // Kopfzeilen-Knöpfe sollen dem Editor den Fokus nicht wegnehmen (sonst klappt die Tastatur zu)
@@ -1023,6 +1023,24 @@ export class App {
      * Menü „Demo-Projekt laden“: öffnet den Demo-Lernpfad (public/demo) wie einen Lernpfad-Link.
      * Gibt es das Demo-Projekt schon, öffnet sich dieses mit dem bisherigen Stand.
      */
+    /** Menü „Projekt über JCode öffnen“: Code eingeben, Datei unter learn/ suchen, wie ein Link öffnen */
+    async openJCode() {
+        this.main.flush();
+        this.closeDrawer();
+        const { normalizeJCode, jcodeFormatError, resolveJCode, JCODE_LENGTH } = await import("./JCode.js");
+        const path = await this.dialogs.jcode({
+            length: JCODE_LENGTH,
+            normalize: normalizeJCode,
+            check: jcodeFormatError,
+            resolve: resolveJCode,
+        });
+        if (!path) return;
+        // Wie ein Link ?lernpfad=…: beim ersten Mal neues Projekt, danach dasselbe Projekt mit dem eigenen Stand
+        const url = new URL(location.href);
+        url.search = "?lernpfad=" + encodeURIComponent(path);
+        location.href = url.href;
+    }
+
     openDemo() {
         this.main.flush();
         this.closeDrawer();
@@ -1586,39 +1604,6 @@ export class App {
         b.dataset.tip = label;
         this.alignBulbSoon();
         requestAnimationFrame(() => this.editor?.view.requestMeasure());
-    }
-
-    // ------------------------------------------------ Vollbild (Safari auf dem iPad, Desktop-Browser)
-
-    /** Vollbild-Knopf neben dem Zuklapp-Knopf; nur sichtbar, wenn der Browser Vollbild für Seiten erlaubt (nicht iPhone) */
-    private setupFullscreen() {
-        const d: any = document, el: any = document.documentElement, btn = this.el.fullscreenBtn;
-        const enabled = !!(d.fullscreenEnabled || d.webkitFullscreenEnabled) && !!(el.requestFullscreen || el.webkitRequestFullscreen);
-        btn.hidden = !enabled;
-        if (!enabled) return;
-        const isFull = () => !!(d.fullscreenElement || d.webkitFullscreenElement);
-        const render = () => {
-            const on = isFull();
-            const label = on ? "Vollbild beenden" : "Vollbild: Safari-Leisten ausblenden, JPad nutzt den ganzen Bildschirm";
-            btn.innerHTML = icon(on ? "shrink" : "expand");
-            btn.setAttribute("aria-label", label);
-            btn.setAttribute("aria-pressed", String(on));
-            btn.title = label;
-            btn.dataset.tip = label;
-            this.alignBulbSoon();
-        };
-        btn.addEventListener("pointerdown", e => e.preventDefault());
-        btn.addEventListener("click", async () => {
-            try {
-                if (isFull()) await (d.exitFullscreen ? d.exitFullscreen() : d.webkitExitFullscreen());
-                else await (el.requestFullscreen ? el.requestFullscreen() : el.webkitRequestFullscreen());
-            } catch (e) {
-                this.toast("Der Browser erlaubt hier kein Vollbild.", "info");
-            }
-        });
-        document.addEventListener("fullscreenchange", render);
-        document.addEventListener("webkitfullscreenchange", render);
-        render();
     }
 
     renderSkinButton() {

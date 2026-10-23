@@ -138,9 +138,12 @@ GNU GPL v3, wie die Online-IDE.
   Dateireiter als Striche (aktiver in Akzentfarbe, Fehler rot umrandet), „+“ und Vergrößern ausgeblendet,
   Kopf „Bausteine“ ausgeblendet, Umschalter der rechten Ansicht als Striche. Alle Striche bleiben antippbar.
   Auf dem 11-Zoll-iPad (1194 × 834) wird der Editor ca. 10 % höher, die Bausteinleiste ca. 13 %.
-- **Vollbild-Knopf** (gleicher Stil, direkt rechts neben „Kopfzeilen zuklappen“; beide zusammen mittig zwischen Glühbirne
-  und Theme-Knopf): Fullscreen-API (`requestFullscreen`, mit webkit-Varianten), nochmal tippen beendet das Vollbild.
-  Nur sichtbar, wenn der Browser Vollbild für Seiten erlaubt (Safari auf dem iPad ja, auf dem iPhone nicht).
 - **Kompakte Bausteinleiste**: Im zugeklappten Modus zeigt die senkrechte Bausteinleiste statt der Namen Kurzzeichen
   (Symbole für Klasse, Attribut, Konstruktor, extends, while, return; sonst kurze Code-Zeichen wie m(), g/s, ±, x=, ›↵),
   Gruppenüberschriften als farbige Striche. Breite der Leiste 118 → 64 px (11-Zoll-iPad), Name bleibt Tooltip/aria-label.
+- **JCodes** (Menü „Projekt über JCode öffnen“): 5 Zeichen aus 23456789ABCDEFGHJKLMNPQRSTUVWXYZ, berechnet aus dem Pfad
+  unter learn/ (z. B. „10/JPad-Schafkonstruktor.json“ → LPANT; FNV-1a 32 Bit, untere 25 Bit). Auflösen über
+  learn/jcode.php (durchsucht learn/9 … learn/13 nach .json/.zip/.html), ohne PHP über learn/jcodes.json.
+  learn/jcode.php ohne Parameter zeigt der Lehrkraft alle Codes mit Links (doppelte Codes rot).
+  Geöffnet wird wie ?lernpfad=learn/…: beim ersten Mal neues Projekt, danach das eigene Projekt mit Stand.
+  Der Vollbild-Knopf wurde wieder entfernt (Safari verlässt das Vollbild, sobald die Tastatur erscheint).

@@ -2658,7 +2658,6 @@ html.field-keys .jp-sheet-layer { padding-bottom: calc(var(--keyboard-offset) + 
 .jp-foldgroup { display: flex; align-items: center; gap: 6px; flex: none; }
 .jp-foldgroup.is-aligned { position: absolute; top: 50%; translate: 0 -50%; }
 .jp-topbar .jp-foldbtn { width: 44px; height: 40px; border-radius: 12px; flex: none; }
-.jp-topbar .jp-foldbtn[hidden] { display: none; }
 .jp-foldbtn .jp-icon { width: 22px; height: 22px; }
 html.phone .jp-topbar .jp-foldgroup { display: none; }
 
@@ -2731,3 +2730,12 @@ html.phone .jp-topbar .jp-foldgroup { display: none; }
 .jp-app[data-compact="true"] .jp-blockpanel .jp-blockgroup h3 { font-size: 0; height: 4px; width: 26px; margin: 8px auto 6px; border-radius: 2px; background: var(--g); }
 .jp-app[data-compact="true"] .jp-blockpanel .jp-more-label { display: none; }
 .jp-app[data-compact="true"] .jp-blockpanel .jp-more-toggle { justify-content: center; }
+
+/* JPadBlox: Eingabe des JCodes */
+.jp-jcode-input {
+    width: 100%; margin-top: 6px; padding: 12px 14px; text-align: center;
+    font-family: var(--font-code); font-size: 30px; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--ink); background: var(--bg); border: 1.5px solid var(--line); border-radius: var(--radius-m);
+}
+.jp-jcode-input:focus { border-color: var(--accent); outline: none; }
+.jp-jcode-input::placeholder { color: var(--ink-2); opacity: .4; letter-spacing: 0.3em; }
