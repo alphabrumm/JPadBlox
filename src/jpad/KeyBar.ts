@@ -69,25 +69,35 @@ export class KeyBar {
         this.el.className = "jp-keybar";
         this.el.setAttribute("role", "toolbar");
         this.el.setAttribute("aria-label", "Sonderzeichen");
-        this.el.innerHTML = `
-            <div class="jp-keybar-fixed is-left">
-                <button data-action="mode" class="jp-key-mode" aria-label="Zwischen Bausteinen und Sonderzeichen umschalten" data-tip="Umschalten: Code-Bausteine (class, Methode, if, for …) oder Sonderzeichen ({ } ( ) ; = …)">${icon("blocks", "jp-mode-blocks")}<span class="jp-mode-chars">{ }</span></button>
+        // Cursor-, Zeilen- und rechte Knöpfe: auf dem iPad fest am Rand, auf dem iPhone (wenig Platz) zusätzlich als
+        // Kopie am Anfang bzw. Ende der scrollbaren Reihe (die festen sind dort ausgeblendet, siehe CSS html.phone)
+        const navKeys = `
                 <button data-action="left" class="jp-key-nav" data-help="left" aria-label="Cursor nach links" data-tip="Cursor ein Zeichen nach links">${icon("left")}</button>
                 <button data-action="right" class="jp-key-nav" data-help="right" aria-label="Cursor nach rechts" data-tip="Cursor ein Zeichen nach rechts">${icon("right")}</button>
                 <button data-action="lineAdd" class="jp-key-line" aria-label="Neue Zeile einfügen" data-tip="Neue, leere Zeile unter der Zeile mit dem Cursor einfügen (richtig eingerückt)">${icon("lineAdd")}</button>
-                <button data-action="lineDelete" class="jp-key-line" aria-label="Zeile löschen" data-tip="Zeile, in der der Cursor steht, löschen">${icon("lineDelete")}</button>
+                <button data-action="lineDelete" class="jp-key-line" aria-label="Zeile löschen" data-tip="Zeile, in der der Cursor steht, löschen">${icon("lineDelete")}</button>`;
+        const rightKeys = `
+                <button data-action="breakpoint" data-help="breakpoint" aria-label="Haltepunkt in dieser Zeile setzen oder entfernen" data-tip="Haltepunkt in dieser Zeile setzen oder entfernen – das Programm hält vor der Zeile an" class="jp-key-breakpoint">${icon("breakpoint")}</button>
+                <button data-action="info" data-help="info" aria-label="Info zur Stelle am Cursor" data-tip="Info zu dem Namen, auf dem der Cursor steht">${icon("info")}</button>
+                <button data-action="hide" data-help="hide" aria-label="Tastatur ausblenden" data-tip="Bildschirmtastatur ausblenden">${icon("keyboardDown")}</button>`;
+        this.el.innerHTML = `
+            <div class="jp-keybar-fixed is-left">
+                <button data-action="mode" class="jp-key-mode" aria-label="Zwischen Bausteinen und Sonderzeichen umschalten" data-tip="Umschalten: Code-Bausteine (class, Methode, if, for …) oder Sonderzeichen ({ } ( ) ; = …)">${icon("blocks", "jp-mode-blocks")}<span class="jp-mode-chars">{ }</span></button>
+${navKeys}
             </div>
             <div class="jp-keybar-main">
             <div class="jp-keybar-scroll">
+                <span class="jp-phone-only jp-phone-group">${navKeys}</span>
                 ${KEYS.map((k, i) => `<button data-key="${i}" ${k.noField ? "data-nofield" : ""} ${k.aria ? `aria-label="${k.aria}"` : ""} ${k.tip ? `data-tip="${k.tip.replace(/"/g, "&quot;")}"` : ""} ${k.help ? `data-help="${k.help}"` : ""}>${k.label}</button>`).join("")}
+                <span class="jp-phone-only jp-phone-group">${rightKeys}</span>
             </div>
             <div class="jp-keybar-scroll jp-blocks-scroll">
+                <span class="jp-phone-only jp-phone-group">${navKeys}</span>
                 ${blockRowHtml()}
+                <span class="jp-phone-only jp-phone-group">${rightKeys}</span>
             </div>
             <div class="jp-keybar-fixed is-right">
-                <button data-action="breakpoint" data-help="breakpoint" aria-label="Haltepunkt in dieser Zeile setzen oder entfernen" data-tip="Haltepunkt in dieser Zeile setzen oder entfernen – das Programm hält vor der Zeile an" class="jp-key-breakpoint">${icon("breakpoint")}</button>
-                <button data-action="info" data-help="info" aria-label="Info zur Stelle am Cursor" data-tip="Info zu dem Namen, auf dem der Cursor steht">${icon("info")}</button>
-                <button data-action="hide" data-help="hide" aria-label="Tastatur ausblenden" data-tip="Bildschirmtastatur ausblenden">${icon("keyboardDown")}</button>
+${rightKeys}
             </div>
             </div>`;
         root.appendChild(this.el);

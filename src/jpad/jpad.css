@@ -2883,3 +2883,10 @@ html.tablet .jp-app[data-kbhold="true"][data-layout="tabs"]:not([data-view="code
 /* Anderer Text, wo der Name nur das Kurzzeichen wiederholt (// → Kommentar; if, new, for → …) – der Name bleibt Text des Knopfs */
 .jp-app:not([data-compact="true"]):not([data-btiny="true"]) .jp-blockpanel .jp-block-label[data-alt] { font-size: 0; }
 .jp-app:not([data-compact="true"]):not([data-btiny="true"]) .jp-blockpanel .jp-block-label[data-alt]::before { content: attr(data-alt); font-size: 15px; }
+
+/* iPhone: In der Hilfsleiste bleibt nur der Umschalter Bausteine/Zeichen fest; Cursor-, Zeilen- und rechte Knöpfe
+   scrollen mit (Kopien am Anfang bzw. Ende der Reihe). Auf dem iPad bleibt alles wie gehabt. */
+.jp-keybar .jp-phone-only { display: none; }
+html.phone .jp-keybar .jp-phone-group { display: contents; }
+html.phone .jp-keybar-fixed.is-left > :not([data-action="mode"]) { display: none; }
+html.phone .jp-keybar-fixed.is-right { display: none; }

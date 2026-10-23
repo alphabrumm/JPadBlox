@@ -171,3 +171,5 @@ GNU GPL v3, wie die Online-IDE.
   //-Kommentar; steht dort schon einer, kein zweiter), danach Cursor in die nächste Zeile (leere nächste Zeile wird
   benutzt, sonst neue eingerückte Zeile). Auch mitten in Text: println("Hallo|") → println("Hallo");⏎.
   Normaler Strichpunkt nur im for-Kopf, in Kommentaren, in leeren Zeilen und bei Markierung.
+- **Hilfsleiste auf dem iPhone**: Nur der Umschalter Bausteine/Zeichen bleibt links fest; Cursor-, Zeilen-, Haltepunkt-,
+  Info- und Tastatur-Knopf scrollen mit (am Anfang bzw. Ende der Reihe). iPad unverändert.
