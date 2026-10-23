@@ -2650,3 +2650,65 @@ html.field-keys .jp-keybar { display: flex; z-index: 75; }
 .jp-keybar.is-field [data-action="breakpoint"],
 .jp-keybar.is-field [data-action="info"] { display: none !important; }
 html.field-keys .jp-sheet-layer { padding-bottom: calc(var(--keyboard-offset) + 56px); }
+
+/* ===================================================================================
+   JPadBlox: Kompakte Ansicht – Knopf „Kopfzeilen zuklappen“ (rechts neben der Glühbirne)
+   Kopfzeile halb so hoch, Knöpfe/Titel/Reiter/Umschalter nur noch als antippbare Striche.
+   =================================================================================== */
+.jp-topbar .jp-collapsebtn { width: 44px; height: 40px; border-radius: 12px; flex: none; }
+.jp-collapsebtn .jp-icon { width: 22px; height: 22px; }
+.jp-collapsebtn.is-aligned { position: absolute; top: 50%; translate: 0 -50%; }
+.jp-collapsebtn.is-aligned:active { transform: scale(0.97); }
+html.phone .jp-topbar .jp-collapsebtn { display: none; }
+
+.jp-app[data-compact="true"] { --topbar-h: 26px; }
+.jp-app[data-compact="true"] .jp-topbar { gap: 4px; }
+/* Der Zuklapp-Knopf selbst: flach und schmal, mit kleinem Pfeil nach unten */
+.jp-app[data-compact="true"] .jp-topbar .jp-collapsebtn { width: 40px; height: 14px; border-radius: 7px; box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.14); }
+.jp-app[data-compact="true"] .jp-collapsebtn .jp-icon { width: 16px; height: 16px; stroke-width: 3; }
+
+/* Alle übrigen Knöpfe der Kopfzeile und der Projekttitel als Striche */
+.jp-app[data-compact="true"] .jp-topbar button:not(.jp-collapsebtn) {
+    width: 30px; min-width: 0; height: 22px; padding: 0; border: 0; background: transparent !important;
+    box-shadow: none !important; display: inline-grid; place-items: center; font-size: 0;
+}
+.jp-app[data-compact="true"] .jp-topbar button:not(.jp-collapsebtn) > * { display: none !important; }
+.jp-app[data-compact="true"] .jp-topbar button:not(.jp-collapsebtn)::after {
+    content: ""; display: block; width: 18px; height: 4px; border-radius: 2px; background: var(--ink-2); opacity: .5;
+}
+.jp-app[data-compact="true"] .jp-topbar button.jp-project { width: 96px; }
+.jp-app[data-compact="true"] .jp-topbar button.jp-project::after { width: 84px; height: 5px; background: var(--ink); opacity: .55; }
+.jp-app[data-compact="true"] .jp-topbar button.jp-run::after { width: 26px; height: 6px; border-radius: 3px; background: var(--marker); opacity: 1; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.18); }
+.jp-app[data-compact="true"] .jp-topbar button.jp-stop::after { background: var(--danger); opacity: .7; }
+.jp-app[data-compact="true"] .jp-topbar button.jp-stepbtn::after { width: 26px; background: var(--accent); opacity: .7; }
+.jp-app[data-compact="true"] .jp-topbar button.jp-bulb::after { background: var(--marker); opacity: 1; }
+.jp-app[data-compact="true"] .jp-topbar .jp-topbar-sep { height: 12px; }
+
+/* Dateireiter: ein Strich je Datei, der aktive in der Akzentfarbe */
+.jp-app[data-compact="true"] .jp-filebar { align-items: center; }
+.jp-app[data-compact="true"] .jp-filetabs { padding: 2px 8px; gap: 4px; }
+.jp-app[data-compact="true"] .jp-filetab { height: 14px; width: 40px; padding: 0; justify-content: center; font-size: 0; background: transparent; border-radius: 4px; }
+.jp-app[data-compact="true"] .jp-filetab > * { display: none !important; }
+.jp-app[data-compact="true"] .jp-filetab::after {
+    content: ""; position: static; display: block; width: 30px; height: 4px; border-radius: 2px; background: var(--ink-2); opacity: .45;
+}
+.jp-app[data-compact="true"] .jp-filetab.is-active::after { background: var(--accent); opacity: 1; height: 5px; }
+.jp-app[data-compact="true"] .jp-filetab.has-errors::after { box-shadow: 0 0 0 1.5px var(--danger); }
+.jp-app[data-compact="true"] .jp-filebar-actions,
+.jp-app[data-compact="true"] .jp-filebar .jp-layoutbtn { display: none; }
+
+/* Kopf „Bausteine“ ausblenden */
+.jp-app[data-compact="true"] .jp-pane-blocks .jp-panehead { display: none; }
+
+/* Umschalter der rechten Ansicht (Lernpfad, Ausgabe, Variablen …) als Striche */
+.jp-app[data-compact="true"] .jp-sidehead .jp-layoutbtn { display: none; }
+.jp-app[data-compact="true"] .jp-side-switch { margin: 2px 8px; padding: 0; gap: 4px; background: transparent; border: 0; }
+.jp-app[data-compact="true"] .jp-side-switch button {
+    min-height: 14px; height: 14px; padding: 0; font-size: 0; background: transparent !important; box-shadow: none !important;
+}
+.jp-app[data-compact="true"] .jp-side-switch button > * { display: none !important; }
+.jp-app[data-compact="true"] .jp-side-switch button::after {
+    content: ""; display: block; width: min(40px, 70%); height: 4px; border-radius: 2px; background: var(--ink-2); opacity: .45;
+}
+.jp-app[data-compact="true"] .jp-side-switch .jp-lernpfad-tab { width: 48px; }
+.jp-app[data-compact="true"] .jp-side-switch button[aria-selected="true"]::after { background: var(--accent); opacity: 1; height: 5px; }

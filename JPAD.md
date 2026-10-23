@@ -132,3 +132,9 @@ veröffentlicht es auf GitHub Pages und stellt den Ordner als Artefakt „j-pad-
 ## Lizenz
 
 GNU GPL v3, wie die Online-IDE.
+
+- **Kompakte Ansicht** (Knopf „Kopfzeilen zuklappen“, gelb wie ▶, mittig zwischen Glühbirne und Theme-Knopf; wird gemerkt):
+  Kopfzeile 26 statt 60 px, alle Knöpfe und der Projekttitel als Striche (▶ gelb, Stopp rot, Schritt blau),
+  Dateireiter als Striche (aktiver in Akzentfarbe, Fehler rot umrandet), „+“ und Vergrößern ausgeblendet,
+  Kopf „Bausteine“ ausgeblendet, Umschalter der rechten Ansicht als Striche. Alle Striche bleiben antippbar.
+  Auf dem 11-Zoll-iPad (1194 × 834) wird der Editor ca. 10 % höher, die Bausteinleiste ca. 13 %.

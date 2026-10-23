@@ -274,6 +274,7 @@ export class App {
                 <span class="jp-topbar-sep" aria-hidden="true"></span>
                 <button class="jp-iconbtn jp-bulb" data-ref="bulbBtn" aria-label="Tipp: Hilfe zu den Buttons" data-tip="Tipp: So bekommst Du Hilfe zu jedem Button">${icon("lightbulb")}</button>
             </div>
+            <button class="jp-run jo_active jp-collapsebtn" data-ref="collapseBtn"></button>
             <button class="jp-iconbtn jp-skinbtn" data-ref="skinBtn"></button>
             <div class="jp-toolgroup jp-run-tools">
                 <button class="jp-iconbtn jp-step jp-step-more" data-ref="stepOver" data-help="stepOver" data-tip="Methode überspringen: führt einen Methodenaufruf in einem Schritt aus" aria-label="Methode überspringen" title="Methode überspringen">${icon("stepOver")}</button>
@@ -417,6 +418,9 @@ export class App {
         this.el.formatBtn.addEventListener("click", () => this.formatCode());
         this.el.saveBtn.addEventListener("click", () => this.exportProject());
         this.el.skinBtn.addEventListener("click", () => this.nextSkin());
+        this.el.collapseBtn.addEventListener("pointerdown", e => e.preventDefault());
+        this.el.collapseBtn.addEventListener("click", () => this.setCompact(this.root.dataset.compact != "true"));
+        this.setCompact(this.loadCompact());
         this.el.refactorBtn.addEventListener("click", () => this.renameDialog());
         this.el.demoBtn.addEventListener("click", () => this.openDemo());
         this.renderSkinButton();
@@ -581,17 +585,28 @@ export class App {
     private alignBulb() {
         const g = this.el.bulbGroup, bar = g.parentElement!;
         const sep = g.querySelector<HTMLElement>(".jp-topbar-sep")!;
+        const fold = this.el.collapseBtn;
         const reset = () => {
             g.classList.remove("is-aligned");
             g.style.left = "";
             sep.style.marginLeft = sep.style.marginRight = "";
             this.el.bulbBtn.style.marginLeft = "";
+            fold.classList.remove("is-aligned");
+            fold.style.left = "";
         };
         reset();
-        if (this.root.dataset.layout != "split" || getComputedStyle(g).display == "none") return;
+        // Zuklapp-Knopf genau mittig zwischen Glühbirne und Theme-Knopf
+        const centerFold = () => {
+            const bulb = this.el.bulbBtn.getBoundingClientRect(), skin = this.el.skinBtn.getBoundingClientRect();
+            if (bulb.width == 0 || skin.width == 0 || skin.left < bulb.right) return;
+            const br = bar.getBoundingClientRect();
+            fold.classList.add("is-aligned");
+            fold.style.left = ((bulb.right + skin.left) / 2 - fold.offsetWidth / 2 - br.left) + "px";
+        };
+        if (this.root.dataset.layout != "split" || getComputedStyle(g).display == "none") { centerFold(); return; }
         const code = this.root.querySelector(".jp-pane-code")!.getBoundingClientRect();
         const side = this.root.querySelector(".jp-pane-side")!.getBoundingClientRect();
-        if (code.width == 0 || side.width == 0) return;
+        if (code.width == 0 || side.width == 0) { centerFold(); return; }
         const tools = this.el.editTools.getBoundingClientRect();
         const barRect = bar.getBoundingClientRect();
         const gapMid = (code.right + side.left) / 2;
@@ -605,6 +620,7 @@ export class App {
         const proj = this.el.projectBtn.getBoundingClientRect();
         const run = this.el.skinBtn.getBoundingClientRect();
         if (gr.left < proj.right + 4 || gr.right > run.left - 4) reset();
+        centerFold();
     }
 
     /**
@@ -1544,6 +1560,30 @@ export class App {
     }
 
     /** Das Symbol zeigt, was beim nächsten Tippen kommt. */
+    // ------------------------------------------------ Kompakte Ansicht (Kopfzeilen zugeklappt)
+
+    private loadCompact(): boolean {
+        try { return localStorage.getItem("jpadblox.compact") == "1"; } catch (e) { return false; }
+    }
+
+    /**
+     * JPadBlox: Kopfzeile, Dateireiter, Bausteine-Kopf und Umschalter der rechten Ansicht zuklappen.
+     * Knöpfe, Reiter und Umschalter bleiben als antippbare Striche erhalten (siehe CSS [data-compact]).
+     */
+    setCompact(on: boolean) {
+        this.root.dataset.compact = String(on);
+        try { localStorage.setItem("jpadblox.compact", on ? "1" : "0"); } catch (e) { }
+        const b = this.el.collapseBtn;
+        const label = on ? "Kopfzeilen wieder aufklappen" : "Kopfzeilen zuklappen: mehr Platz für Code (Knöpfe und Reiter bleiben als Striche antippbar)";
+        b.innerHTML = icon(on ? "foldDown" : "foldUp");
+        b.setAttribute("aria-label", label);
+        b.setAttribute("aria-pressed", String(on));
+        b.title = label;
+        b.dataset.tip = label;
+        this.alignBulbSoon();
+        requestAnimationFrame(() => this.editor?.view.requestMeasure());
+    }
+
     renderSkinButton() {
         const btn = this.el.skinBtn;
         if (!btn) return;

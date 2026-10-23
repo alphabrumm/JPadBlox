@@ -2,6 +2,8 @@
 
 const paths: Record<string, string> = {
     menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+    foldUp: '<path d="M7 12l5-5 5 5"/><path d="M7 18l5-5 5 5"/>',
+    foldDown: '<path d="M8 10l4 4 4-4"/>',
     play: '<path d="M8 5.5v13l11-6.5z" fill="currentColor" stroke-linejoin="round"/>',
     pause: '<path d="M8 5v14M16 5v14" stroke-width="3"/>',
     stop: '<rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/>',
