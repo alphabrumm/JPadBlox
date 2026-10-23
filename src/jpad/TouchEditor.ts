@@ -1,5 +1,5 @@
 import * as monaco from 'monaco-editor';
-import { EditorState, Extension, StateEffect, StateField, Compartment, Transaction, EditorSelection } from "@codemirror/state";
+import { EditorState, Extension, StateEffect, StateField, Compartment, Transaction, EditorSelection, Prec } from "@codemirror/state";
 import {
     EditorView, keymap, lineNumbers, highlightActiveLineGutter, Decoration, DecorationSet,
     highlightSpecialChars, dropCursor, gutter, GutterMarker, layer, RectangleMarker
@@ -7,7 +7,7 @@ import {
 import { RangeSet } from "@codemirror/state";
 import { defaultKeymap, history, historyKeymap, indentWithTab, undo, redo, undoDepth, redoDepth, toggleComment, insertBlankLine, deleteLine, insertNewlineAndIndent } from "@codemirror/commands";
 import { java } from "@codemirror/lang-java";
-import { syntaxHighlighting, HighlightStyle, indentOnInput, bracketMatching, indentUnit } from "@codemirror/language";
+import { syntaxHighlighting, HighlightStyle, indentOnInput, bracketMatching, indentUnit, getIndentation, indentString } from "@codemirror/language";
 import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap, startCompletion, acceptCompletion, completionStatus, hasNextSnippetField, nextSnippetField, clearSnippet } from "@codemirror/autocomplete";
 import { lintGutter, setDiagnostics, Diagnostic } from "@codemirror/lint";
 import { searchKeymap, highlightSelectionMatches } from "@codemirror/search";
@@ -258,6 +258,53 @@ function enterInSnippet(view: EditorView): boolean {
     return false;
 }
 
+/**
+ * JPadBlox: Strichpunkt (Tastatur oder Hilfsleiste) beendet die Anweisung: Er kommt ans Ende der Zeile (vor einen
+ * //-Kommentar), steht dort schon einer, kein zweiter; der Cursor geht in die nächste Zeile (eine leere nächste
+ * Zeile wird benutzt, sonst entsteht eine neue, richtig eingerückt).
+ * Das gilt auch mitten in einem Text: println("Hallo|") → println("Hallo"); (meist hat man das Ende der Anweisung gemeint).
+ * Ausnahmen (normaler Strichpunkt an der Cursorstelle): im Kopf einer for-Schleife, in einem Kommentar, in einer
+ * leeren Zeile, bei markiertem Text.
+ */
+export function smartSemicolon(view: EditorView): boolean {
+    const st = view.state, sel = st.selection.main;
+    if (!sel.empty) return false;
+    const line = st.doc.lineAt(sel.head);
+    const before = line.text.slice(0, sel.head - line.from);
+    // Code ohne Textinhalt: "…" und '…' durch Platzhalter ersetzen (gleiche Länge)
+    const mask = (s: string) => s.replace(/"(?:\\.|[^"\\])*"?|'(?:\\.|[^'\\])*'?/g, m => "_".repeat(m.length));
+    const mb = mask(before);
+    if (mb.includes("//") || /^\s*(\*|\/\*)/.test(before)) return false;                // in einem Kommentar
+    // for-Kopf: zwischen „for (“ und der zugehörigen „)“
+    const forAt = mb.search(/\bfor\s*\(/);
+    if (forAt >= 0) {
+        let depth = 0;
+        for (const ch of mb.slice(forAt)) { if (ch == "(") depth++; else if (ch == ")") depth--; }
+        if (depth > 0) return false;
+    }
+    const masked = mask(line.text);
+    const comment = masked.indexOf("//");
+    const code = comment >= 0 ? line.text.slice(0, comment) : line.text;
+    const codeEnd = line.from + code.replace(/\s+$/, "").length;
+    if (code.trim() == "") return false;                                                  // leere Zeile: normal
+    const has = code.trim().endsWith(";");
+    const changes = has ? [] : [{ from: codeEnd, insert: ";" }];
+    const shift = changes.length;
+    clearSnippet(view);
+    const next = line.number < st.doc.lines ? st.doc.line(line.number + 1) : null;
+    if (next && next.text.trim() == "") {
+        // leere nächste Zeile benutzen und richtig einrücken
+        view.dispatch({ changes, userEvent: "input.type" });
+        const s2 = view.state, n2 = s2.doc.line(line.number + 1);
+        const cols = getIndentation(s2, n2.from) ?? 0;
+        const ind = indentString(s2, cols);
+        view.dispatch({ changes: { from: n2.from, to: n2.to, insert: ind }, selection: { anchor: n2.from + ind.length }, scrollIntoView: true, userEvent: "input.type" });
+        return true;
+    }
+    view.dispatch({ changes, selection: { anchor: line.to + shift }, userEvent: "input.type" });
+    return insertNewlineAndIndent(view);
+}
+
 export type EditorListener = {
     onCursorActivity?: (offset: number) => void;
     onDocChanged?: (file: GUIFile) => void;
@@ -344,6 +391,8 @@ export class TouchEditor {
                 aboveCursor: false,
                 optionClass: () => "jp-completion-option",
             }),
+            // JPadBlox: Strichpunkt beendet die Anweisung (siehe smartSemicolon)
+            Prec.high(EditorView.inputHandler.of((view, from, to, text) => text == ";" && from == to && smartSemicolon(view))),
             keymap.of([
                 ...closeBracketsKeymap,
                 ...completionKeymap,

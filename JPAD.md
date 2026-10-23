@@ -167,3 +167,7 @@ GNU GPL v3, wie die Online-IDE.
   (linksbündig, feste Spalte 26 px); die Leiste ist dadurch 147 statt 119 px breit.
 - Aufgeklappt steht rechts neben dem Kurzzeichen bei `//` „Kommentar“, bei if, new und for „…“ (nur Anzeige per CSS,
   Name des Knopfs und Hilfsleiste unverändert).
+- **Strichpunkt** (Tastatur oder Hilfsleiste, TouchEditor.smartSemicolon): kommt ans Ende der Zeile (vor einen
+  //-Kommentar; steht dort schon einer, kein zweiter), danach Cursor in die nächste Zeile (leere nächste Zeile wird
+  benutzt, sonst neue eingerückte Zeile). Auch mitten in Text: println("Hallo|") → println("Hallo");⏎.
+  Normaler Strichpunkt nur im for-Kopf, in Kommentaren, in leeren Zeilen und bei Markierung.

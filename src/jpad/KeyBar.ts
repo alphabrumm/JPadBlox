@@ -1,5 +1,5 @@
 import { icon } from "./Icons.js";
-import { TouchEditor } from "./TouchEditor.js";
+import { TouchEditor, smartSemicolon } from "./TouchEditor.js";
 import { LanguageBridge } from "./LanguageBridge.js";
 import { BLOCKS, insertBlock, blockRowHtml, BlockContext } from "./Blocks.js";
 import type { EditorView } from "@codemirror/view";
@@ -285,6 +285,8 @@ export class KeyBar {
             }
             else if (k.label == "=" && !this.field && this.restOfLineEmpty()) this.editor.insert(" = §;");   // meist folgt ein Semikolon
             else if (k.label == "+") this.insertSpaced("+");
+            // Strichpunkt im Editor: ans Zeilenende, dann neue Zeile (im for-Kopf, in Text oder Kommentar normal)
+            else if (k.label == ";" && !this.field) { if (!smartSemicolon(this.editor.view)) this.editor.insert(";"); }
             // In Bedingungen: Vergleichs- und Verknüpfungszeichen mit genau einem Leerzeichen davor und danach
             else if (this.field && ["<", ">", "&&", "||", "==", "%"].includes(k.label)) this.insertSpaced(k.label);
             else if (k.insert) this.insertText(k.insert);
