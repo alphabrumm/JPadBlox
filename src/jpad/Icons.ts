@@ -7,6 +7,7 @@ const paths: Record<string, string> = {
     sheep: '<path d="M8.5 17.5a3 3 0 0 1-1.3-5.7 3.2 3.2 0 0 1 4.3-4.1 3.2 3.2 0 0 1 5.6.6 3 3 0 0 1 2.4 5.4 2.9 2.9 0 0 1-2.5 3.8z"/><path d="M10 17.5v3M15.5 17.5v3"/><path d="M7.2 11.8c-1-.9-1.2-2.4-.4-3.5.6-.8 1.6-1.1 2.5-.8"/><ellipse cx="5.5" cy="12.2" rx="2.4" ry="2.8"/><circle cx="4.9" cy="11.9" r=".6" fill="currentColor" stroke="none"/>',
     markMode: '<path d="M9 4h6M9 20h6M12 4v16"/><path d="M4 8h2M4 12h2M4 16h2M18 8h2M18 12h2M18 16h2" stroke-opacity=".55"/>',
     cut: '<circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M8.1 14.9L18 4M15.9 14.9L6 4"/>',
+    copy: '<rect x="9" y="9" width="11" height="12" rx="2"/><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h3"/>',
     paste: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 11h6M9 15h4"/>',
     lineUp: '<path d="M12 19V5"/><path d="M6 11l6-6 6 6"/>',
     lineDown: '<path d="M12 5v14"/><path d="M6 13l6 6 6-6"/>',

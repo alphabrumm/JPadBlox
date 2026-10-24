@@ -3188,3 +3188,48 @@ html:not(.phone) .jp-app[data-layout="tabs"] .jp-keybar .jp-keybar-fixed.is-righ
 .jp-project { flex: 0 1 auto; }
 .jp-project > .jp-project-name, .jp-project > .jp-project-state { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .jp-app:not([data-wide="true"]) .jp-project-name { max-width: 100%; }
+
+/* ===================================================================================
+   JPadBlox: Markier-Modus – Kopieren und Spalten markieren (Rechteck wie in vim)
+   =================================================================================== */
+.jp-keybar.is-placing [data-action="copyBlock"] { display: none !important; }
+.jp-keybar .jp-col-only { display: none !important; }
+.jp-keybar.is-marking-cols .jp-keybar-fixed.is-left .jp-col-only { display: inline-grid !important; }
+/* Kippschalter rechts vom Trennstrich – nur beim Festlegen der Markierung */
+.jp-keybar-markextra { display: none; align-items: center; padding: 0 6px; flex: none; }
+.jp-keybar.is-marking:not(.is-placing) .jp-keybar-markextra { display: flex; }
+.jp-keybar button.jp-colswitch {
+    display: inline-flex; align-items: center; gap: 10px; width: auto; min-width: 0; padding: 0 14px;
+    font-family: var(--font-ui); font-size: 15px; font-weight: 600; color: var(--ink-2);
+}
+.jp-colswitch-track {
+    position: relative; width: 46px; height: 26px; border-radius: 13px; flex: none;
+    background: color-mix(in srgb, var(--ink-2) 28%, transparent); transition: background .18s;
+}
+.jp-colswitch-track i {
+    position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%;
+    background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .18s;
+}
+.jp-colswitch[aria-checked="true"] .jp-colswitch-track { background: var(--accent); }
+.jp-colswitch[aria-checked="true"] .jp-colswitch-track i { transform: translateX(20px); }
+.jp-colswitch[aria-checked="false"] .jp-colswitch-a,
+.jp-colswitch[aria-checked="true"] .jp-colswitch-b { color: var(--ink); }
+.jp-colswitch[aria-checked="false"] .jp-colswitch-b,
+.jp-colswitch[aria-checked="true"] .jp-colswitch-a { opacity: .55; font-weight: 500; }
+html.phone .jp-colswitch-a, html.phone .jp-colswitch-b { font-size: 13px; }
+html.phone .jp-keybar button.jp-colswitch { padding: 0 8px; gap: 6px; }
+/* Pulsierendes Rechteck (Spaltenmodus) */
+.jp-markrect-layer .jp-markrect {
+    border-radius: 3px; animation: jp-mark-pulse 1.3s ease-in-out infinite;
+    outline: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+}
+.jp-markrect-layer .jp-markrect.is-empty { background: var(--accent); outline: none; animation: jp-mark-blink-bar 1s steps(1) infinite; }
+@keyframes jp-mark-blink-bar { 50% { opacity: .25; } }
+/* Spaltenmodus: der Finger zieht das Rechteck auf statt zu scrollen; kein normaler Cursor */
+html.jp-marking-cols .jp-editor :is(.cm-scroller, .cm-content) { touch-action: none; -webkit-user-select: none; user-select: none; }
+html.jp-marking-cols .jp-editor .cm-content { caret-color: transparent; animation: none; }
+html.jp-marking-cols .jp-editor .cm-cursorLayer { display: none; }
+/* iPhone: Kippschalter schmaler – nur der gewählte Name steht neben dem Schalter */
+html.phone .jp-colswitch[aria-checked="false"] .jp-colswitch-b,
+html.phone .jp-colswitch[aria-checked="true"] .jp-colswitch-a { display: none; }
+html.phone .jp-keybar-markextra { padding: 0 4px; }

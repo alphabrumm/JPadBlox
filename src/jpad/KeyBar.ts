@@ -74,10 +74,13 @@ export class KeyBar {
         const navKeys = `
                 <button data-action="left" class="jp-key-nav" data-help="left" aria-label="Cursor nach links" data-tip="Cursor ein Zeichen nach links">${icon("left")}</button>
                 <button data-action="right" class="jp-key-nav" data-help="right" aria-label="Cursor nach rechts" data-tip="Cursor ein Zeichen nach rechts">${icon("right")}</button>
+                <button data-action="markUp" class="jp-col-only" aria-label="Rechteck: Ecke eine Zeile nach oben" data-tip="Spalten markieren: Ecke eine Zeile nach oben">${icon("lineUp")}</button>
+                <button data-action="markDown" class="jp-col-only" aria-label="Rechteck: Ecke eine Zeile nach unten" data-tip="Spalten markieren: Ecke eine Zeile nach unten">${icon("lineDown")}</button>
                 <button data-action="mark" class="jp-key-mark" aria-label="Markier-Modus" aria-pressed="false" data-tip="Markier-Modus: Die Zeile mit dem Cursor ist der Anfang. Tippe auf eine andere Zeile – alles dazwischen ist markiert. Dann ausschneiden, Zeilen löschen oder an anderer Stelle einfügen.">${icon("markMode")}</button>
                 <button data-action="lineAdd" class="jp-key-line" aria-label="Neue Zeile einfügen" data-tip="Neue, leere Zeile unter der Zeile mit dem Cursor einfügen (richtig eingerückt)">${icon("lineAdd")}</button>
                 <button data-action="lineDelete" class="jp-key-line" aria-label="Zeile löschen" data-tip="Zeile, in der der Cursor steht, löschen">${icon("lineDelete")}</button>
-                <button data-action="cutBlock" class="jp-mark-only" aria-label="Markierten Block ausschneiden" data-tip="Markierten Block ausschneiden (in die Zwischenablage)">${icon("cut")}</button>
+                <button data-action="cutBlock" class="jp-mark-only" aria-label="Markierten Block ausschneiden" data-tip="Markierten Block ausschneiden – danach Einfügestelle antippen und einfügen">${icon("cut")}</button>
+                <button data-action="copyBlock" class="jp-mark-only" aria-label="Markierten Block kopieren" data-tip="Markierten Block kopieren – danach Einfügestelle antippen und einfügen">${icon("copy")}</button>
                 <button data-action="pasteBlock" class="jp-mark-only" aria-label="Einfügen" data-tip="Text aus der Zwischenablage einfügen (ganze Zeilen vor der Zeile mit dem Cursor)">${icon("paste")}</button>`;
         const rightKeys = `
                 <button data-action="breakpoint" data-help="breakpoint" aria-label="Haltepunkt in dieser Zeile setzen oder entfernen" data-tip="Haltepunkt in dieser Zeile setzen oder entfernen – das Programm hält vor der Zeile an" class="jp-key-breakpoint">${icon("breakpoint")}</button>
@@ -87,6 +90,9 @@ export class KeyBar {
             <div class="jp-keybar-fixed is-left">
                 <button data-action="mode" class="jp-key-mode" aria-label="Zwischen Bausteinen und Sonderzeichen umschalten" data-tip="Umschalten: Code-Bausteine (class, Methode, if, for …) oder Sonderzeichen ({ } ( ) ; = …)">${icon("blocks", "jp-mode-blocks")}<span class="jp-mode-chars">{ }</span></button>
 ${navKeys}
+            </div>
+            <div class="jp-keybar-markextra">
+                <button data-action="colToggle" class="jp-colswitch" role="switch" aria-checked="false" aria-label="Spalten statt Zeilen markieren" data-tip="Kippschalter: ganze Zeilen markieren oder nur Spalten (ein Rechteck – mit dem Finger aufziehen)"><span class="jp-colswitch-a">Zeilen</span><span class="jp-colswitch-track"><i></i></span><span class="jp-colswitch-b">Spalten</span></button>
             </div>
             <div class="jp-keybar-main">
             <div class="jp-keybar-scroll">
@@ -349,14 +355,20 @@ ${rightKeys}
         this.el.classList.toggle("is-placing", on && this.editor.markPhase == "cut");
         this.el.querySelectorAll<HTMLElement>('[data-action="mark"]').forEach(b => b.setAttribute("aria-pressed", String(on)));
         // Beim Festlegen des Blocks verschieben ← → die Endzeile: dann als Pfeile hoch/runter anzeigen
-        const vertical = on && this.editor.markPhase == "select";
-        if (this.el.dataset.navVertical == String(vertical)) return;
-        this.el.dataset.navVertical = String(vertical);
+        const cols = on && this.editor.markPhase == "select" && this.editor.markColumns;
+        this.el.classList.toggle("is-marking-cols", cols);
+        this.el.querySelectorAll<HTMLElement>('[data-action="colToggle"]').forEach(b => b.setAttribute("aria-checked", String(cols)));
+        const vertical = on && this.editor.markPhase == "select" && !cols;
+        const navState = vertical ? "v" : cols ? "c" : "n";
+        if (this.el.dataset.navState == navState) return;
+        this.el.dataset.navState = navState;
         this.el.querySelectorAll<HTMLElement>('[data-action="left"], [data-action="right"]').forEach(b => {
             const left = b.dataset.action == "left";
             b.innerHTML = icon(vertical ? (left ? "lineUp" : "lineDown") : (left ? "left" : "right"));
-            b.setAttribute("aria-label", vertical ? (left ? "Endzeile eine Zeile nach oben" : "Endzeile eine Zeile nach unten") : (left ? "Cursor nach links" : "Cursor nach rechts"));
-            b.dataset.tip = vertical ? (left ? "Markierung: Endzeile eine Zeile nach oben" : "Markierung: Endzeile eine Zeile nach unten") : (left ? "Cursor ein Zeichen nach links" : "Cursor ein Zeichen nach rechts");
+            b.setAttribute("aria-label", vertical ? (left ? "Endzeile eine Zeile nach oben" : "Endzeile eine Zeile nach unten") : cols ? (left ? "Ecke eine Spalte nach links" : "Ecke eine Spalte nach rechts") : (left ? "Cursor nach links" : "Cursor nach rechts"));
+            b.dataset.tip = vertical ? (left ? "Markierung: Endzeile eine Zeile nach oben" : "Markierung: Endzeile eine Zeile nach unten")
+                : cols ? (left ? "Spalten markieren: Ecke eine Spalte nach links" : "Spalten markieren: Ecke eine Spalte nach rechts")
+                : (left ? "Cursor ein Zeichen nach links" : "Cursor ein Zeichen nach rechts");
         });
     }
 
@@ -365,12 +377,26 @@ ${rightKeys}
             case "mark":
                 this.setMarking(!this.editor.marking);
                 break;
-            case "cutBlock":
-                if (this.editor.cutMarked()) await this.blockContext?.format();
+            case "colToggle":
+                this.editor.setMarkColumns(!this.editor.markColumns);
+                this.renderMarking();
+                break;
+            case "markUp": case "markDown":
+                this.editor.moveMarkEnd(action == "markUp" ? -1 : 1);
+                break;
+            case "cutBlock": {
+                // Spaltenblöcke nicht formatieren – das würde die Spalten verschieben
+                const cols = this.editor.markColumns;
+                if (this.editor.cutMarked() && !cols) await this.blockContext?.format();
+                this.renderMarking();
+                break;
+            }
+            case "copyBlock":
+                this.editor.copyMarked();
                 this.renderMarking();
                 break;
             case "pasteBlock":
-                if (this.editor.pasteMarked()) await this.blockContext?.format();
+                if (this.editor.pasteMarked() == "lines") await this.blockContext?.format();
                 this.renderMarking();
                 break;
             case "mode":
@@ -382,6 +408,7 @@ ${rightKeys}
             case "lineDelete": if (this.field || !this.editor.deleteMarked()) this.editor.deleteLine(); break;
             case "left": case "right": {
                 // Markier-Modus: Endzeile bzw. Einfügezeile eine Zeile nach oben/unten
+                if (!this.field && this.editor.moveMarkCol(action == "left" ? -1 : 1)) break;
                 if (!this.field && this.editor.moveMarkEnd(action == "left" ? -1 : 1)) break;
                 const v = this.target, d = action == "left" ? -1 : 1;
                 const head = Math.max(0, Math.min(v.state.doc.length, v.state.selection.main.head + d));

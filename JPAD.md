@@ -206,3 +206,11 @@ GNU GPL v3, wie die Online-IDE.
   Ausschneiden wieder ← →.
 - **Hilfsleiste iPad hochkant**: Haltepunkt, Info und Tastatur-Knopf scrollen mit den Zeichen mit (stehen am Ende der
   Reihe); links bleiben Cursor-, Markier- und Zeilen-Knöpfe fest. iPad quer unverändert.
+- **Markier-Modus: Kopieren und Spalten markieren**: Neben der Schere ein Kopieren-Knopf (wie Ausschneiden, nur ohne
+  Löschen; danach Einfügestelle antippen und einfügen). Rechts vom Trennstrich ein Kippschalter „Zeilen | Spalten“,
+  der bei jedem Start des Modus auf „Zeilen“ steht. Spaltenmodus (Block-Auswahl wie Strg-V in vim): Ecke = Cursor,
+  Antippen setzt die Gegenecke, Ziehen mit dem Finger zieht ein neues Rechteck auf (Editor scrollt dabei nicht),
+  ← → verschieben die Ecke spaltenweise, ↑ ↓ (nur im Spaltenmodus sichtbar) zeilenweise. Das Rechteck ist eine eigene,
+  pulsierende Ebene (auch über kurzen/leeren Zeilen). „Zeile löschen“ löscht nur das Rechteck. Einfügen eines
+  Spaltenblocks ab der Cursorspalte in die folgenden Zeilen (kurze Zeilen mit Leerzeichen aufgefüllt, fehlende Zeilen
+  angehängt), ohne anschließendes Formatieren.
