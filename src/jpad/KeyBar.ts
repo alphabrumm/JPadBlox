@@ -386,6 +386,8 @@ ${rightKeys}
             case "lineAdd": this.editor.insertLine(); break;
             case "lineDelete": this.editor.deleteLine(); break;
             case "left": case "right": {
+                // Markier-Modus: Endzeile bzw. Einfügezeile eine Zeile nach oben/unten
+                if (!this.field && this.editor.marking) { this.editor.moveMark(action == "left" ? -1 : 1); break; }
                 const v = this.target, d = action == "left" ? -1 : 1;
                 const head = Math.max(0, Math.min(v.state.doc.length, v.state.selection.main.head + d));
                 v.dispatch({ selection: { anchor: head }, scrollIntoView: true });

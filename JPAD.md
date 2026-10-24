@@ -190,3 +190,8 @@ GNU GPL v3, wie die Online-IDE.
 - Markier-Modus, Ablauf geändert: Nach „Ausschneiden“ bleibt der Modus an (Knopf blinkt weiter, Ausschneiden ist
   ausgeblendet). Man tippt die Einfügestelle an (diese Zeile pulsiert), erst „Einfügen“ setzt den Block dort ein
   (vor der angetippten Zeile), formatiert und beendet den Modus.
+- Markier-Modus robuster: Start-/Endzeile und Einfügezeile werden selbst gemerkt (wandern bei Änderungen mit) statt aus
+  der Editor-Auswahl gelesen – iOS klappt die Auswahl sonst z. B. nach dem Einfügen aus einer anderen App zusammen
+  (dann wurde nur eine Zeile ausgeschnitten). Maßgeblich sind nur Antippen (pointerup) und ← → (eine Zeile hoch/runter);
+  jede andere Auswahländerung wird zurückgesetzt. Eingefügt wird immer als ganze Zeilen vor der Ziel-/ersten markierten
+  Zeile (Text ohne Zeilenumbruch am Ende bekommt einen).
