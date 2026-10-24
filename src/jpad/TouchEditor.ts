@@ -219,6 +219,25 @@ const lineMarkField = StateField.define<DecorationSet>({
     provide: f => EditorView.decorations.from(f)
 });
 
+/** JPadBlox: Markier-Modus – markierte Zeilen (von–bis, Zeilennummern) pulsieren */
+const setMarkLines = StateEffect.define<{ from: number, to: number } | null>();
+const markLinesField = StateField.define<DecorationSet>({
+    create: () => Decoration.none,
+    update(deco, tr) {
+        deco = deco.map(tr.changes);
+        for (const e of tr.effects) {
+            if (!e.is(setMarkLines)) continue;
+            if (!e.value) { deco = Decoration.none; continue; }
+            const a = Math.max(1, Math.min(e.value.from, e.value.to)), b = Math.min(tr.state.doc.lines, Math.max(e.value.from, e.value.to));
+            const r = [];
+            for (let n = a; n <= b; n++) r.push(Decoration.line({ class: "jp-mark-line" }).range(tr.state.doc.line(n).from));
+            deco = Decoration.set(r, true);
+        }
+        return deco;
+    },
+    provide: f => EditorView.decorations.from(f)
+});
+
 /**
  * Enter-Taste (JPadBlox):
  * - Gibt es noch weitere Platzhalter (nach einem Baustein oder einer Vervollständigung), springt Enter dorthin.
@@ -379,6 +398,7 @@ export class TouchEditor {
             syntaxHighlighting(javaHighlight),
             lintGutter(),
             lineMarkField,
+            markLinesField,
             autocompletion({
                 override: [bridge.completionSource],
                 activateOnTyping: true,
@@ -418,6 +438,11 @@ export class TouchEditor {
                 }
                 if (update.docChanged || update.selectionSet) {
                     listener.onCursorActivity?.(update.state.selection.main.head);
+                }
+                if (this.marking && (update.selectionSet || update.docChanged)
+                    && !update.transactions.some(t => t.isUserEvent("select.jpmark"))) {
+                    // Nicht während des Updates neu auswählen (CodeMirror erlaubt das nicht)
+                    queueMicrotask(() => this.extendMark());
                 }
                 if (update.focusChanged) {
                     listener.onFocusChanged?.(update.view.hasFocus);
@@ -654,6 +679,80 @@ export class TouchEditor {
 
     /** JPadBlox: leere, eingerückte Zeile unter der aktuellen Zeile einfügen */
     insertLine() { insertBlankLine(this.view); }
+
+    // ------------------------------------------------ Markier-Modus (JPadBlox)
+
+    /** Markier-Modus aktiv; Startzeile der Markierung */
+    marking = false;
+    private markAnchor = 1;
+
+    /** Markier-Modus an: Die Zeile mit dem Cursor ist die Startzeile */
+    startMarking() {
+        const st = this.view.state;
+        this.marking = true;
+        this.markAnchor = st.doc.lineAt(st.selection.main.head).number;
+        document.documentElement.classList.add("jp-marking");
+        this.view.dispatch({ effects: setMarkLines.of({ from: this.markAnchor, to: this.markAnchor }), userEvent: "select.jpmark" });
+    }
+
+    /** Markier-Modus aus: Markierung aufheben, Cursor bleibt, wo er ist */
+    stopMarking() {
+        if (!this.marking) return;
+        this.marking = false;
+        document.documentElement.classList.remove("jp-marking");
+        const head = this.view.state.selection.main.head;
+        this.view.dispatch({ effects: setMarkLines.of(null), selection: { anchor: head }, userEvent: "select.jpmark" });
+    }
+
+    /** Zeile, auf die getippt wurde (bzw. Cursor nach Pfeiltasten): Block Startzeile … diese Zeile markieren */
+    private extendMark() {
+        if (!this.marking) return;
+        const st = this.view.state, doc = st.doc;
+        this.markAnchor = Math.min(this.markAnchor, doc.lines);
+        const end = doc.lineAt(st.selection.main.head).number;
+        const a = Math.min(this.markAnchor, end), b = Math.max(this.markAnchor, end);
+        // Ganze Zeilen auswählen; der Cursor (head) steht in der zuletzt angetippten Zeile
+        const anchor = end >= this.markAnchor ? doc.line(a).from : doc.line(b).to;
+        const head = end >= this.markAnchor ? doc.line(b).to : doc.line(a).from;
+        this.view.dispatch({
+            selection: EditorSelection.single(anchor, head),
+            effects: setMarkLines.of({ from: a, to: b }), userEvent: "select.jpmark"
+        });
+    }
+
+    /** Markierte Zeilen als Text (mit Zeilenumbruch am Ende) – leer, wenn nichts markiert */
+    markedBlock(): { text: string, from: number, to: number } {
+        const st = this.view.state, doc = st.doc, sel = st.selection.main;
+        const a = doc.lineAt(sel.from), b = doc.lineAt(sel.to);
+        const from = a.from, to = Math.min(doc.length, b.to + 1);
+        return { text: doc.sliceString(a.from, b.to) + "\n", from, to };
+    }
+
+    /** Markierte Zeilen entfernen (beendet den Markier-Modus) */
+    cutBlock(): string {
+        const { text, from, to } = this.markedBlock();
+        this.endMarkingSilently();
+        this.view.dispatch({ changes: { from, to }, selection: { anchor: from }, effects: setMarkLines.of(null), userEvent: "select.jpmark", scrollIntoView: true });
+        return text;
+    }
+
+    /** Markier-Modus beenden, ohne die Auswahl anzufassen (die nächste Änderung räumt auf) */
+    private endMarkingSilently() {
+        this.marking = false;
+        document.documentElement.classList.remove("jp-marking");
+    }
+
+    /** Text einfügen: ganze Zeilen (endet mit Umbruch) vor der Zeile mit dem Cursor, sonst an der Cursorstelle */
+    pasteText(text: string) {
+        const st = this.view.state, sel = st.selection.main;
+        this.endMarkingSilently();
+        if (text.endsWith("\n")) {
+            const line = st.doc.lineAt(sel.from);
+            this.view.dispatch({ changes: { from: line.from, insert: text }, selection: { anchor: line.from + text.length - 1 }, effects: setMarkLines.of(null), userEvent: "select.jpmark", scrollIntoView: true });
+        } else {
+            this.view.dispatch({ changes: { from: sel.from, to: sel.to, insert: text }, selection: { anchor: sel.from + text.length }, effects: setMarkLines.of(null), userEvent: "select.jpmark", scrollIntoView: true });
+        }
+    }
 
     /** JPadBlox: Zeile(n) mit dem Cursor bzw. der Auswahl löschen */
     deleteLine() { deleteLine(this.view); }

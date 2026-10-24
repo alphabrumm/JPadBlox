@@ -74,8 +74,11 @@ export class KeyBar {
         const navKeys = `
                 <button data-action="left" class="jp-key-nav" data-help="left" aria-label="Cursor nach links" data-tip="Cursor ein Zeichen nach links">${icon("left")}</button>
                 <button data-action="right" class="jp-key-nav" data-help="right" aria-label="Cursor nach rechts" data-tip="Cursor ein Zeichen nach rechts">${icon("right")}</button>
+                <button data-action="mark" class="jp-key-mark" aria-label="Markier-Modus" aria-pressed="false" data-tip="Markier-Modus: Die Zeile mit dem Cursor ist der Anfang. Tippe auf eine andere Zeile – alles dazwischen ist markiert. Dann ausschneiden, Zeilen löschen oder an anderer Stelle einfügen.">${icon("markMode")}</button>
                 <button data-action="lineAdd" class="jp-key-line" aria-label="Neue Zeile einfügen" data-tip="Neue, leere Zeile unter der Zeile mit dem Cursor einfügen (richtig eingerückt)">${icon("lineAdd")}</button>
-                <button data-action="lineDelete" class="jp-key-line" aria-label="Zeile löschen" data-tip="Zeile, in der der Cursor steht, löschen">${icon("lineDelete")}</button>`;
+                <button data-action="lineDelete" class="jp-key-line" aria-label="Zeile löschen" data-tip="Zeile, in der der Cursor steht, löschen">${icon("lineDelete")}</button>
+                <button data-action="cutBlock" class="jp-mark-only" aria-label="Markierten Block ausschneiden" data-tip="Markierten Block ausschneiden (in die Zwischenablage)">${icon("cut")}</button>
+                <button data-action="pasteBlock" class="jp-mark-only" aria-label="Einfügen" data-tip="Text aus der Zwischenablage einfügen (ganze Zeilen vor der Zeile mit dem Cursor)">${icon("paste")}</button>`;
         const rightKeys = `
                 <button data-action="breakpoint" data-help="breakpoint" aria-label="Haltepunkt in dieser Zeile setzen oder entfernen" data-tip="Haltepunkt in dieser Zeile setzen oder entfernen – das Programm hält vor der Zeile an" class="jp-key-breakpoint">${icon("breakpoint")}</button>
                 <button data-action="info" data-help="info" aria-label="Info zur Stelle am Cursor" data-tip="Info zu dem Namen, auf dem der Cursor steht">${icon("info")}</button>
@@ -333,8 +336,47 @@ ${rightKeys}
         return st.sliceDoc(sel.to, st.doc.lineAt(sel.to).to).trim() == "";
     }
 
+    // ------------------------------------------------ Markier-Modus
+
+    /** Zuletzt ausgeschnittener Block (falls der Browser die Zwischenablage nicht lesen lässt) */
+    private clip = "";
+
+    private setMarking(on: boolean) {
+        if (on) this.editor.startMarking(); else this.editor.stopMarking();
+        this.renderMarking();
+    }
+
+    private renderMarking() {
+        const on = this.editor.marking;
+        this.el.classList.toggle("is-marking", on);
+        this.el.querySelectorAll<HTMLElement>('[data-action="mark"]').forEach(b => b.setAttribute("aria-pressed", String(on)));
+    }
+
     private async runAction(action: string) {
         switch (action) {
+            case "mark":
+                this.setMarking(!this.editor.marking);
+                break;
+            case "cutBlock": {
+                if (!this.editor.marking) break;
+                const text = this.editor.cutBlock();
+                this.clip = text;
+                try { await navigator.clipboard.writeText(text); } catch (e) { /* Rückfall: this.clip */ }
+                this.renderMarking();
+                await this.blockContext?.format();
+                break;
+            }
+            case "pasteBlock": {
+                let text: string | null = null;
+                try { text = await navigator.clipboard.readText(); } catch (e) { }
+                if (!text) text = this.clip;
+                if (text) {
+                    this.editor.pasteText(text);
+                    await this.blockContext?.format();
+                } else this.editor.stopMarking();
+                this.renderMarking();
+                break;
+            }
             case "mode":
                 this.mode = this.mode == "blocks" ? "chars" : "blocks";
                 try { localStorage.setItem("jpadblox.barMode", this.mode); } catch (e) { }

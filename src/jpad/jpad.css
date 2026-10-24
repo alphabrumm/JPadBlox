@@ -3146,3 +3146,27 @@ html.phone .jp-keybar-fixed.is-right { display: none; }
 :root[data-skin="schaf"] .jp-pane-code .jp-filetab.is-active { background: color-mix(in srgb, var(--surface) 60%, transparent); }
 /* Theme-Auswahl: nur noch Vorschaufelder (Name als Tooltip) */
 .jp-skin-picker button { width: auto; padding: 4px; }
+
+/* ===================================================================================
+   JPadBlox: Markier-Modus (Knopf links neben „Zeile einfügen“)
+   =================================================================================== */
+.jp-keybar .jp-mark-only { display: none; }
+.jp-keybar.is-marking .jp-keybar-fixed.is-left .jp-mark-only { display: inline-grid; }
+.jp-keybar.is-marking .jp-keybar-main,
+.jp-keybar.is-marking [data-action="mode"] { display: none; }
+/* iPhone: im Markier-Modus stehen die Tasten fest links (sonst liegen sie in der scrollenden Reihe) */
+html.phone .jp-keybar.is-marking .jp-keybar-fixed.is-left > :not([data-action="mode"]) { display: inline-grid; }
+html.phone .jp-keybar.is-marking .jp-keybar-fixed.is-left { overflow-x: auto; scrollbar-width: none; }
+.jp-keybar.is-marking [data-action="mark"] { background: var(--marker); color: var(--marker-ink); animation: jp-mark-blink 1s steps(1) infinite; }
+@keyframes jp-mark-blink { 50% { background: var(--surface); color: var(--ink); } }
+/* Markierte Zeilen pulsieren */
+.jp-editor .cm-line.jp-mark-line { animation: jp-mark-pulse 1.3s ease-in-out infinite; }
+@keyframes jp-mark-pulse {
+    0%, 100% { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+    50% { background: color-mix(in srgb, var(--accent) 34%, transparent); }
+}
+/* Cursor blinkt im Markier-Modus schneller */
+html.jp-marking .jp-editor .cm-content { animation: jp-caret-fast 0.5s steps(1) infinite; }
+@keyframes jp-caret-fast { 50% { caret-color: transparent; } }
+/* Theme-Auswahl: Vorschaufelder ohne Hintergrund – nur das farbige Symbol */
+.jp-skin-swatch { background: transparent; box-shadow: none; }

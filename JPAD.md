@@ -181,3 +181,9 @@ GNU GPL v3, wie die Online-IDE.
 - Theme-Auswahl: Reihenfolge Standard, Hund, Schaf, Flach, Hacker, Pink; nur Vorschaufelder ohne Titel (Name als
   Tooltip); Flach, Hacker und Pink mit dem Hacker-Symbol auf Weiß (blau, grün, pink). Hund und Schaf: Himmelsverlauf
   auch im Editor.
+- **Markier-Modus** (Knopf links neben „Zeile einfügen“): Knopf blinkt, Cursor blinkt schneller, die Cursorzeile ist
+  Startzeile und pulsiert. Tippen auf eine andere Zeile (oder ←/→) markiert den ganzen Block dazwischen (pulsiert).
+  In der Hilfsleiste bleiben nur ← →, Markieren, Zeile einfügen/löschen und neu „Ausschneiden“ und „Einfügen“
+  (ganze Zeilen vor der Cursorzeile). Nach Ausschneiden/Einfügen wird formatiert und der Modus endet; nochmal auf den
+  Knopf tippen beendet ihn ebenfalls. Zwischenablage über navigator.clipboard, sonst interner Speicher.
+- Theme-Auswahl: Vorschaufelder ohne Hintergrund (nur das farbige Symbol).
