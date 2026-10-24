@@ -34,7 +34,7 @@ function isHelperMarker(m: monaco.editor.IMarker): boolean {
 type View = "code" | "lernpfad" | "output" | "variables" | "diagram" | "problems";
 type SideView = "lernpfad" | "output" | "variables" | "diagram" | "problems";
 type ThemeChoice = "auto" | "light" | "dark";
-type Skin = "default" | "flat" | "hacker" | "pink";
+type Skin = "default" | "flat" | "hacker" | "pink" | "hund" | "schaf";
 
 /** Schriften der Spaß-Themes (nur online; ohne Netz greifen die Ersatzschriften). */
 function loadSkinFonts() {
@@ -42,9 +42,20 @@ function loadSkinFonts() {
     const link = document.createElement("link");
     link.id = "jp-skin-fonts";
     link.rel = "stylesheet";
-    link.href = "https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600&family=Share+Tech+Mono&display=swap";
+    link.href = "https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600&family=Share+Tech+Mono"
+        + "&family=Atkinson+Hyperlegible:wght@400;700&family=Pixelify+Sans:wght@500;700&display=swap";
     document.head.appendChild(link);
 }
+
+/** JPadBlox: Themes für die Auswahl im Menü (bg/fg: Farben des kleinen Vorschau-Felds) */
+const SKINS: { id: string, label: string, icon: string, tip: string, bg: string, fg: string }[] = [
+    { id: "default", label: "Standard", icon: "palette", tip: "Standard-Aussehen von JPad", bg: "#F3F5F9", fg: "#3157F5" },
+    { id: "flat", label: "Flach", icon: "unicorn", tip: "Flaches Theme: klare Linien in Weiß und Blau", bg: "#FFFFFF", fg: "#0050F0" },
+    { id: "hacker", label: "Hacker", icon: "hacker", tip: "Hacker-Theme: Neon-Grün, feine Linien, spitze Ecken", bg: "#020604", fg: "#00FF9C" },
+    { id: "pink", label: "Pink", icon: "hacker", tip: "Pink-Hacker-Theme: wie Hacker, aber in Pink", bg: "#060204", fg: "#FF2EC4" },
+    { id: "hund", label: "Hund", icon: "dog", tip: "Hund: Farben des Demo-Lernpfads „Bello lernt Java“", bg: "#e5f3ea", fg: "#1f8a6a" },
+    { id: "schaf", label: "Schaf", icon: "sheep", tip: "Schaf: Farben des Lernpfads „Der Schaf-Konstruktor“", bg: "#fdebdd", fg: "#e05d26" },
+];
 
 /**
  * JPadBlox: ganz breite Bausteinleiste (Knopf „Vergrößern“ im Kopf „Bausteine“). Derzeit abgeschaltet: Die Leiste
@@ -287,8 +298,7 @@ export class App {
             <div class="jp-foldgroup" data-ref="foldGroup">
                 <button class="jp-run jo_active jp-foldbtn jp-collapsebtn" data-ref="collapseBtn"></button>
             </div>
-            <button class="jp-iconbtn jp-skinbtn" data-ref="skinBtn"></button>
-            <div class="jp-toolgroup jp-run-tools">
+            <div class="jp-toolgroup jp-run-tools" data-ref="runTools">
                 <button class="jp-iconbtn jp-step jp-step-more" data-ref="stepOver" data-help="stepOver" data-tip="Methode überspringen: führt einen Methodenaufruf in einem Schritt aus" aria-label="Methode überspringen" title="Methode überspringen">${icon("stepOver")}</button>
                 <button class="jp-iconbtn jp-step jp-step-more jp-wide-only" data-ref="stepOut" data-help="stepOut" data-tip="Methode verlassen: läuft bis zum Ende der aktuellen Methode" aria-label="Methode verlassen" title="Methode verlassen">${icon("stepOut")}</button>
                 <button class="jp-stepbtn" data-ref="stepInto" data-help="step" data-tip="Schritt: führt die nächste Zeile aus – die aktuelle Zeile ist im Code gelb markiert" aria-label="Schritt: nächste Zeile ausführen" title="Schritt: nächste Zeile ausführen">${icon("stepInto")}<span>Schritt</span></button>
@@ -353,7 +363,6 @@ export class App {
         <aside class="jp-drawer" data-ref="drawer" aria-label="Menü" inert>
             <div class="jp-drawer-head">
                 <div class="jp-brand"><span class="jp-brand-mark">J</span>JPad</div>
-                <button class="jp-iconbtn jp-skinbtn jp-drawer-skin" data-ref="drawerSkinBtn"></button>
                 <button class="jp-iconbtn" data-ref="drawerClose" data-tip="Menü schließen" aria-label="Menü schließen">${icon("close")}</button>
             </div>
             <div class="jp-drawer-body">
@@ -382,6 +391,9 @@ export class App {
                     <button data-theme-choice="light" data-tip="Helle Darstellung">${icon("sun")}<span>Hell</span></button>
                     <button data-theme-choice="dark" data-tip="Dunkle Darstellung">${icon("moon")}<span>Dunkel</span></button>
                     <button data-theme-choice="auto" data-tip="Darstellung wie in der Systemeinstellung des Geräts">${icon("auto")}<span>System</span></button>
+                </div>
+                <div class="jp-skin-picker" data-ref="skinPicker" role="group" aria-label="Theme">
+                    ${SKINS.map(k => `<button data-skin-choice="${k.id}" data-tip="${k.tip}" style="--sw-bg:${k.bg};--sw-fg:${k.fg}"><span class="jp-skin-swatch">${icon(k.icon)}</span><span>${k.label}</span></button>`).join("")}
                 </div>
                 <div class="jp-setting-row">
                     <span>Schriftgröße</span>
@@ -433,9 +445,9 @@ export class App {
         this.el.redo.addEventListener("click", () => this.editor.redo());
         this.el.formatBtn.addEventListener("click", () => this.formatCode());
         this.el.saveBtn.addEventListener("click", () => this.exportProject());
-        this.el.skinBtn.addEventListener("click", () => this.nextSkin());
-        // Auf sehr schmalen Bildschirmen (iPhone) steht der Theme-Knopf oben im Menü statt in der Kopfzeile
-        this.el.drawerSkinBtn.addEventListener("click", () => this.nextSkin());
+        // Themes: Auswahl im Menü unter „Darstellung“
+        this.el.skinPicker.querySelectorAll<HTMLElement>("[data-skin-choice]").forEach(b =>
+            b.addEventListener("click", () => this.setSkin(<Skin>b.dataset.skinChoice)));
         this.el.collapseBtn.addEventListener("pointerdown", e => e.preventDefault());
         this.el.collapseBtn.addEventListener("click", () => this.setCompact(this.root.dataset.compact != "true"));
         this.setCompact(this.loadCompact());
@@ -629,9 +641,9 @@ export class App {
             fold.style.left = "";
         };
         reset();
-        // Zuklapp-Knopf genau mittig zwischen Glühbirne und Theme-Knopf
+        // Zuklapp-Knopf genau mittig zwischen Glühbirne und den Ausführen-Knöpfen
         const centerFold = () => {
-            const bulb = this.el.bulbBtn.getBoundingClientRect(), skin = this.el.skinBtn.getBoundingClientRect();
+            const bulb = this.el.bulbBtn.getBoundingClientRect(), skin = this.el.runTools.getBoundingClientRect();
             if (bulb.width == 0 || skin.width == 0 || skin.left < bulb.right) return;
             const br = bar.getBoundingClientRect();
             fold.classList.add("is-aligned");
@@ -652,7 +664,7 @@ export class App {
         // Überschneidet sich die Gruppe mit dem Projektnamen oder den Knöpfen rechts davon: normal einreihen
         const gr = g.getBoundingClientRect();
         const proj = this.el.projectBtn.getBoundingClientRect();
-        const run = this.el.skinBtn.getBoundingClientRect();
+        const run = this.el.runTools.getBoundingClientRect();
         if (gr.left < proj.right + 4 || gr.right > run.left - 4) reset();
         centerFold();
     }
@@ -1612,20 +1624,18 @@ export class App {
         try { return <ThemeChoice>(localStorage.getItem("jpad.theme") || "auto"); } catch (e) { return "auto"; }
     }
 
-    // ----- Spaß-Themes: Standard → Flach (Einhorn) → Hacker → Pink-Hacker → Standard -----
+    // ----- Themes (Auswahl im Menü „Darstellung“), jeweils hell und dunkel -----
 
     getSkin(): Skin {
         try {
             const s = localStorage.getItem("jpadblox.skin");
             // früher „candy“ (Bonbon), jetzt das flache Theme
-            return s == "flat" || s == "candy" ? "flat" : s == "hacker" || s == "pink" ? s : "default";
+            return s == "candy" ? "flat" : SKINS.some(k => k.id == s) ? <Skin>s : "default";
         } catch (e) { return "default"; }
     }
 
-    nextSkin() {
-        const order: Skin[] = ["default", "flat", "hacker", "pink"];
-        const next = order[(order.indexOf(this.getSkin()) + 1) % order.length];
-        try { localStorage.setItem("jpadblox.skin", next); } catch (e) { }
+    setSkin(skin: Skin) {
+        try { localStorage.setItem("jpadblox.skin", skin); } catch (e) { }
         this.applyTheme(this.getThemeChoice());
         this.renderSkinButton();
         this.alignBulbSoon();
@@ -1666,25 +1676,15 @@ export class App {
         requestAnimationFrame(() => this.editor?.view.requestMeasure());
     }
 
+    /** Auswahl im Menü: gewähltes Theme markieren */
     renderSkinButton() {
         const s = this.getSkin();
-        const [iconName, label] =
-            s == "default" ? ["unicorn", "Flaches Theme: weiß und blau, klare Linien"] :
-            s == "flat" ? ["hacker", "Hacker-Theme: dunkel, Neon, spitze Ecken"] :
-            s == "hacker" ? ["hacker", "Pink-Hacker-Theme: wie Hacker, aber in Pink"] :
-            ["skinReset", "Zurück zum normalen Aussehen"];
-        for (const btn of [this.el.skinBtn, this.el.drawerSkinBtn]) {
-            if (!btn) continue;
-            btn.innerHTML = icon(iconName);
-            btn.setAttribute("aria-label", label);
-            btn.title = label;
-            btn.dataset.tip = label;
-        }
+        this.el.skinPicker?.querySelectorAll<HTMLElement>("[data-skin-choice]").forEach(b =>
+            b.setAttribute("aria-pressed", String(b.dataset.skinChoice == s)));
     }
 
     effectiveTheme(): "light" | "dark" {
         const skin = this.getSkin();
-        if (skin == "hacker" || skin == "pink") return "dark";
         const c = this.getThemeChoice();
         if (c == "auto") return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
         return c;
@@ -1710,7 +1710,8 @@ export class App {
         if (ide) new ThemeManager(ide).switchTheme(eff);
         if (this.el.variables) new ThemeManager(<HTMLDivElement>this.el.variables).switchTheme(eff);
         const meta = document.querySelectorAll('meta[name="theme-color"]');
-        meta.forEach(m => m.setAttribute("content", skin == "flat" ? (eff == "dark" ? "#000080" : "#FFFFFF") : skin == "hacker" ? "#020604" : skin == "pink" ? "#060204" : eff == "dark" ? "#151922" : "#F3F5F9"));
+        const bar = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();
+        meta.forEach(m => m.setAttribute("content", bar || (eff == "dark" ? "#151922" : "#F3F5F9")));
     }
 
     getFontSize(): number {

@@ -3,6 +3,8 @@
 const paths: Record<string, string> = {
     menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
     jcode: '<g transform="translate(-0.6 5) scale(0.82)"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1"/><path d="M3 7v10a2 2 0 0 0 2 2h13l3-8H7l-3 8"/></g><rect x="12.5" y="1.5" width="10" height="6" rx="2" stroke-width="1.7"/><circle cx="15" cy="4.5" r=".95" fill="currentColor" stroke="none"/><circle cx="17.5" cy="4.5" r=".95" fill="currentColor" stroke="none"/><circle cx="20" cy="4.5" r=".95" fill="currentColor" stroke="none"/>',
+    dog: '<path d="M7.5 6.5L4.5 5 3 11l3 1.5"/><path d="M16.5 6.5l3-1.5 1.5 6-3 1.5"/><path d="M6.5 8.5C7.3 5.9 9.4 4.5 12 4.5s4.7 1.4 5.5 4v5a5.5 5.5 0 0 1-11 0z"/><circle cx="9.7" cy="11" r=".9" fill="currentColor" stroke="none"/><circle cx="14.3" cy="11" r=".9" fill="currentColor" stroke="none"/><path d="M10.8 14.3h2.4L12 15.6z" fill="currentColor"/><path d="M12 15.6v1.4"/>',
+    sheep: '<path d="M8.5 17.5a3 3 0 0 1-1.3-5.7 3.2 3.2 0 0 1 4.3-4.1 3.2 3.2 0 0 1 5.6.6 3 3 0 0 1 2.4 5.4 2.9 2.9 0 0 1-2.5 3.8z"/><path d="M10 17.5v3M15.5 17.5v3"/><path d="M7.2 11.8c-1-.9-1.2-2.4-.4-3.5.6-.8 1.6-1.1 2.5-.8"/><ellipse cx="5.5" cy="12.2" rx="2.4" ry="2.8"/><circle cx="4.9" cy="11.9" r=".6" fill="currentColor" stroke="none"/>',
     foldLeft: '<path d="M18 7l-5 5 5 5"/><path d="M11 7l-5 5 5 5"/>',
     foldRight: '<path d="M6 7l5 5-5 5"/><path d="M13 7l5 5-5 5"/>',
     foldUp: '<path d="M7 12l5-5 5 5"/><path d="M7 18l5-5 5 5"/>',

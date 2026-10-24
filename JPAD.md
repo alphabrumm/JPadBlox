@@ -173,3 +173,8 @@ GNU GPL v3, wie die Online-IDE.
   Normaler Strichpunkt nur im for-Kopf, in Kommentaren, in leeren Zeilen und bei Markierung.
 - **Hilfsleiste auf dem iPhone**: Nur der Umschalter Bausteine/Zeichen bleibt links fest; Cursor-, Zeilen-, Haltepunkt-,
   Info- und Tastatur-Knopf scrollen mit (am Anfang bzw. Ende der Reihe). iPad unverändert.
+- **Themes im Menü** (Darstellung, über der Schriftgröße; auch auf dem iPhone): Standard, Flach, Hacker, Pink, Hund,
+  Schaf als Knöpfe nebeneinander (waagrecht scrollbar). Der Theme-Knopf in der Kopfzeile ist entfallen.
+  Alle Themes folgen Hell/Dunkel/System: Hacker und Pink hell = weißer Hintergrund mit den Hacker-Farben
+  (auf Weiß etwas kräftiger). Hund = Farbwelt von „Bello lernt Java“, Schaf = Farbwelt von „Der Schaf-Konstruktor“
+  (Himmelsverlauf als Hintergrund, Atkinson Hyperlegible, Pixelify Sans für Projektname und Überschriften).

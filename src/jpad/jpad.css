@@ -2845,14 +2845,6 @@ html.phone .jp-topbar .jp-foldgroup { display: none; }
 .jp-jcode-input:focus { border-color: var(--accent); outline: none; }
 .jp-jcode-input::placeholder { color: var(--ink-2); opacity: .4; letter-spacing: 0.3em; }
 
-/* Theme-Knopf: auf sehr schmalen Bildschirmen oben im Menü (links neben dem Schließen-Knopf) statt in der Kopfzeile */
-.jp-drawer-head .jp-drawer-skin { display: none; margin-left: auto; margin-right: 10px; }
-html.phone .jp-drawer-head .jp-drawer-skin { display: inline-grid; }
-@media (max-width: 520px) {
-    .jp-topbar .jp-skinbtn { display: none; }
-    .jp-drawer-head .jp-drawer-skin { display: inline-grid; }
-}
-
 /* JPadBlox: Ansichtswechsel bei offener Tastatur (iPad hochkant): Der Editor bleibt unsichtbar „geparkt“ und
    behält den Fokus, damit die Tastatur nicht zuklappt; die Ansicht endet über der Tastatur. */
 .jp-app[data-kbhold="true"][data-layout="tabs"]:not([data-view="code"]) .jp-pane-code {
@@ -2890,3 +2882,255 @@ html.tablet .jp-app[data-kbhold="true"][data-layout="tabs"]:not([data-view="code
 html.phone .jp-keybar .jp-phone-group { display: contents; }
 html.phone .jp-keybar-fixed.is-left > :not([data-action="mode"]) { display: none; }
 html.phone .jp-keybar-fixed.is-right { display: none; }
+
+/* ===================================================================================
+   JPadBlox: Theme-Auswahl im Menü „Darstellung“ (nebeneinander, bei Platzmangel waagrecht scrollbar)
+   =================================================================================== */
+.jp-skin-picker { display: flex; gap: 3px; overflow-x: auto; scrollbar-width: none; padding: 10px 0 6px; margin: 2px 0 6px; }
+.jp-skin-picker::-webkit-scrollbar { display: none; }
+.jp-skin-picker button {
+    flex: none; display: flex; flex-direction: column; align-items: center; gap: 5px; width: 54px; padding: 5px 0 4px;
+    border-radius: var(--radius-m); color: var(--ink-2); font-size: 12.5px; border: 2px solid transparent; background: transparent;
+}
+.jp-skin-swatch {
+    display: grid; place-items: center; width: 40px; height: 40px; border-radius: 11px;
+    background: var(--sw-bg); color: var(--sw-fg); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+.jp-skin-swatch .jp-icon { width: 24px; height: 24px; }
+.jp-skin-picker button[aria-pressed="true"] { border-color: var(--accent); color: var(--ink); font-weight: 700; background: var(--accent-soft); }
+
+/* Hacker hell: weißer Hintergrund, sonst die Hacker-Farben (für Lesbarkeit auf Weiß etwas kräftiger) */
+:root[data-skin="hacker"][data-effective="light"] {
+    --bg: #FFFFFF;
+    --surface: #FFFFFF;
+    --surface-2: #EEFBF4;
+    --ink: #06281A;
+    --ink-2: #2C7A54;
+    --line: #B5E6CC;
+    --accent: #00B86E;
+    --accent-soft: #DDF8EA;
+    --accent-ink: #FFFFFF;
+    --marker-soft: rgba(242, 255, 58, 0.35);
+    --danger: #E0106A;
+    --danger-soft: #FDE3EE;
+    --ok: #00B86E;
+    --shadow-lg: 0 0 0 1px #00B86E, 0 0 28px rgba(0, 184, 110, 0.18);
+    --syn-keyword: #E0109F;
+    --syn-type: #0093B0;
+    --syn-string: #8C8200;
+    --syn-number: #D97800;
+    --syn-comment: #6E9C84;
+    --syn-method: #0E9F6E;
+    --syn-field: #4F8F00;
+    --syn-annotation: #9B3FE0;
+    --syn-punct: #5E8A74;
+    color-scheme: light;
+}
+:root[data-skin="hacker"][data-effective="light"] body,
+:root[data-skin="hacker"][data-effective="light"] .jp-app {
+    background:
+        repeating-linear-gradient(0deg, rgba(0, 184, 110, 0.035) 0 1px, transparent 1px 3px),
+        linear-gradient(90deg, rgba(0, 184, 110, 0.07) 1px, transparent 1px) 0 0 / 32px 32px,
+        linear-gradient(0deg, rgba(0, 184, 110, 0.07) 1px, transparent 1px) 0 0 / 32px 32px,
+        #FFFFFF;
+}
+:root[data-skin="hacker"][data-effective="light"] .jp-pane { border-color: #8FD9B4; box-shadow: 0 0 0 1px rgba(0, 184, 110, 0.06), 0 0 18px -8px rgba(0, 184, 110, 0.35); }
+:root[data-skin="hacker"][data-effective="light"] .jp-pane-side { border-color: #7FD3E0; box-shadow: 0 0 18px -8px rgba(0, 147, 176, 0.35); }
+:root[data-skin="hacker"][data-effective="light"] .jp-topbar .jp-iconbtn:disabled { color: #A7D9C0; }
+:root[data-skin="hacker"][data-effective="light"] .jp-keybar,
+:root[data-skin="hacker"][data-effective="light"] .jp-bottomnav { background: #FFFFFF; }
+:root[data-skin="hacker"][data-effective="light"] :is(.jp-blockpanel, .jp-keybar) button.jp-block:active,
+:root[data-skin="hacker"][data-effective="light"] :is(.jp-blockpanel, .jp-keybar) button.jp-block.is-pressed { color: #FFFFFF; }
+:root[data-skin="hacker"][data-effective="light"] [data-group="klasse"] { --g: #00B86E; }
+:root[data-skin="hacker"][data-effective="light"] [data-group="ablauf"] { --g: #E0109F; }
+:root[data-skin="hacker"][data-effective="light"] [data-group="daten"]  { --g: #0093B0; }
+:root[data-skin="hacker"][data-effective="light"] .jp-editor .cm-content { text-shadow: none; }
+:root[data-skin="hacker"][data-effective="light"] .jp-editor .cm-cursor { border-left-color: rgba(0, 184, 110, 0.55); }
+:root[data-skin="hacker"][data-effective="light"] .jp-filetab.is-active { text-shadow: none; }
+:root[data-skin="hacker"][data-effective="light"] ::selection { background: rgba(0, 184, 110, 0.25); }
+
+/* Pink-Hacker hell: weißer Hintergrund, sonst die Hacker-Farben (für Lesbarkeit auf Weiß etwas kräftiger) */
+:root[data-skin="pink"][data-effective="light"] {
+    --bg: #FFFFFF;
+    --surface: #FFFFFF;
+    --surface-2: #FDEEF8;
+    --ink: #2A0620;
+    --ink-2: #7A2C66;
+    --line: #F0BEE2;
+    --accent: #E0109F;
+    --accent-soft: #FDE3F5;
+    --accent-ink: #FFFFFF;
+    --marker-soft: rgba(242, 255, 58, 0.35);
+    --danger: #E0106A;
+    --danger-soft: #FDE3EE;
+    --ok: #E0109F;
+    --shadow-lg: 0 0 0 1px #E0109F, 0 0 28px rgba(224, 16, 159, 0.18);
+    --syn-keyword: #00B86E;
+    --syn-type: #0093B0;
+    --syn-string: #8C8200;
+    --syn-number: #D97800;
+    --syn-comment: #9C6E8E;
+    --syn-method: #C21088;
+    --syn-field: #B0408F;
+    --syn-annotation: #9B3FE0;
+    --syn-punct: #8A5E7C;
+    color-scheme: light;
+}
+:root[data-skin="pink"][data-effective="light"] body,
+:root[data-skin="pink"][data-effective="light"] .jp-app {
+    background:
+        repeating-linear-gradient(0deg, rgba(224, 16, 159, 0.035) 0 1px, transparent 1px 3px),
+        linear-gradient(90deg, rgba(224, 16, 159, 0.07) 1px, transparent 1px) 0 0 / 32px 32px,
+        linear-gradient(0deg, rgba(224, 16, 159, 0.07) 1px, transparent 1px) 0 0 / 32px 32px,
+        #FFFFFF;
+}
+:root[data-skin="pink"][data-effective="light"] .jp-pane { border-color: #E6A0D2; box-shadow: 0 0 0 1px rgba(224, 16, 159, 0.06), 0 0 18px -8px rgba(224, 16, 159, 0.35); }
+:root[data-skin="pink"][data-effective="light"] .jp-pane-side { border-color: #7FD3E0; box-shadow: 0 0 18px -8px rgba(0, 147, 176, 0.35); }
+:root[data-skin="pink"][data-effective="light"] .jp-topbar .jp-iconbtn:disabled { color: #E3B5D5; }
+:root[data-skin="pink"][data-effective="light"] .jp-keybar,
+:root[data-skin="pink"][data-effective="light"] .jp-bottomnav { background: #FFFFFF; }
+:root[data-skin="pink"][data-effective="light"] :is(.jp-blockpanel, .jp-keybar) button.jp-block:active,
+:root[data-skin="pink"][data-effective="light"] :is(.jp-blockpanel, .jp-keybar) button.jp-block.is-pressed { color: #FFFFFF; }
+:root[data-skin="pink"][data-effective="light"] [data-group="klasse"] { --g: #E0109F; }
+:root[data-skin="pink"][data-effective="light"] [data-group="ablauf"] { --g: #00B86E; }
+:root[data-skin="pink"][data-effective="light"] [data-group="daten"]  { --g: #0093B0; }
+:root[data-skin="pink"][data-effective="light"] .jp-editor .cm-content { text-shadow: none; }
+:root[data-skin="pink"][data-effective="light"] .jp-editor .cm-cursor { border-left-color: rgba(224, 16, 159, 0.55); }
+:root[data-skin="pink"][data-effective="light"] .jp-filetab.is-active { text-shadow: none; }
+:root[data-skin="pink"][data-effective="light"] ::selection { background: rgba(224, 16, 159, 0.25); }
+
+/* ---------- Hund: Farbwelt des Demo-Lernpfads „Bello lernt Java“ (Wiesengrün, Abendhimmel) ---------- */
+:root[data-skin="hund"] {
+    --font-ui: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+    --font-code: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+    --bg: #f4faf5;
+    --surface: #ffffff;
+    --surface-2: #e5f3ea;
+    --ink: #17302a;
+    --ink-2: #4f6b62;
+    --line: #cfe5d7;
+    --accent: #1f8a6a;
+    --accent-soft: #d4efe3;
+    --accent-ink: #ffffff;
+    --marker: #ffd23f;
+    --marker-ink: #2b1d36;
+    --marker-soft: rgba(255, 210, 63, 0.3);
+    --danger: #c23b3b;
+    --danger-soft: #fbe0e0;
+    --ok: #2f8a4a;
+    --syn-keyword: #8a3bc9;
+    --syn-type: #b2437a;
+    --syn-string: #c2551c;
+    --syn-number: #2b7d4a;
+    --syn-comment: #9a8692;
+    --syn-method: #4b4fd0;
+    --syn-field: #17302a;
+    --syn-punct: #4f6b62;
+    color-scheme: light;
+}
+:root[data-skin="hund"][data-effective="dark"] {
+    --bg: #0f1a17;
+    --surface: #152420;
+    --surface-2: #1c302a;
+    --ink: #e8f5ef;
+    --ink-2: #a9c4ba;
+    --line: #2a4a3f;
+    --accent: #4fd1a5;
+    --accent-soft: #173a30;
+    --accent-ink: #0f1a17;
+    --marker: #ffc35c;
+    --marker-ink: #1a1206;
+    --marker-soft: rgba(255, 195, 92, 0.2);
+    --danger: #ff8a8a;
+    --danger-soft: #452326;
+    --ok: #6fd08b;
+    --syn-keyword: #d6a3ff;
+    --syn-type: #ff8fbf;
+    --syn-string: #ffab78;
+    --syn-number: #7fd69a;
+    --syn-comment: #9b8aa3;
+    --syn-method: #a9adff;
+    --syn-field: #e8f5ef;
+    --syn-punct: #a9c4ba;
+    color-scheme: dark;
+}
+:root[data-skin="hund"] body, :root[data-skin="hund"] .jp-app { background: linear-gradient(180deg, color-mix(in srgb, #5457c4 22%, #f4faf5) 0%, color-mix(in srgb, #c2477a 16%, #f4faf5) 45%, color-mix(in srgb, #f0a12e 18%, #f4faf5) 85%, #f4faf5 100%); }
+:root[data-skin="hund"][data-effective="dark"] body, :root[data-skin="hund"][data-effective="dark"] .jp-app { background: linear-gradient(180deg, color-mix(in srgb, #a8abff 22%, #0f1a17) 0%, color-mix(in srgb, #ff7fae 16%, #0f1a17) 45%, color-mix(in srgb, #ffc35c 18%, #0f1a17) 85%, #0f1a17 100%); }
+:root[data-skin="hund"] .jp-project-name, :root[data-skin="hund"] .jp-drawer-head .jp-brand, :root[data-skin="hund"] .jp-blockgroup h3 { font-family: "Pixelify Sans", var(--font-ui); letter-spacing: 0.02em; }
+:root[data-skin="hund"] .jp-project-name { font-size: 1.15em; }
+:root[data-skin="hund"] .jp-pane { border-color: var(--line); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 6px 18px -10px rgba(0, 0, 0, 0.18); }
+:root[data-skin="hund"] .jp-topbar, :root[data-skin="hund"] .jp-keybar, :root[data-skin="hund"] .jp-bottomnav { background: color-mix(in srgb, var(--surface) 70%, transparent); }
+:root[data-skin="hund"] [data-group="klasse"] { --g: #1f8a6a; }
+:root[data-skin="hund"] [data-group="ablauf"] { --g: #c2477a; }
+:root[data-skin="hund"] [data-group="daten"] { --g: #5457c4; }
+:root[data-skin="hund"][data-effective="dark"] [data-group="klasse"] { --g: #4fd1a5; }
+:root[data-skin="hund"][data-effective="dark"] [data-group="ablauf"] { --g: #ff7fae; }
+:root[data-skin="hund"][data-effective="dark"] [data-group="daten"] { --g: #a8abff; }
+
+/* ---------- Schaf: Farbwelt des Lernpfads „Der Schaf-Konstruktor“ (Sonnenaufgang) ---------- */
+:root[data-skin="schaf"] {
+    --font-ui: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+    --font-code: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+    --bg: #fff6ef;
+    --surface: #ffffff;
+    --surface-2: #fdebdd;
+    --ink: #2b1d36;
+    --ink-2: #6f5a6c;
+    --line: #f0d5c3;
+    --accent: #e05d26;
+    --accent-soft: #fde0cc;
+    --accent-ink: #ffffff;
+    --marker: #ffd23f;
+    --marker-ink: #2b1d36;
+    --marker-soft: rgba(255, 210, 63, 0.3);
+    --danger: #c23b3b;
+    --danger-soft: #fbe0e0;
+    --ok: #2f8a4a;
+    --syn-keyword: #8a3bc9;
+    --syn-type: #b2437a;
+    --syn-string: #c2551c;
+    --syn-number: #2b7d4a;
+    --syn-comment: #9a8692;
+    --syn-method: #4b4fd0;
+    --syn-field: #2b1d36;
+    --syn-punct: #6f5a6c;
+    color-scheme: light;
+}
+:root[data-skin="schaf"][data-effective="dark"] {
+    --bg: #1a1430;
+    --surface: #231b3c;
+    --surface-2: #2d244d;
+    --ink: #fbeee6;
+    --ink-2: #c8b4c6;
+    --line: #3c305e;
+    --accent: #ff8a4f;
+    --accent-soft: #46283a;
+    --accent-ink: #1a1430;
+    --marker: #ffc35c;
+    --marker-ink: #1a1206;
+    --marker-soft: rgba(255, 195, 92, 0.2);
+    --danger: #ff8a8a;
+    --danger-soft: #452326;
+    --ok: #6fd08b;
+    --syn-keyword: #d6a3ff;
+    --syn-type: #ff8fbf;
+    --syn-string: #ffab78;
+    --syn-number: #7fd69a;
+    --syn-comment: #9b8aa3;
+    --syn-method: #a9adff;
+    --syn-field: #fbeee6;
+    --syn-punct: #c8b4c6;
+    color-scheme: dark;
+}
+:root[data-skin="schaf"] body, :root[data-skin="schaf"] .jp-app { background: linear-gradient(180deg, color-mix(in srgb, #5457c4 22%, #fff6ef) 0%, color-mix(in srgb, #c2477a 16%, #fff6ef) 45%, color-mix(in srgb, #f0a12e 18%, #fff6ef) 85%, #fff6ef 100%); }
+:root[data-skin="schaf"][data-effective="dark"] body, :root[data-skin="schaf"][data-effective="dark"] .jp-app { background: linear-gradient(180deg, color-mix(in srgb, #a8abff 22%, #1a1430) 0%, color-mix(in srgb, #ff7fae 16%, #1a1430) 45%, color-mix(in srgb, #ffc35c 18%, #1a1430) 85%, #1a1430 100%); }
+:root[data-skin="schaf"] .jp-project-name, :root[data-skin="schaf"] .jp-drawer-head .jp-brand, :root[data-skin="schaf"] .jp-blockgroup h3 { font-family: "Pixelify Sans", var(--font-ui); letter-spacing: 0.02em; }
+:root[data-skin="schaf"] .jp-project-name { font-size: 1.15em; }
+:root[data-skin="schaf"] .jp-pane { border-color: var(--line); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 6px 18px -10px rgba(0, 0, 0, 0.18); }
+:root[data-skin="schaf"] .jp-topbar, :root[data-skin="schaf"] .jp-keybar, :root[data-skin="schaf"] .jp-bottomnav { background: color-mix(in srgb, var(--surface) 70%, transparent); }
+:root[data-skin="schaf"] [data-group="klasse"] { --g: #e05d26; }
+:root[data-skin="schaf"] [data-group="ablauf"] { --g: #c2477a; }
+:root[data-skin="schaf"] [data-group="daten"] { --g: #5457c4; }
+:root[data-skin="schaf"][data-effective="dark"] [data-group="klasse"] { --g: #ff8a4f; }
+:root[data-skin="schaf"][data-effective="dark"] [data-group="ablauf"] { --g: #ff7fae; }
+:root[data-skin="schaf"][data-effective="dark"] [data-group="daten"] { --g: #a8abff; }
