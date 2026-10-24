@@ -3170,3 +3170,5 @@ html.jp-marking .jp-editor .cm-content { animation: jp-caret-fast 0.5s steps(1) 
 @keyframes jp-caret-fast { 50% { caret-color: transparent; } }
 /* Theme-Auswahl: Vorschaufelder ohne Hintergrund – nur das farbige Symbol */
 .jp-skin-swatch { background: transparent; box-shadow: none; }
+/* Nach dem Ausschneiden: Einfügestelle antippen, dann „Einfügen“ (Ausschneiden ist dann aus) */
+.jp-keybar.is-placing [data-action="cutBlock"] { display: none !important; }

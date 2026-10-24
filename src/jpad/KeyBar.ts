@@ -349,6 +349,7 @@ ${rightKeys}
     private renderMarking() {
         const on = this.editor.marking;
         this.el.classList.toggle("is-marking", on);
+        this.el.classList.toggle("is-placing", on && this.editor.markPhase == "place");
         this.el.querySelectorAll<HTMLElement>('[data-action="mark"]').forEach(b => b.setAttribute("aria-pressed", String(on)));
     }
 

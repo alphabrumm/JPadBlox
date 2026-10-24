@@ -684,12 +684,15 @@ export class TouchEditor {
 
     /** Markier-Modus aktiv; Startzeile der Markierung */
     marking = false;
+    /** select: Block wird markiert; place: Block ist ausgeschnitten, jetzt Einfügestelle antippen */
+    markPhase: "select" | "place" = "select";
     private markAnchor = 1;
 
     /** Markier-Modus an: Die Zeile mit dem Cursor ist die Startzeile */
     startMarking() {
         const st = this.view.state;
         this.marking = true;
+        this.markPhase = "select";
         this.markAnchor = st.doc.lineAt(st.selection.main.head).number;
         document.documentElement.classList.add("jp-marking");
         this.view.dispatch({ effects: setMarkLines.of({ from: this.markAnchor, to: this.markAnchor }), userEvent: "select.jpmark" });
@@ -699,6 +702,7 @@ export class TouchEditor {
     stopMarking() {
         if (!this.marking) return;
         this.marking = false;
+        this.markPhase = "select";
         document.documentElement.classList.remove("jp-marking");
         const head = this.view.state.selection.main.head;
         this.view.dispatch({ effects: setMarkLines.of(null), selection: { anchor: head }, userEvent: "select.jpmark" });
@@ -708,6 +712,12 @@ export class TouchEditor {
     private extendMark() {
         if (!this.marking) return;
         const st = this.view.state, doc = st.doc;
+        if (this.markPhase == "place") {
+            // Einfügestelle: nur die Zeile mit dem Cursor pulsiert, die Auswahl bleibt, wie sie ist
+            const n = doc.lineAt(st.selection.main.head).number;
+            this.view.dispatch({ effects: setMarkLines.of({ from: n, to: n }), userEvent: "select.jpmark" });
+            return;
+        }
         this.markAnchor = Math.min(this.markAnchor, doc.lines);
         const end = doc.lineAt(st.selection.main.head).number;
         const a = Math.min(this.markAnchor, end), b = Math.max(this.markAnchor, end);
@@ -728,23 +738,28 @@ export class TouchEditor {
         return { text: doc.sliceString(a.from, b.to) + "\n", from, to };
     }
 
-    /** Markierte Zeilen entfernen (beendet den Markier-Modus) */
+    /** Markierte Zeilen entfernen; der Markier-Modus bleibt an, jetzt wird die Einfügestelle angetippt */
     cutBlock(): string {
         const { text, from, to } = this.markedBlock();
-        this.endMarkingSilently();
-        this.view.dispatch({ changes: { from, to }, selection: { anchor: from }, effects: setMarkLines.of(null), userEvent: "select.jpmark", scrollIntoView: true });
+        this.markPhase = "place";
+        this.view.dispatch({ changes: { from, to }, selection: { anchor: from }, userEvent: "select.jpmark", scrollIntoView: true });
+        const n = this.view.state.doc.lineAt(from).number;
+        this.view.dispatch({ effects: setMarkLines.of({ from: n, to: n }), userEvent: "select.jpmark" });
         return text;
     }
 
     /** Markier-Modus beenden, ohne die Auswahl anzufassen (die nächste Änderung räumt auf) */
     private endMarkingSilently() {
         this.marking = false;
+        this.markPhase = "select";
         document.documentElement.classList.remove("jp-marking");
     }
 
     /** Text einfügen: ganze Zeilen (endet mit Umbruch) vor der Zeile mit dem Cursor, sonst an der Cursorstelle */
     pasteText(text: string) {
-        const st = this.view.state, sel = st.selection.main;
+        const st = this.view.state;
+        // Ist noch ein Block markiert (nicht ausgeschnitten), wird vor dessen erster Zeile eingefügt
+        const sel = this.markPhase == "place" ? EditorSelection.cursor(st.selection.main.head) : st.selection.main;
         this.endMarkingSilently();
         if (text.endsWith("\n")) {
             const line = st.doc.lineAt(sel.from);

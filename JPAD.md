@@ -187,3 +187,6 @@ GNU GPL v3, wie die Online-IDE.
   (ganze Zeilen vor der Cursorzeile). Nach Ausschneiden/Einfügen wird formatiert und der Modus endet; nochmal auf den
   Knopf tippen beendet ihn ebenfalls. Zwischenablage über navigator.clipboard, sonst interner Speicher.
 - Theme-Auswahl: Vorschaufelder ohne Hintergrund (nur das farbige Symbol).
+- Markier-Modus, Ablauf geändert: Nach „Ausschneiden“ bleibt der Modus an (Knopf blinkt weiter, Ausschneiden ist
+  ausgeblendet). Man tippt die Einfügestelle an (diese Zeile pulsiert), erst „Einfügen“ setzt den Block dort ein
+  (vor der angetippten Zeile), formatiert und beendet den Modus.
