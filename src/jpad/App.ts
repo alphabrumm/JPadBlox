@@ -289,7 +289,7 @@ export class App {
                     <button class="jp-iconbtn" data-ref="refactorBtn" data-tip="Umbenennen: eine Variable, Methode oder Klasse überall im Projekt umbenennen" aria-label="Umbenennen" title="Umbenennen">${icon("refactor")}</button>
                     <button class="jp-iconbtn" data-ref="undo" data-tip="Rückgängig: letzte Änderung zurücknehmen" aria-label="Rückgängig" title="Rückgängig">${icon("undo")}</button>
                     <button class="jp-iconbtn" data-ref="redo" data-tip="Wiederholen: zurückgenommene Änderung wiederherstellen" aria-label="Wiederholen" title="Wiederholen">${icon("redo")}</button>
-                    <button class="jp-iconbtn jp-wide-only" data-ref="formatBtn" data-tip="Code formatieren: Einrückungen und Abstände ordnen" aria-label="Code formatieren" title="Code formatieren">${icon("format")}</button>
+                    <button class="jp-iconbtn" data-ref="formatBtn" data-tip="Code formatieren: Einrückungen und Abstände ordnen" aria-label="Code formatieren" title="Code formatieren">${icon("format")}</button>
                     <button class="jp-iconbtn" data-ref="saveBtn" data-tip="Projekt als Datei sichern. Ein Punkt zeigt Änderungen, die noch nicht gesichert sind." aria-label="Projekt als Datei sichern" title="Projekt als Datei sichern">${icon("save")}<span class="jp-dot"></span></button>
                 </div>
                 <span class="jp-topbar-sep" aria-hidden="true"></span>
@@ -613,6 +613,7 @@ export class App {
         const ro = new ResizeObserver(() => this.alignBulbSoon());
         ro.observe(this.root.querySelector(".jp-pane-code")!);
         ro.observe(this.root.querySelector(".jp-topbar")!);
+        ro.observe(this.el.runTools);
     }
 
     private bulbFrame = 0;
@@ -628,8 +629,21 @@ export class App {
      * Die Ausführen-Knöpfe bleiben am rechten Rand.
      * Sonst (oder wenn der Platz nicht reicht) reihen sie sich einfach links neben der Glühbirne ein.
      */
+    /** Breite der Kopfzeile bei der letzten Ausrichtung im aufgeklappten Zustand */
+    private alignedBarWidth = "";
     private alignBulb() {
         const g = this.el.bulbGroup, bar = g.parentElement!;
+        // Zugeklappt: Die Striche bleiben genau dort, wo die Knöpfe aufgeklappt standen
+        // (die Bereiche darunter werden zugeklappt breiter, die Knöpfe sollen aber nicht wandern)
+        const key = [bar.clientWidth, this.el.runTools.offsetWidth, this.el.projectBtn.offsetWidth].join(",");
+        if (this.root.dataset.compact == "true") {
+            if (this.alignedBarWidth == key) return;
+            // Noch keine Werte für diese Breite: kurz aufgeklappt vermessen (ohne sichtbares Zwischenbild)
+            this.root.dataset.compact = "false";
+            try { this.alignBulb(); } finally { this.root.dataset.compact = "true"; }
+            return;
+        }
+        this.alignedBarWidth = key;
         const sep = g.querySelector<HTMLElement>(".jp-topbar-sep")!;
         const fold = this.el.foldGroup;
         const reset = () => {
@@ -644,7 +658,7 @@ export class App {
         // Zuklapp-Knopf genau mittig zwischen Glühbirne und den Ausführen-Knöpfen
         const centerFold = () => {
             const bulb = this.el.bulbBtn.getBoundingClientRect(), skin = this.el.runTools.getBoundingClientRect();
-            if (bulb.width == 0 || skin.width == 0 || skin.left < bulb.right) return;
+            if (bulb.width == 0 || skin.width == 0 || skin.left - bulb.right < 2 * fold.offsetWidth + 20) return; // sonst bleibt er einfach eingereiht
             const br = bar.getBoundingClientRect();
             fold.classList.add("is-aligned");
             fold.style.left = ((bulb.right + skin.left) / 2 - fold.offsetWidth / 2 - br.left) + "px";
@@ -1715,7 +1729,10 @@ export class App {
     }
 
     getFontSize(): number {
-        try { return parseInt(localStorage.getItem("jpad.fontSize") || "") || 16; } catch (e) { return 16; }
+        // iPad (Touch, kein Handy): standardmäßig zwei Stufen kleiner
+        const touch = matchMedia("(pointer: coarse)").matches || navigator.maxTouchPoints > 1;
+        const def = touch && Math.min(screen.width, screen.height) >= 600 ? 14 : 16;
+        try { return parseInt(localStorage.getItem("jpad.fontSize") || "") || def; } catch (e) { return def; }
     }
 
     changeFontSize(delta: number) {

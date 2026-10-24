@@ -2760,28 +2760,28 @@ html.field-keys .jp-sheet-layer { padding-bottom: calc(var(--keyboard-offset) + 
 html.phone .jp-topbar .jp-foldgroup { display: none; }
 
 .jp-app[data-compact="true"] { --topbar-h: 26px; }
-.jp-app[data-compact="true"] .jp-topbar { gap: 4px; }
 /* Der Zuklapp-Knopf selbst: flach und schmal, mit kleinem Pfeil nach unten */
-.jp-app[data-compact="true"] .jp-foldgroup { gap: 4px; }
-.jp-app[data-compact="true"] .jp-topbar .jp-foldbtn { width: 40px; height: 14px; border-radius: 7px; box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.14); }
+.jp-app[data-compact="true"] .jp-topbar .jp-foldbtn { width: 44px; height: 14px; border-radius: 7px; box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.14); }
 .jp-app[data-compact="true"] .jp-foldbtn .jp-icon { width: 14px; height: 14px; stroke-width: 3; }
 
-/* Alle übrigen Knöpfe der Kopfzeile und der Projekttitel als Striche */
+/* Alle übrigen Knöpfe der Kopfzeile und der Projekttitel als Striche: Jeder Strich ist genau so breit wie der Knopf
+   und steht an derselben Stelle (Breiten, Abstände und Inhalte bleiben – der Inhalt wird nur unsichtbar),
+   so dick wie der gelbe Aufklapp-Knopf (14 px), ohne Symbole */
 .jp-app[data-compact="true"] .jp-topbar button:not(.jp-foldbtn) {
-    width: 30px; min-width: 0; height: 22px; padding: 0; border: 0; background: transparent !important;
-    box-shadow: none !important; display: inline-grid; place-items: center; font-size: 0;
+    height: 26px; overflow: hidden; position: relative;
+    background: transparent !important; box-shadow: none !important; border-color: transparent !important; text-shadow: none !important;
 }
-.jp-app[data-compact="true"] .jp-topbar button:not(.jp-foldbtn) > * { display: none !important; }
+.jp-app[data-compact="true"] .jp-topbar button:not(.jp-foldbtn) > * { visibility: hidden; }
 .jp-app[data-compact="true"] .jp-topbar button:not(.jp-foldbtn)::after {
-    content: ""; display: block; width: 18px; height: 4px; border-radius: 2px; background: var(--ink-2); opacity: .5;
+    content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 14px; transform: translateY(-50%);
+    border-radius: 7px; background: color-mix(in srgb, var(--ink-2) 38%, transparent);
 }
-.jp-app[data-compact="true"] .jp-topbar button.jp-project { width: 96px; }
-.jp-app[data-compact="true"] .jp-topbar button.jp-project::after { width: 84px; height: 5px; background: var(--ink); opacity: .55; }
-.jp-app[data-compact="true"] .jp-topbar button.jp-run::after { width: 26px; height: 6px; border-radius: 3px; background: var(--marker); opacity: 1; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.18); }
-.jp-app[data-compact="true"] .jp-topbar button.jp-stop::after { background: var(--danger); opacity: .7; }
-.jp-app[data-compact="true"] .jp-topbar button.jp-stepbtn::after { width: 26px; background: var(--accent); opacity: .7; }
-.jp-app[data-compact="true"] .jp-topbar button.jp-bulb::after { background: var(--marker); opacity: 1; }
-.jp-app[data-compact="true"] .jp-topbar .jp-topbar-sep { height: 12px; }
+.jp-app[data-compact="true"] .jp-topbar button.jp-project::after { background: color-mix(in srgb, var(--ink) 45%, transparent); }
+.jp-app[data-compact="true"] .jp-topbar button.jp-run::after { background: var(--marker); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.14); }
+.jp-app[data-compact="true"] .jp-topbar button.jp-stop::after { background: color-mix(in srgb, var(--danger) 65%, transparent); }
+.jp-app[data-compact="true"] .jp-topbar button.jp-stepbtn::after { background: color-mix(in srgb, var(--accent) 60%, transparent); }
+.jp-app[data-compact="true"] .jp-topbar button.jp-bulb::after { background: var(--marker); }
+.jp-app[data-compact="true"] .jp-topbar .jp-topbar-sep { height: 14px; }
 
 /* Dateireiter: ein Strich je Datei, der aktive in der Akzentfarbe */
 .jp-app[data-compact="true"] .jp-filebar { align-items: center; }
@@ -3180,3 +3180,11 @@ html.jp-marking .jp-editor .cm-content { animation: jp-caret-fast 0.5s steps(1) 
    (Kopien am Ende der Reihe), damit mehr Zeichen Platz haben; links bleibt alles fest */
 html:not(.phone) .jp-app[data-layout="tabs"] .jp-keybar .jp-phone-right { display: contents; }
 html:not(.phone) .jp-app[data-layout="tabs"] .jp-keybar .jp-keybar-fixed.is-right { display: none; }
+
+/* Schmale Fenster (z. B. iPad hochkant): „Schritt“ nur als Symbol, dafür bleibt „Code formatieren“ sichtbar */
+.jp-app:not([data-wide="true"]) .jp-topbar .jp-stepbtn > span { display: none; }
+.jp-app:not([data-wide="true"]) .jp-topbar .jp-stepbtn { padding: 0 10px; }
+/* Projekttitel gibt in schmalen Fenstern Platz ab (Name und Status werden mit … gekürzt) */
+.jp-project { flex: 0 1 auto; }
+.jp-project > .jp-project-name, .jp-project > .jp-project-state { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.jp-app:not([data-wide="true"]) .jp-project-name { max-width: 100%; }
