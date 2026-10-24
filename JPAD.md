@@ -178,3 +178,6 @@ GNU GPL v3, wie die Online-IDE.
   Alle Themes folgen Hell/Dunkel/System: Hacker und Pink hell = weißer Hintergrund mit den Hacker-Farben
   (auf Weiß etwas kräftiger). Hund = Farbwelt von „Bello lernt Java“, Schaf = Farbwelt von „Der Schaf-Konstruktor“
   (Himmelsverlauf als Hintergrund, Atkinson Hyperlegible, Pixelify Sans für Projektname und Überschriften).
+- Theme-Auswahl: Reihenfolge Standard, Hund, Schaf, Flach, Hacker, Pink; nur Vorschaufelder ohne Titel (Name als
+  Tooltip); Flach, Hacker und Pink mit dem Hacker-Symbol auf Weiß (blau, grün, pink). Hund und Schaf: Himmelsverlauf
+  auch im Editor.

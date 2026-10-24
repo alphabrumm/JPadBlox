@@ -50,11 +50,11 @@ function loadSkinFonts() {
 /** JPadBlox: Themes für die Auswahl im Menü (bg/fg: Farben des kleinen Vorschau-Felds) */
 const SKINS: { id: string, label: string, icon: string, tip: string, bg: string, fg: string }[] = [
     { id: "default", label: "Standard", icon: "palette", tip: "Standard-Aussehen von JPad", bg: "#F3F5F9", fg: "#3157F5" },
-    { id: "flat", label: "Flach", icon: "unicorn", tip: "Flaches Theme: klare Linien in Weiß und Blau", bg: "#FFFFFF", fg: "#0050F0" },
-    { id: "hacker", label: "Hacker", icon: "hacker", tip: "Hacker-Theme: Neon-Grün, feine Linien, spitze Ecken", bg: "#020604", fg: "#00FF9C" },
-    { id: "pink", label: "Pink", icon: "hacker", tip: "Pink-Hacker-Theme: wie Hacker, aber in Pink", bg: "#060204", fg: "#FF2EC4" },
     { id: "hund", label: "Hund", icon: "dog", tip: "Hund: Farben des Demo-Lernpfads „Bello lernt Java“", bg: "#e5f3ea", fg: "#1f8a6a" },
     { id: "schaf", label: "Schaf", icon: "sheep", tip: "Schaf: Farben des Lernpfads „Der Schaf-Konstruktor“", bg: "#fdebdd", fg: "#e05d26" },
+    { id: "flat", label: "Flach", icon: "hacker", tip: "Flaches Theme: klare Linien in Weiß und Blau", bg: "#FFFFFF", fg: "#0050F0" },
+    { id: "hacker", label: "Hacker", icon: "hacker", tip: "Hacker-Theme: Neon-Grün, feine Linien, spitze Ecken", bg: "#FFFFFF", fg: "#00B86E" },
+    { id: "pink", label: "Pink", icon: "hacker", tip: "Pink-Hacker-Theme: wie Hacker, aber in Pink", bg: "#FFFFFF", fg: "#E0109F" },
 ];
 
 /**
@@ -393,7 +393,7 @@ export class App {
                     <button data-theme-choice="auto" data-tip="Darstellung wie in der Systemeinstellung des Geräts">${icon("auto")}<span>System</span></button>
                 </div>
                 <div class="jp-skin-picker" data-ref="skinPicker" role="group" aria-label="Theme">
-                    ${SKINS.map(k => `<button data-skin-choice="${k.id}" data-tip="${k.tip}" style="--sw-bg:${k.bg};--sw-fg:${k.fg}"><span class="jp-skin-swatch">${icon(k.icon)}</span><span>${k.label}</span></button>`).join("")}
+                    ${SKINS.map(k => `<button data-skin-choice="${k.id}" data-tip="${k.tip}" aria-label="Theme ${k.label}" title="${k.label}" style="--sw-bg:${k.bg};--sw-fg:${k.fg}"><span class="jp-skin-swatch">${icon(k.icon)}</span></button>`).join("")}
                 </div>
                 <div class="jp-setting-row">
                     <span>Schriftgröße</span>

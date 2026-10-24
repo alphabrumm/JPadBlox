@@ -3134,3 +3134,15 @@ html.phone .jp-keybar-fixed.is-right { display: none; }
 :root[data-skin="schaf"][data-effective="dark"] [data-group="klasse"] { --g: #ff8a4f; }
 :root[data-skin="schaf"][data-effective="dark"] [data-group="ablauf"] { --g: #ff7fae; }
 :root[data-skin="schaf"][data-effective="dark"] [data-group="daten"] { --g: #a8abff; }
+
+/* Hund und Schaf: der Himmelsverlauf des Hintergrunds auch im Editor */
+:root[data-skin="hund"] .jp-pane-code { background: linear-gradient(180deg, color-mix(in srgb, #5457c4 22%, #f4faf5) 0%, color-mix(in srgb, #c2477a 16%, #f4faf5) 45%, color-mix(in srgb, #f0a12e 18%, #f4faf5) 85%, #f4faf5 100%); }
+:root[data-skin="hund"][data-effective="dark"] .jp-pane-code { background: linear-gradient(180deg, color-mix(in srgb, #a8abff 22%, #0f1a17) 0%, color-mix(in srgb, #ff7fae 16%, #0f1a17) 45%, color-mix(in srgb, #ffc35c 18%, #0f1a17) 85%, #0f1a17 100%); }
+:root[data-skin="hund"] .jp-pane-code :is(.cm-editor, .cm-gutters) { background: transparent; }
+:root[data-skin="hund"] .jp-pane-code .jp-filetab.is-active { background: color-mix(in srgb, var(--surface) 60%, transparent); }
+:root[data-skin="schaf"] .jp-pane-code { background: linear-gradient(180deg, color-mix(in srgb, #5457c4 22%, #fff6ef) 0%, color-mix(in srgb, #c2477a 16%, #fff6ef) 45%, color-mix(in srgb, #f0a12e 18%, #fff6ef) 85%, #fff6ef 100%); }
+:root[data-skin="schaf"][data-effective="dark"] .jp-pane-code { background: linear-gradient(180deg, color-mix(in srgb, #a8abff 22%, #1a1430) 0%, color-mix(in srgb, #ff7fae 16%, #1a1430) 45%, color-mix(in srgb, #ffc35c 18%, #1a1430) 85%, #1a1430 100%); }
+:root[data-skin="schaf"] .jp-pane-code :is(.cm-editor, .cm-gutters) { background: transparent; }
+:root[data-skin="schaf"] .jp-pane-code .jp-filetab.is-active { background: color-mix(in srgb, var(--surface) 60%, transparent); }
+/* Theme-Auswahl: nur noch Vorschaufelder (Name als Tooltip) */
+.jp-skin-picker button { width: auto; padding: 4px; }
