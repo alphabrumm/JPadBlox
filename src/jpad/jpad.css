@@ -3236,3 +3236,6 @@ html.jp-marking-cols .jp-editor .cm-cursorLayer { display: none; }
 html.phone .jp-colswitch .jp-seg > span { display: none; }
 html.phone .jp-colswitch .jp-seg { padding: 0 10px; }
 html.phone .jp-keybar-markextra { padding: 0 4px; }
+
+/* Keine Ligaturen in Code (JetBrains Mono macht sonst aus <= ein ≤) – auch in Dialogfeldern und Vorschauen */
+.cm-editor, .jp-app code, .jp-app pre, .jp-sheet code, .jp-sheet pre { font-variant-ligatures: none; font-feature-settings: "calt" 0, "liga" 0; }

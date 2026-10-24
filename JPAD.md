@@ -38,9 +38,9 @@ Bedienung und Gestaltung.
   und automatisch der Demo-Lernpfad „Bello lernt Java“ (gemerkt in `jpadblox.welcomed`; wer schon Projekte hat, sieht es nicht).
 - **Menü**: Projekte (Neu/Öffnen/Sichern · Demo laden, Lernpfad einbetten/entfernen · Projektliste mit Duplizieren
   und Löschen), Grafik (Eigene Sprites, Sprite Bibliothek), Darstellung, Ausführungstempo, Nachschlagen.
-- **Demo laden** im Menü: legt jedes Mal ein neues Projekt mit frischer Kopie vom Server an und öffnet den Lernpfad `public/demo/index.html` („Bello lernt Java“: Oberfläche, Glühbirne,
+- **Demo laden** im Menü: legt jedes Mal ein neues Projekt mit frischer Kopie vom Server an und öffnet den Lernpfad `public/learn/demo/Lernpfad-Bello.html` („Bello lernt Java“: Oberfläche, Glühbirne,
   Datentypen, Klasse Hund mit Bausteinen, Methode mit if–else, Objekt, Schritt, Haltepunkt, Objektdiagramm) wie einen
-  Lernpfad-Link. Die Bilder in `public/demo/img` sind Screenshots von JPadBlox und werden beim Laden eingebettet.
+  Lernpfad-Link. Die Bilder in `public/learn/demo/img` sind Screenshots von JPadBlox und werden beim Laden eingebettet.
 - **Autovervollständigung geordnet** (`src/jpad/CompletionOrder.ts`): ohne Punkt zuerst eigene Variablen, eigene
   Methoden, eigene Klassen, Grundtypen (String, Integer, Double, Boolean, Character) und print/println; alles Übrige
   hinter der Klappzeile „Weitere Vorschläge“. Nach einem Punkt erst Attribute, dann Methoden der Klasse selbst,
@@ -221,3 +221,8 @@ GNU GPL v3, wie die Online-IDE.
   Jetzt nur nach einem Tipp ohne Wischen und nur mit Fokus im Editor.
 - Dateireiter behalten den Editor-Fokus: Ein Tipp auf einen anderen Reiter schließt die Bildschirmtastatur nicht mehr
   (pointerdown/mousedown ohne Fokuswechsel, echter Tipp wird bei touchend selbst ausgelöst; Wischen scrollt weiterhin).
+- Lernpfade liegen im Repo und damit im Webspace-Paket: Demo unter `learn/demo/Lernpfad-Bello.html` (vorher `demo/index.html`),
+  Lernpfade des Schuljahrs unter `learn/10/` (JPad-*.json mit eingebettetem Lernpfad und Lernpfad-*.html).
+  postbuild erzeugt daraus `learn/jcodes.json` (JCodes ohne PHP); `.htaccess`: Dateien in learn/ mit Cache-Control no-cache.
+- Keine Schrift-Ligaturen in Code (Editor, Dialoge, Lernpfade): `<=` bleibt `<=` statt ≤.
+- Demo zusätzlich als `learn/demo/Lernpfad-Bello.zip` (HTML + Bilder); Lernpfade in learn/10 als HTML und als JPad-JSON.

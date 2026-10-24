@@ -238,6 +238,9 @@ body { overflow-anchor: none; }
 ol.steps[start="4"] { counter-reset: s 3; }
 figure .shot[src$="hilfsleiste.jpg"] { border-radius: 8px; }
 
+
+/* Keine Ligaturen: <= soll als <= erscheinen, nicht als ≤ (JetBrains Mono) */
+body, code, pre, kbd, button, input { font-variant-ligatures: none; font-feature-settings: "calt" 0, "liga" 0; }
 </style>
 </head>
 <body>

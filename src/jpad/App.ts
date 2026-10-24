@@ -120,7 +120,7 @@ export class App {
         let firstRun = false;
         try { firstRun = !localStorage.getItem("jpadblox.welcomed") && this.store.list().length == 0; } catch (e) { }
         let linkMessage = await this.openFromLink(firstRun && !/[?&](projekt|lernpfad)=/.test(location.search)
-            ? { projekt: null, lernpfad: "demo/index.html" } : undefined);
+            ? { projekt: null, lernpfad: "learn/demo/Lernpfad-Bello.html" } : undefined);
         if (firstRun) linkMessage = linkMessage?.error ? linkMessage : undefined;   // statt „geöffnet“ kommt das Willkommen
         this.project = this.store.ensureCurrent();
 
@@ -1149,7 +1149,7 @@ export class App {
         this.closeDrawer();
         const url = new URL(location.href);
         // „neu“: immer ein neues Projekt mit frischer Kopie vom Server, nie das alte Demo-Projekt wiederverwenden
-        url.search = "?lernpfad=" + encodeURIComponent("demo/index.html") + "&neu=1";
+        url.search = "?lernpfad=" + encodeURIComponent("learn/demo/Lernpfad-Bello.html") + "&neu=1";
         setTimeout(() => location.href = url.href, 150);
     }
 
