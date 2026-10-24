@@ -226,3 +226,4 @@ GNU GPL v3, wie die Online-IDE.
   postbuild erzeugt daraus `learn/jcodes.json` (JCodes ohne PHP); `.htaccess`: Dateien in learn/ mit Cache-Control no-cache.
 - Keine Schrift-Ligaturen in Code (Editor, Dialoge, Lernpfade): `<=` bleibt `<=` statt ≤.
 - Demo zusätzlich als `learn/demo/Lernpfad-Bello.zip` (HTML + Bilder); Lernpfade in learn/10 als HTML und als JPad-JSON.
+- Vogelflug-Lernpfad: Hinweis auf extends („Ein Vogel IST EIN Sprite“) und super (kommt später) vor dem Code der Klasse Vogel, kurz auch als Kommentar im Code.
