@@ -195,3 +195,5 @@ GNU GPL v3, wie die Online-IDE.
   (dann wurde nur eine Zeile ausgeschnitten). Maßgeblich sind nur Antippen (pointerup) und ← → (eine Zeile hoch/runter);
   jede andere Auswahländerung wird zurückgesetzt. Eingefügt wird immer als ganze Zeilen vor der Ziel-/ersten markierten
   Zeile (Text ohne Zeilenumbruch am Ende bekommt einen).
+- Markier-Modus ohne Betriebssystem-Auswahl: Die markierten Zeilen pulsieren nur (keine Griffe, kein iOS-Menü), der
+  Cursor bleibt ein einfacher Cursor. „Zeile löschen“ löscht im Modus alle markierten Zeilen.

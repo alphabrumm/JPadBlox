@@ -384,7 +384,7 @@ ${rightKeys}
                 this.applyMode();
                 break;
             case "lineAdd": this.editor.insertLine(); break;
-            case "lineDelete": this.editor.deleteLine(); break;
+            case "lineDelete": if (!this.field && this.editor.marking) this.editor.deleteMarked(); else this.editor.deleteLine(); break;
             case "left": case "right": {
                 // Markier-Modus: Endzeile bzw. Einfügezeile eine Zeile nach oben/unten
                 if (!this.field && this.editor.marking) { this.editor.moveMark(action == "left" ? -1 : 1); break; }

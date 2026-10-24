@@ -439,12 +439,10 @@ export class TouchEditor {
                 if (update.docChanged || update.selectionSet) {
                     listener.onCursorActivity?.(update.state.selection.main.head);
                 }
-                if (this.marking && update.docChanged) this.mapMark(update.changes);
-                if (this.marking && (update.selectionSet || update.docChanged)
-                    && !update.transactions.some(t => t.isUserEvent("select.jpmark"))) {
-                    // Auswahl von außen verändert: gemerkte Markierung wiederherstellen
-                    // (nicht während des Updates – CodeMirror erlaubt das nicht)
-                    queueMicrotask(() => this.applyMark());
+                if (this.marking && update.docChanged) {
+                    // gemerkte Zeilen wandern mit; Anzeige danach erneuern (nicht während des Updates)
+                    this.mapMark(update.changes);
+                    if (!update.transactions.some(t => t.isUserEvent("select.jpmark"))) queueMicrotask(() => this.applyMark());
                 }
                 if (update.focusChanged) {
                     listener.onFocusChanged?.(update.view.hasFocus);
@@ -684,11 +682,10 @@ export class TouchEditor {
 
     // ------------------------------------------------ Markier-Modus (JPadBlox)
     /*
-     * Die Markierung wird nicht aus der Auswahl des Editors gelesen, sondern selbst gemerkt (Anfang der Startzeile,
-     * Anfang der Endzeile bzw. der Einfügezeile als Positionen, die bei Änderungen mitwandern). Grund: iOS verändert
-     * die Auswahl von sich aus (z. B. nach dem Einfügen aus einer anderen App oder beim Antippen eines Knopfs klappt
-     * sie auf den Anfang zusammen). Maßgeblich sind nur das Antippen einer Zeile im Code und die Pfeiltasten;
-     * jede andere Änderung der Auswahl wird auf die gemerkte Markierung zurückgesetzt.
+     * Die Markierung ist rein intern: Start-, End- bzw. Einfügezeile werden als Positionen gemerkt (sie wandern bei
+     * Änderungen mit) und nur durch Pulsieren angezeigt. Es entsteht keine Auswahl im Sinne des Betriebssystems –
+     * iOS würde sie sonst mit Griffen versehen und von sich aus verändern. Maßgeblich sind nur das Antippen einer
+     * Zeile im Code und die Pfeiltasten.
      */
 
     /** Markier-Modus aktiv */
@@ -708,8 +705,11 @@ export class TouchEditor {
         this.wireMarkTaps();
         this.marking = true;
         this.markPhase = "select";
-        this.markAnchorPos = this.markEndPos = st.doc.lineAt(st.selection.main.head).from;
+        const head = st.selection.main.head;
+        this.markAnchorPos = this.markEndPos = st.doc.lineAt(head).from;
         document.documentElement.classList.add("jp-marking");
+        // eine evtl. vorhandene Auswahl (mit Griffen) aufheben, nur der Cursor bleibt
+        if (!st.selection.main.empty) this.view.dispatch({ selection: { anchor: head }, userEvent: "select.jpmark" });
         this.applyMark();
     }
 
@@ -755,28 +755,28 @@ export class TouchEditor {
         this.applyMark();
     }
 
-    /** Gemerkte Markierung anzeigen: ganze Zeilen auswählen und pulsieren lassen */
+    /**
+     * Gemerkte Markierung anzeigen: Die Zeilen pulsieren nur. Bewusst keine Auswahl im Sinne des Betriebssystems
+     * (keine Griffe, kein iOS-Menü) – der Cursor bleibt ein einfacher Cursor.
+     */
     private applyMark() {
         if (!this.marking) return;
-        const doc = this.view.state.doc;
         if (this.markPhase == "place") {
-            const n = this.lineNo(this.placePos), line = doc.line(n);
-            const sel = this.view.state.selection.main;
-            this.view.dispatch({
-                effects: setMarkLines.of({ from: n, to: n }), userEvent: "select.jpmark",
-                selection: sel.empty && doc.lineAt(sel.head).number == n ? undefined : { anchor: line.from }
-            });
+            const n = this.lineNo(this.placePos);
+            this.view.dispatch({ effects: setMarkLines.of({ from: n, to: n }), userEvent: "select.jpmark" });
             return;
         }
         const s = this.lineNo(this.markAnchorPos), e = this.lineNo(this.markEndPos);
-        const a = Math.min(s, e), b = Math.max(s, e);
-        const anchor = e >= s ? doc.line(a).from : doc.line(b).to;
-        const head = e >= s ? doc.line(b).to : doc.line(a).from;
-        const cur = this.view.state.selection.main;
-        this.view.dispatch({
-            selection: cur.anchor == anchor && cur.head == head ? undefined : EditorSelection.single(anchor, head),
-            effects: setMarkLines.of({ from: a, to: b }), userEvent: "select.jpmark", scrollIntoView: true
-        });
+        this.view.dispatch({ effects: setMarkLines.of({ from: Math.min(s, e), to: Math.max(s, e) }), userEvent: "select.jpmark" });
+    }
+
+    /** „Zeile löschen“ im Markier-Modus: alle markierten Zeilen löschen (Modus bleibt an) */
+    deleteMarked() {
+        const { from, to } = this.markedBlock();
+        this.view.dispatch({ changes: { from, to }, selection: { anchor: from }, userEvent: "select.jpmark", scrollIntoView: true });
+        const p = this.view.state.doc.lineAt(Math.min(from, this.view.state.doc.length)).from;
+        if (this.markPhase == "place") this.placePos = p; else this.markAnchorPos = this.markEndPos = p;
+        this.applyMark();
     }
 
     /** Änderungen am Text: gemerkte Positionen mitwandern lassen (aus dem updateListener) */
