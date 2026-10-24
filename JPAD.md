@@ -202,3 +202,5 @@ GNU GPL v3, wie die Online-IDE.
   Zeilen in einen eigenen Speicher (nicht die Zwischenablage), Phase „cut“: nichts pulsiert, Editor normal (Cursor,
   Zeile einfügen/löschen, andere Reiter), Knopf blinkt weiter. „Einfügen“ setzt den Block an der Cursorstelle ein
   (in eine leere Zeile hinein, sonst davor), formatiert, Modus aus.
+- Markier-Modus: Solange der Block festgelegt wird, zeigen ← → Pfeile hoch/runter (Endzeile verschieben); nach dem
+  Ausschneiden wieder ← →.

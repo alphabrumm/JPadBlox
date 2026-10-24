@@ -348,6 +348,16 @@ ${rightKeys}
         this.el.classList.toggle("is-marking", on);
         this.el.classList.toggle("is-placing", on && this.editor.markPhase == "cut");
         this.el.querySelectorAll<HTMLElement>('[data-action="mark"]').forEach(b => b.setAttribute("aria-pressed", String(on)));
+        // Beim Festlegen des Blocks verschieben ← → die Endzeile: dann als Pfeile hoch/runter anzeigen
+        const vertical = on && this.editor.markPhase == "select";
+        if (this.el.dataset.navVertical == String(vertical)) return;
+        this.el.dataset.navVertical = String(vertical);
+        this.el.querySelectorAll<HTMLElement>('[data-action="left"], [data-action="right"]').forEach(b => {
+            const left = b.dataset.action == "left";
+            b.innerHTML = icon(vertical ? (left ? "lineUp" : "lineDown") : (left ? "left" : "right"));
+            b.setAttribute("aria-label", vertical ? (left ? "Endzeile eine Zeile nach oben" : "Endzeile eine Zeile nach unten") : (left ? "Cursor nach links" : "Cursor nach rechts"));
+            b.dataset.tip = vertical ? (left ? "Markierung: Endzeile eine Zeile nach oben" : "Markierung: Endzeile eine Zeile nach unten") : (left ? "Cursor ein Zeichen nach links" : "Cursor ein Zeichen nach rechts");
+        });
     }
 
     private async runAction(action: string) {

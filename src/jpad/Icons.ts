@@ -8,6 +8,8 @@ const paths: Record<string, string> = {
     markMode: '<path d="M9 4h6M9 20h6M12 4v16"/><path d="M4 8h2M4 12h2M4 16h2M18 8h2M18 12h2M18 16h2" stroke-opacity=".55"/>',
     cut: '<circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M8.1 14.9L18 4M15.9 14.9L6 4"/>',
     paste: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 11h6M9 15h4"/>',
+    lineUp: '<path d="M12 19V5"/><path d="M6 11l6-6 6 6"/>',
+    lineDown: '<path d="M12 5v14"/><path d="M6 13l6 6 6-6"/>',
     foldLeft: '<path d="M18 7l-5 5 5 5"/><path d="M11 7l-5 5 5 5"/>',
     foldRight: '<path d="M6 7l5 5-5 5"/><path d="M13 7l5 5-5 5"/>',
     foldUp: '<path d="M7 12l5-5 5 5"/><path d="M7 18l5-5 5 5"/>',
