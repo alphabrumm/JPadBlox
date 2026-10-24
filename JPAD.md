@@ -197,3 +197,8 @@ GNU GPL v3, wie die Online-IDE.
   Zeile (Text ohne Zeilenumbruch am Ende bekommt einen).
 - Markier-Modus ohne Betriebssystem-Auswahl: Die markierten Zeilen pulsieren nur (keine Griffe, kein iOS-Menü), der
   Cursor bleibt ein einfacher Cursor. „Zeile löschen“ löscht im Modus alle markierten Zeilen.
+- **Markier-Modus neu geschrieben** (TouchEditor, Abschnitt „Markier-Modus“): Phase „select“ – Startzeile = Cursorzeile,
+  Antippen (pointerup) bzw. ← → legt die Endzeile fest, nur Pulsieren, keine echte Auswahl. „Ausschneiden“ legt die
+  Zeilen in einen eigenen Speicher (nicht die Zwischenablage), Phase „cut“: nichts pulsiert, Editor normal (Cursor,
+  Zeile einfügen/löschen, andere Reiter), Knopf blinkt weiter. „Einfügen“ setzt den Block an der Cursorstelle ein
+  (in eine leere Zeile hinein, sonst davor), formatiert, Modus aus.

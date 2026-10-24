@@ -336,10 +336,7 @@ ${rightKeys}
         return st.sliceDoc(sel.to, st.doc.lineAt(sel.to).to).trim() == "";
     }
 
-    // ------------------------------------------------ Markier-Modus
-
-    /** Zuletzt ausgeschnittener Block (falls der Browser die Zwischenablage nicht lesen lässt) */
-    private clip = "";
+    // ------------------------------------------------ Markier-Modus (Logik in TouchEditor)
 
     private setMarking(on: boolean) {
         if (on) this.editor.startMarking(); else this.editor.stopMarking();
@@ -349,7 +346,7 @@ ${rightKeys}
     private renderMarking() {
         const on = this.editor.marking;
         this.el.classList.toggle("is-marking", on);
-        this.el.classList.toggle("is-placing", on && this.editor.markPhase == "place");
+        this.el.classList.toggle("is-placing", on && this.editor.markPhase == "cut");
         this.el.querySelectorAll<HTMLElement>('[data-action="mark"]').forEach(b => b.setAttribute("aria-pressed", String(on)));
     }
 
@@ -358,36 +355,24 @@ ${rightKeys}
             case "mark":
                 this.setMarking(!this.editor.marking);
                 break;
-            case "cutBlock": {
-                if (!this.editor.marking) break;
-                const text = this.editor.cutBlock();
-                this.clip = text;
-                try { await navigator.clipboard.writeText(text); } catch (e) { /* Rückfall: this.clip */ }
-                this.renderMarking();
-                await this.blockContext?.format();
-                break;
-            }
-            case "pasteBlock": {
-                let text: string | null = null;
-                try { text = await navigator.clipboard.readText(); } catch (e) { }
-                if (!text) text = this.clip;
-                if (text) {
-                    this.editor.pasteText(text);
-                    await this.blockContext?.format();
-                } else this.editor.stopMarking();
+            case "cutBlock":
+                if (this.editor.cutMarked()) await this.blockContext?.format();
                 this.renderMarking();
                 break;
-            }
+            case "pasteBlock":
+                if (this.editor.pasteMarked()) await this.blockContext?.format();
+                this.renderMarking();
+                break;
             case "mode":
                 this.mode = this.mode == "blocks" ? "chars" : "blocks";
                 try { localStorage.setItem("jpadblox.barMode", this.mode); } catch (e) { }
                 this.applyMode();
                 break;
             case "lineAdd": this.editor.insertLine(); break;
-            case "lineDelete": if (!this.field && this.editor.marking) this.editor.deleteMarked(); else this.editor.deleteLine(); break;
+            case "lineDelete": if (this.field || !this.editor.deleteMarked()) this.editor.deleteLine(); break;
             case "left": case "right": {
                 // Markier-Modus: Endzeile bzw. Einfügezeile eine Zeile nach oben/unten
-                if (!this.field && this.editor.marking) { this.editor.moveMark(action == "left" ? -1 : 1); break; }
+                if (!this.field && this.editor.moveMarkEnd(action == "left" ? -1 : 1)) break;
                 const v = this.target, d = action == "left" ? -1 : 1;
                 const head = Math.max(0, Math.min(v.state.doc.length, v.state.selection.main.head + d));
                 v.dispatch({ selection: { anchor: head }, scrollIntoView: true });
