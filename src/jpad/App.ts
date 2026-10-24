@@ -421,7 +421,7 @@ export class App {
                 <a href="https://www.online-ide.de" target="_blank" rel="noopener">Online-IDE</a> von Martin Pabst.
                 Compiler und Programmiersprache stammen unverändert aus der Online-IDE.
                 Deine Projekte bleiben auf diesem Gerät, bis du sie als Datei sicherst.
-                Lizenz: GNU GPL v3 · <a href="https://github.com/alphabrumm/JPadBlox" target="_blank" rel="noopener">Quellcode</a></p>
+                Lizenz: GNU GPL v3 · <a href="https://github.com/alphabrumm/jpad" target="_blank" rel="noopener">Quellcode</a></p>
                 <p class="jp-version">Version ${typeof APP_VERSION != "undefined" ? APP_VERSION : ""}</p>
             </div>
         </aside>

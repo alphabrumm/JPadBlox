@@ -1,4 +1,4 @@
-name: JPad (Bausteine) bauen und veröffentlichen
+name: JPad bauen und veröffentlichen
 on:
   workflow_dispatch:
   push:
@@ -22,14 +22,14 @@ jobs:
       # Zum Herunterladen für den eigenen Webspace
       - uses: actions/upload-artifact@v4
         with: { name: j-pad-webspace, path: dist-jpad, include-hidden-files: true, retention-days: 30 }
-      # JPadBlox: ZIP für den eigenen Webspace zusätzlich im Zweig „webspace-build“ ablegen
+      # ZIP für den eigenen Webspace zusätzlich im Zweig „webspace-build“ ablegen
       # (lässt sich ohne Anmeldung per git holen; der Zweig enthält immer nur das neueste ZIP)
       - name: Webspace-ZIP im Zweig webspace-build ablegen
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          (cd dist-jpad && zip -qr "$RUNNER_TEMP/JPadBlox-webspace.zip" .)
-          mkdir -p "$RUNNER_TEMP/wb" && cp "$RUNNER_TEMP/JPadBlox-webspace.zip" "$RUNNER_TEMP/wb/"
+          (cd dist-jpad && zip -qr "$RUNNER_TEMP/JPad-webspace.zip" .)
+          mkdir -p "$RUNNER_TEMP/wb" && cp "$RUNNER_TEMP/JPad-webspace.zip" "$RUNNER_TEMP/wb/"
           cd "$RUNNER_TEMP/wb"
           echo "${GITHUB_SHA}" > COMMIT.txt
           git init -q -b webspace-build
