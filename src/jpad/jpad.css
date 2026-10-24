@@ -3172,3 +3172,7 @@ html.jp-marking .jp-editor .cm-content { animation: jp-caret-fast 0.5s steps(1) 
 .jp-skin-swatch { background: transparent; box-shadow: none; }
 /* Nach dem Ausschneiden: Einfügestelle antippen, dann „Einfügen“ (Ausschneiden ist dann aus) */
 .jp-keybar.is-placing [data-action="cutBlock"] { display: none !important; }
+
+/* Hilfsleiste: Der scrollbare Bereich schnitt den Schatten unter den Tasten ab (Standard, Hund, Schaf) –
+   2 px Platz darunter, links genauso, damit alle Tasten gleich hoch bleiben */
+.jp-keybar-main, .jp-keybar > .jp-keybar-fixed.is-left { padding-bottom: 2px; }
