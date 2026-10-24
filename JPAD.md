@@ -219,3 +219,5 @@ GNU GPL v3, wie die Online-IDE.
 - Scroll-Fehler behoben: Nach einem Wischen im Editor (Tastatur zu) holte eine verzögerte „Cursor sichtbar machen“-Korrektur
   (gedacht für den Tipp, der die Tastatur öffnet) den Cursor zurück – der Editor sprang am Ende des Schwungs nach oben.
   Jetzt nur nach einem Tipp ohne Wischen und nur mit Fokus im Editor.
+- Dateireiter behalten den Editor-Fokus: Ein Tipp auf einen anderen Reiter schließt die Bildschirmtastatur nicht mehr
+  (pointerdown/mousedown ohne Fokuswechsel, echter Tipp wird bei touchend selbst ausgelöst; Wischen scrollt weiterhin).

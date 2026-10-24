@@ -460,6 +460,30 @@ export class App {
         this.root.querySelectorAll<HTMLElement>(".jp-topbar button.jp-iconbtn:not([data-ref=menuBtn]):not([data-ref=saveBtn])")
             .forEach(b => b.addEventListener("pointerdown", e => e.preventDefault()));
 
+        // Dateireiter: Ein Tipp auf einen anderen Reiter nimmt dem Editor den Fokus nicht weg – die Bildschirm-
+        // tastatur bleibt offen. Wischen zum Scrollen der Reiterleiste bleibt erhalten (nur ein echter Tipp zählt).
+        {
+            const tabs = this.el.fileTabs;
+            for (const ev of ["pointerdown", "mousedown"]) tabs.addEventListener(ev, e => {
+                if ((<HTMLElement>e.target).closest(".jp-filetab")) e.preventDefault();
+            });
+            let tap: { b: HTMLElement, x: number, y: number, moved: boolean } | null = null;
+            tabs.addEventListener("touchstart", e => {
+                const b = (<HTMLElement>e.target).closest<HTMLElement>(".jp-filetab");
+                tap = b && e.touches.length == 1 ? { b, x: e.touches[0].clientX, y: e.touches[0].clientY, moved: false } : null;
+            }, { passive: true });
+            tabs.addEventListener("touchmove", e => {
+                const t = e.touches[0];
+                if (tap && t && Math.hypot(t.clientX - tap.x, t.clientY - tap.y) > 10) tap.moved = true;
+            }, { passive: true });
+            tabs.addEventListener("touchend", e => {
+                const t = tap; tap = null;
+                if (!t || t.moved) return;
+                e.preventDefault();   // keine nachgereichten Maus-Ereignisse, kein Fokuswechsel
+                t.b.click();
+            }, { passive: false });
+        }
+
         // ----- Ansichten -----
         this.root.querySelectorAll<HTMLElement>(".jp-bottomnav [data-view]").forEach(b => {
             b.addEventListener("click", () => this.setView(<View>b.dataset.view));
@@ -928,8 +952,11 @@ export class App {
                 + (errors > 0 ? `<span class="jp-badge">${errors}</span>` : "")
                 + (file == active ? `<span class="jp-filetab-more" aria-label="Datei-Aktionen">${icon("more")}</span>` : "");
             b.addEventListener("click", () => {
-                if (file == this.main.getActiveFile()) this.fileActions(file);
-                else this.main.setFileActive(file);
+                if (file == this.main.getActiveFile()) { this.fileActions(file); return; }
+                const hadFocus = this.editor?.view.hasFocus;
+                this.main.setFileActive(file);
+                // Tastatur offen lassen: Fokus nach dem Dateiwechsel im Editor behalten
+                if (hadFocus && !this.editor.view.hasFocus) this.editor.view.focus();
             });
             container.appendChild(b);
         }
