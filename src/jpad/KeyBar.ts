@@ -92,7 +92,7 @@ export class KeyBar {
 ${navKeys}
             </div>
             <div class="jp-keybar-markextra">
-                <button data-action="colToggle" class="jp-colswitch" role="switch" aria-checked="false" aria-label="Spalten statt Zeilen markieren" data-tip="Kippschalter: ganze Zeilen markieren oder nur Spalten (ein Rechteck – mit dem Finger aufziehen)"><span class="jp-colswitch-a">Zeilen</span><span class="jp-colswitch-track"><i></i></span><span class="jp-colswitch-b">Spalten</span></button>
+                <button data-action="colToggle" class="jp-colswitch" role="switch" aria-checked="false" aria-label="Spalten statt Zeilen markieren" data-tip="Kippschalter: ganze Zeilen markieren oder nur Spalten (ein Rechteck – mit dem Finger aufziehen)"><span class="jp-seg jp-seg-rows">${icon("selRows")}<span>Zeilen</span></span><span class="jp-seg jp-seg-cols">${icon("selCols")}<span>Spalten</span></span></button>
             </div>
             <div class="jp-keybar-main">
             <div class="jp-keybar-scroll">
@@ -238,8 +238,18 @@ ${rightKeys}
                     if (el.scrollTop) el.scrollTop = 0;
                 }
             };
+            /*
+             * Nur nach einem Tipp (der die Tastatur öffnet) – nicht nach einem Wischen zum Scrollen: Sonst sprang
+             * der Editor nach einem Schwung am Ende des Scrollens zurück zum Cursor (meist ganz nach oben).
+             */
+            let startX = 0, startY = 0;
+            this.editor.view.dom.addEventListener("touchmove", e => {
+                const t = e.touches[0];
+                if (t && Math.hypot(t.clientX - startX, t.clientY - startY) > 10) clearTimeout(lateTimer);
+            }, { capture: true, passive: true });
             this.editor.view.dom.addEventListener("touchstart", e => {
                 if (e.touches.length != 1 || document.documentElement.classList.contains("keyboard-open")) return;
+                startX = e.touches[0].clientX; startY = e.touches[0].clientY;
                 clearTimeout(lateTimer);
                 lateTimer = setTimeout(() => {
                     // 1. Den von iOS nach oben geschobenen Ausschnitt zurück an den Seitenanfang
@@ -255,7 +265,7 @@ ${rightKeys}
                             if (vv.offsetTop > 1 || window.scrollY > 1) resetScroll();
                             update(true);
                             this.editor.view.requestMeasure();
-                            requestAnimationFrame(() => requestAnimationFrame(() => this.editor.revealCursorInside()));
+                            requestAnimationFrame(() => requestAnimationFrame(() => { if (this.editor.view.hasFocus) this.editor.revealCursorInside(); }));
                         }, 350);
                     }));
                 }, 500);

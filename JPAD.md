@@ -214,3 +214,8 @@ GNU GPL v3, wie die Online-IDE.
   pulsierende Ebene (auch über kurzen/leeren Zeilen). „Zeile löschen“ löscht nur das Rechteck. Einfügen eines
   Spaltenblocks ab der Cursorspalte in die folgenden Zeilen (kurze Zeilen mit Leerzeichen aufgefüllt, fehlende Zeilen
   angehängt), ohne anschließendes Formatieren.
+- Umschalter „Zeilen | Spalten“ als Segment-Schalter im Stil der Tasten (Mulde, gewähltes Feld erhaben; Flat/Hacker/Pink:
+  farbig umrandet), mit Symbolen; auf dem iPhone nur Symbole.
+- Scroll-Fehler behoben: Nach einem Wischen im Editor (Tastatur zu) holte eine verzögerte „Cursor sichtbar machen“-Korrektur
+  (gedacht für den Tipp, der die Tastatur öffnet) den Cursor zurück – der Editor sprang am Ende des Schwungs nach oben.
+  Jetzt nur nach einem Tipp ohne Wischen und nur mit Fokus im Editor.

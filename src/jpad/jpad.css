@@ -3198,26 +3198,29 @@ html:not(.phone) .jp-app[data-layout="tabs"] .jp-keybar .jp-keybar-fixed.is-righ
 /* Kippschalter rechts vom Trennstrich – nur beim Festlegen der Markierung */
 .jp-keybar-markextra { display: none; align-items: center; padding: 0 6px; flex: none; }
 .jp-keybar.is-marking:not(.is-placing) .jp-keybar-markextra { display: flex; }
+/* Umschalter als Segment-Schalter im Stil der Tasten: Mulde mit zwei Feldern, das gewählte Feld ist eine
+   erhabene Taste (Standard, Hund, Schaf) bzw. ein farbig umrandetes Feld (Flat, Hacker, Pink) */
 .jp-keybar button.jp-colswitch {
-    display: inline-flex; align-items: center; gap: 10px; width: auto; min-width: 0; padding: 0 14px;
-    font-family: var(--font-ui); font-size: 15px; font-weight: 600; color: var(--ink-2);
+    display: inline-flex; align-items: stretch; gap: 0; width: auto; min-width: 0; padding: 3px;
+    font-family: var(--font-ui); font-size: 14.5px; font-weight: 600; letter-spacing: .01em;
+    background: color-mix(in srgb, var(--ink-2) 13%, transparent); box-shadow: inset 0 1px 2px rgba(0, 0, 0, .12);
+    color: var(--ink-2);
 }
-.jp-colswitch-track {
-    position: relative; width: 46px; height: 26px; border-radius: 13px; flex: none;
-    background: color-mix(in srgb, var(--ink-2) 28%, transparent); transition: background .18s;
+.jp-keybar button.jp-colswitch:active, .jp-keybar button.jp-colswitch.is-pressed { background: color-mix(in srgb, var(--ink-2) 18%, transparent); color: var(--ink-2); }
+.jp-colswitch .jp-seg {
+    display: inline-flex; align-items: center; gap: 7px; padding: 0 13px 0 10px;
+    border-radius: calc(var(--radius-s) - 3px); transition: background .18s, color .18s, box-shadow .18s;
 }
-.jp-colswitch-track i {
-    position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%;
-    background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .18s;
+.jp-colswitch .jp-seg .jp-icon { width: 19px; height: 19px; }
+.jp-colswitch[aria-checked="false"] .jp-seg-rows,
+.jp-colswitch[aria-checked="true"] .jp-seg-cols { background: var(--surface); color: var(--accent); box-shadow: 0 1px 0 rgba(0, 0, 0, .18), 0 1px 3px rgba(0, 0, 0, .08); }
+:root[data-effective="dark"] .jp-keybar button.jp-colswitch { background: rgba(0, 0, 0, .28); box-shadow: inset 0 1px 2px rgba(0, 0, 0, .3); }
+:root:is([data-skin="flat"], [data-skin="hacker"], [data-skin="pink"]) .jp-keybar button.jp-colswitch { background: transparent; box-shadow: none; }
+:root:is([data-skin="flat"], [data-skin="hacker"], [data-skin="pink"]) .jp-colswitch[aria-checked="false"] .jp-seg-rows,
+:root:is([data-skin="flat"], [data-skin="hacker"], [data-skin="pink"]) .jp-colswitch[aria-checked="true"] .jp-seg-cols {
+    background: color-mix(in srgb, var(--accent) 16%, transparent); box-shadow: inset 0 0 0 1.5px var(--accent);
 }
-.jp-colswitch[aria-checked="true"] .jp-colswitch-track { background: var(--accent); }
-.jp-colswitch[aria-checked="true"] .jp-colswitch-track i { transform: translateX(20px); }
-.jp-colswitch[aria-checked="false"] .jp-colswitch-a,
-.jp-colswitch[aria-checked="true"] .jp-colswitch-b { color: var(--ink); }
-.jp-colswitch[aria-checked="false"] .jp-colswitch-b,
-.jp-colswitch[aria-checked="true"] .jp-colswitch-a { opacity: .55; font-weight: 500; }
-html.phone .jp-colswitch-a, html.phone .jp-colswitch-b { font-size: 13px; }
-html.phone .jp-keybar button.jp-colswitch { padding: 0 8px; gap: 6px; }
+:root[data-skin="flat"][data-effective="dark"] .jp-colswitch .jp-seg { color: #fff; }
 /* Pulsierendes Rechteck (Spaltenmodus) */
 .jp-markrect-layer .jp-markrect {
     border-radius: 3px; animation: jp-mark-pulse 1.3s ease-in-out infinite;
@@ -3229,7 +3232,7 @@ html.phone .jp-keybar button.jp-colswitch { padding: 0 8px; gap: 6px; }
 html.jp-marking-cols .jp-editor :is(.cm-scroller, .cm-content) { touch-action: none; -webkit-user-select: none; user-select: none; }
 html.jp-marking-cols .jp-editor .cm-content { caret-color: transparent; animation: none; }
 html.jp-marking-cols .jp-editor .cm-cursorLayer { display: none; }
-/* iPhone: Kippschalter schmaler – nur der gewählte Name steht neben dem Schalter */
-html.phone .jp-colswitch[aria-checked="false"] .jp-colswitch-b,
-html.phone .jp-colswitch[aria-checked="true"] .jp-colswitch-a { display: none; }
+/* iPhone: Umschalter schmaler – nur die Symbole */
+html.phone .jp-colswitch .jp-seg > span { display: none; }
+html.phone .jp-colswitch .jp-seg { padding: 0 10px; }
 html.phone .jp-keybar-markextra { padding: 0 4px; }
