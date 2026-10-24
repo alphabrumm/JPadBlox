@@ -3176,3 +3176,7 @@ html.jp-marking .jp-editor .cm-content { animation: jp-caret-fast 0.5s steps(1) 
 /* Hilfsleiste: Der scrollbare Bereich schnitt den Schatten unter den Tasten ab (Standard, Hund, Schaf) –
    2 px Platz darunter, links genauso, damit alle Tasten gleich hoch bleiben */
 .jp-keybar-main, .jp-keybar > .jp-keybar-fixed.is-left { padding-bottom: 2px; }
+/* iPad hochkant (Reiter-Layout): Haltepunkt, Info und Tastatur-Knopf scrollen mit den Zeichen mit
+   (Kopien am Ende der Reihe), damit mehr Zeichen Platz haben; links bleibt alles fest */
+html:not(.phone) .jp-app[data-layout="tabs"] .jp-keybar .jp-phone-right { display: contents; }
+html:not(.phone) .jp-app[data-layout="tabs"] .jp-keybar .jp-keybar-fixed.is-right { display: none; }

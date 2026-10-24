@@ -204,3 +204,5 @@ GNU GPL v3, wie die Online-IDE.
   (in eine leere Zeile hinein, sonst davor), formatiert, Modus aus.
 - Markier-Modus: Solange der Block festgelegt wird, zeigen ← → Pfeile hoch/runter (Endzeile verschieben); nach dem
   Ausschneiden wieder ← →.
+- **Hilfsleiste iPad hochkant**: Haltepunkt, Info und Tastatur-Knopf scrollen mit den Zeichen mit (stehen am Ende der
+  Reihe); links bleiben Cursor-, Markier- und Zeilen-Knöpfe fest. iPad quer unverändert.

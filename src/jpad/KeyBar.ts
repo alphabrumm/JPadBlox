@@ -92,12 +92,12 @@ ${navKeys}
             <div class="jp-keybar-scroll">
                 <span class="jp-phone-only jp-phone-group">${navKeys}</span>
                 ${KEYS.map((k, i) => `<button data-key="${i}" ${k.noField ? "data-nofield" : ""} ${k.aria ? `aria-label="${k.aria}"` : ""} ${k.tip ? `data-tip="${k.tip.replace(/"/g, "&quot;")}"` : ""} ${k.help ? `data-help="${k.help}"` : ""}>${k.label}</button>`).join("")}
-                <span class="jp-phone-only jp-phone-group">${rightKeys}</span>
+                <span class="jp-phone-only jp-phone-group jp-phone-right">${rightKeys}</span>
             </div>
             <div class="jp-keybar-scroll jp-blocks-scroll">
                 <span class="jp-phone-only jp-phone-group">${navKeys}</span>
                 ${blockRowHtml()}
-                <span class="jp-phone-only jp-phone-group">${rightKeys}</span>
+                <span class="jp-phone-only jp-phone-group jp-phone-right">${rightKeys}</span>
             </div>
             <div class="jp-keybar-fixed is-right">
 ${rightKeys}
